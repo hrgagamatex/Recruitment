@@ -39,3 +39,7 @@ Unggah seluruh isi folder proyek ini ke repository `hrgagamatex/Recruitment`. Pa
 ## Catatan
 
 Versi ini menyimpan jawaban mentah. Rumus penilaian kepribadian belum ditambahkan karena kunci penilaian belum tersedia.
+
+## Perbaikan login
+
+Jika muncul pesan `function digest(text, unknown) does not exist`, jalankan isi file `supabase/update-01-fix-login.sql` melalui SQL Editor. Tidak perlu mengunggah ulang web ke Cloudflare.
