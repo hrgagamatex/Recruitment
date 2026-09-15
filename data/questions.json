@@ -1,0 +1,1308 @@
+{
+  "test1": [
+    {
+      "id": "t1-1",
+      "number": 1,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya seorang pekerja keras",
+        "Saya bukan seorang pemurung"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-2",
+      "number": 2,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka bekerja lebih baik dari orang lain",
+        "Saya suka mengerjakan apa yang sedang saya kerjakan sampai selesai"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-3",
+      "number": 3,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka menunjukan caranya melaksanakan sesuatu hal",
+        "Saya ingin bekerja sebaik mungkin"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-4",
+      "number": 4,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka berkelakar",
+        "Saya senang mengatakan kepada orang lain, apa yang harus dilakukan"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-5",
+      "number": 5,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka menggabungkan diri dengan kelompok-kelompok",
+        "Saya suka diperhatikan oleh kelompok-kelompok"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-6",
+      "number": 6,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya senang bersahabat intim dengan seseorang",
+        "Saya senang bersahabat dengan sekelompok orang"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-7",
+      "number": 7,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya cepat berubah bila hal itu diperlukan",
+        "Saya berusaha untuk intim dengan teman-teman"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-8",
+      "number": 8,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka membalas dendam bila saya benar-benar disakiti",
+        "Saya suka melakukan hal-hal yang baru dan berbeda"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-9",
+      "number": 9,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya ingin atasan saya menyukai saya",
+        "Saya suka mengatakan kepada orang lain bila mereka salah"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-10",
+      "number": 10,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka mengikuti perintah-perintah yang diberikan kepada saya",
+        "Saya suka menyenangkan hati orang yang memimpin saya"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-11",
+      "number": 11,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya mencoba sekuat tenaga",
+        "Saya seorang yang tertib, saya meletakan segala sesuatu pada tempatnya"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-12",
+      "number": 12,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya membuat orang lain melakukan apa yang saya inginkan",
+        "Saya bukan orang yang cepat gusar"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-13",
+      "number": 13,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka mengatakan kepada kelompok, apa yang harus saya lakukan",
+        "Saya menekuni satu pekerjaan sampai selesai"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-14",
+      "number": 14,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya ingin tampak bersemangat dan menarik",
+        "Saya ingin menjadi sangat sukses"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-15",
+      "number": 15,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka menyesuaikan diri dengan kelompok",
+        "Saya suka membantu orang lain menentukan pendapatnya"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-16",
+      "number": 16,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya cemas kalau orang lain tidak menyukai saya",
+        "Saya sengan kalau orang-orang memperhatikan saya"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-17",
+      "number": 17,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka mencoba sesuatu yang baru",
+        "Saya lebih suka bekerja bersama orang-orang daripada bekerja sendiri"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-18",
+      "number": 18,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Kadang-kadang saya menyalahkan orang lain bila terjadi sesuatu kesalahan",
+        "saya cemas bila seseorang tidak menyukai saya"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-19",
+      "number": 19,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka menyenangkan hati orang yang memimpin syaa",
+        "Saya suka mencoba pekerjaan-pekerjaan yang baru dan berbeda"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-20",
+      "number": 20,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka petunjuk yang terinci untuk melakukan sesuatu pekerjaan",
+        "Saya suka mengatakan kepada orang lain bila mereka mengganggu saya"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-21",
+      "number": 21,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka mencoba sekuat tenaga",
+        "Saya senang bekerja dengan sangat cermat dan hati-hati"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-22",
+      "number": 22,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya seorang pemimpin yang baik",
+        "Saya mengorganisir tugas-tugas secara baik"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-23",
+      "number": 23,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya mudah menjadi gusar",
+        "Saya seorang yang lambat dalam membuat keputusan"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-24",
+      "number": 24,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya senang mengerjakan beberapa pekerjaan pada wkatu bersamaan",
+        "Bila dalam kelompok, saya lebih suka diam"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-25",
+      "number": 25,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya senang bila diundang",
+        "Saya ingin melakukan sesuatu lebih baik dari orang lain"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-26",
+      "number": 26,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka berteman intim dengan teman-teman saya",
+        "Saya suka memberi nasehat kepada orang lain"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-27",
+      "number": 27,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka melakukan hal-hal yang baru dan berbeda",
+        "Saya suka menceritakan keberhasilan saya dalam mengerjakan tugas"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-28",
+      "number": 28,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Bila saya benar, saya suka mempertahankannya mati-matian",
+        "Saya suka bergabung ke dalam suatu kelompok"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-29",
+      "number": 29,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya tidak mau berbeda dengan orang lain",
+        "Saya berusaha untuk sangat intim dengan orang-orang"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-30",
+      "number": 30,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka diajari mengenai caranya mengerjakan suatu pekerjaan",
+        "Saya mudah merasa jemu atau bosan"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-31",
+      "number": 31,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka ekerja keras",
+        "Saya banyak berfikir dan berencana"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-32",
+      "number": 32,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka memimpin kelompok",
+        "Hal-hal yang kecil atau detail sangat menarik hati saya"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-33",
+      "number": 33,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya cepat dan mudah mengambil keputusan",
+        "Saya meletakan segala sesuatu secara rapih dan teratur"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-34",
+      "number": 34,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Tugas-tugas saya kerjakan secara cepat",
+        "Saya jarang marah atau sedih"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-35",
+      "number": 35,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya ingin menjadi bagian dari kelompok",
+        "Pada suatu waktu tertentu, saya hanya ingin mengerjakan satu tugas saja"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-36",
+      "number": 36,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya berusaha untuk intim dengan teman-teman saya",
+        "Saya berusaha keras untuk menjadi yang terbaik"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-37",
+      "number": 37,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya menyukai mode baju baru dan tipe-tipe mobil baru",
+        "Saya ingin menjadi penanggung jawab bagi orang-orang lain"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-38",
+      "number": 38,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka berdebat",
+        "Saya ingin diperhatikan"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-39",
+      "number": 39,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka menyenangkan hati orang yang memimpin saya",
+        "Saya tertarik menjadi anggota dari suatu kelompok"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-40",
+      "number": 40,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya senang mengikuti aturan secara tertib",
+        "Saya suka orang -orang mengenal saya dengan benar"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-41",
+      "number": 41,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya mencoba sekuat tenaga",
+        "Saya sangat menyenangkan"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-42",
+      "number": 42,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Orang lain beranggapan bahwa saya adalah seorang pemimpin yang baik",
+        "Saya berfikir jauh ke depan dan terinci"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-43",
+      "number": 43,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Seringkali saya memanfaatkan peluang",
+        "Saya senang memperhatkan hal-hal sampai sekecil-kecilnya"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-44",
+      "number": 44,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Orang lain menganggap saya bekerja cepat",
+        "Orang lain menganggap saya dapat melakukan penataan yang rapih dan teratur"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-45",
+      "number": 45,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya menyukai permainan-permainan dan olah raga",
+        "Saya sangat menyenangkan"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-46",
+      "number": 46,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya senang bila orang-orang dapat intim dan bersahabat",
+        "Saya selalu berusaha menyelesaikan apa yang telah saya mulai"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-47",
+      "number": 47,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka bereksperimen dan mencoba sesuatu yang baru",
+        "Saya duka mengerjakan pekerjaan-pekerjaan yang sulit dengan baik"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-48",
+      "number": 48,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya senang diperlakukan secara adil",
+        "Saya senang mengajari orang lain bagaimana caranya mengerjakan sesuatu"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-49",
+      "number": 49,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka mengerjakan apa yang diharapkan dari saya",
+        "Saya suka menarik perhatian"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-50",
+      "number": 50,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka petunjuk-petunjuk terinci dalam melaksanakan suatu pekerjaan",
+        "Saya senang berada bersama dengan orang-orang lain"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-51",
+      "number": 51,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "saya selalu berusaha mengerjakan tugas secara sempurna",
+        "Orang lain menganggap, saya tidak mengenal lelah, dalam bekerja sehari-hari"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-52",
+      "number": 52,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya tergolong tipe pemimpin",
+        "Saya mudah berteman"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-53",
+      "number": 53,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya memanfaatkan peluang-peluang",
+        "Saya banyak berfikir"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-54",
+      "number": 54,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya bekerja dengan kecepatan yang mantap dan cepat",
+        "Saya senang mengerjakan hal-hal detail"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-55",
+      "number": 55,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya memiliki banyak energi untuk permainan-permainan dan olah raga",
+        "Saya menempatkan segala sesuatunya secara rapih dan teratur"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-56",
+      "number": 56,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya bergaul baik dengan semua orang",
+        "Saya pandai mengendalikan diri"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-57",
+      "number": 57,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya ingin berkenalan dengan orang-orang baru dan mengerjakan hal baru",
+        "Saya selalu ingin menyelesaikan pekerjaan yang sudah saya mulai"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-58",
+      "number": 58,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Biasanya saya bersikeras mengenai apa yang saya yakini",
+        "Biasanya saya suka bekerja keras"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-59",
+      "number": 59,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka menyukai saran-saran dari orang yang saya kagumi",
+        "Saya senang mengatur orang lain"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-60",
+      "number": 60,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya biarkan orang-orang lain mempengaruhi saya",
+        "Saya suka menerima banyak perhatian"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-61",
+      "number": 61,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Biasanya saya bekerja sangat keras",
+        "Biasanya saya bekerja cepat"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-62",
+      "number": 62,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Bila saya berbicara, kelompok akan mendengarkan",
+        "Saya terampil mempergunakan alat-alat kerja"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-63",
+      "number": 63,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya lambat membina persahabatan",
+        "Saya lambat dalam mengambil keputusan"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-64",
+      "number": 64,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Biasanya saya makan secara cepat",
+        "Saya suka membaca"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-65",
+      "number": 65,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya menyukai pekerjaan yang memungkinkan saya berkeliling",
+        "Saya menyukai pekerjaan yang harus dilakukan secara teliti"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-66",
+      "number": 66,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya berteman sebanyak mungkin",
+        "Saya dapat menemukan hal-hal yang telah saya pindahkan"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-67",
+      "number": 67,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Perencanaan saya jauh ke masa depan",
+        "Saya selalu menyenangkan"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-68",
+      "number": 68,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya merasa bangga akan nama baik saya",
+        "Saya tetap menekuni satu permasalahan sampai ia terselesaikan"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-69",
+      "number": 69,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka menyenangkan hati orang-orang yang saya kagumi",
+        "Saya suka menjadi orang yang berhasil"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-70",
+      "number": 70,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya senang bila orang-orang lain mengambil keputusan untuk kelompok",
+        "Saya suka mengambil keputusan untuk kelompok"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-71",
+      "number": 71,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya selalu berusaha sangat keras",
+        "Saya cepat dan mudah mengambil keputusan"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-72",
+      "number": 72,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Biasanya kelompok saya mengerjakan hal-hal yang saya inginkan",
+        "Biasanya saya tergesa-gesa"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-73",
+      "number": 73,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya seringkali merasa lelah",
+        "Saya lambat dalam mengambil keputusan"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-74",
+      "number": 74,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya bekerja secara cepat",
+        "Saya mudah mendapat kawan"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-75",
+      "number": 75,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Biasanya saya bersemangat atau bergairah",
+        "Sebagian besar waktu saya untuk berpikir"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-76",
+      "number": 76,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya sangat hangat kepada orang-orang",
+        "Saya menyukai pekerjaan yang menuntut ketepatan"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-77",
+      "number": 77,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya banyak berpikir dan merencana",
+        "Saya meletakan segala sesuatu pada tempatnya"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-78",
+      "number": 78,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka tugas yang perlu ditekuni sampai kepada hal sedetilnya",
+        "Saya tidak cepat marah"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-79",
+      "number": 79,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya senang mengikuti orang-orang yang saya kagumi",
+        "Saya selalu menyelesaikan pekerjaan yang saya mulai"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-80",
+      "number": 80,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya menyukai petunjuk-petunjuk yang jelas",
+        "Saya suka bekerja keras"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-81",
+      "number": 81,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya mengejar apa yang saya inginkan",
+        "Saya adalah seorang pemimpin yang baik"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-82",
+      "number": 82,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya membuat orang lain bekerja keras",
+        "Saya adalah seorang yang \"gampangan\" (tidak banyak pertimbanagan)"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-83",
+      "number": 83,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya membuat keputusan-keputusan secara cepat",
+        "Bicara saya cepat"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-84",
+      "number": 84,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Biasanya saya bekerja tergesa-gesa",
+        "Secara teratur saya berolah raga"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-85",
+      "number": 85,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya tidak suka bertemu dengan orang-orang",
+        "Saya cepat lelah"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-86",
+      "number": 86,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya mempunyai banyak sekali teman",
+        "Banyak waktu saya untuk berpikir"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-87",
+      "number": 87,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka bekerja dengan teori",
+        "Saya suka bekerja sedetil-detilnya"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-88",
+      "number": 88,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya suka bekeja sampai sedtil-detilnya",
+        "Saya suka mengorganisasi pekerja saya"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-89",
+      "number": 89,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya meletakkan segala sesuatu pata tempatnya",
+        "Saya selalu menyenangkan"
+      ],
+      "duration": 15
+    },
+    {
+      "id": "t1-90",
+      "number": 90,
+      "type": "paired_choice",
+      "prompt": "Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.",
+      "options": [
+        "Saya senang diberi petunjuk mengenai apa yang harus saya lakukan",
+        "Saya harus menyelesaikan apa yang sudah saya mulai"
+      ],
+      "duration": 15
+    }
+  ],
+  "test2": [
+    {
+      "id": "t2-1",
+      "number": 1,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Mudah bergaul, ramah",
+        "Penuh Kepercayaan, percaya pada orang lain",
+        "Petualangan, Pengambil Resiko",
+        "Toleran, Penuh Hormat"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-2",
+      "number": 2,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Yang penting adalah hasil",
+        "Melakukan dengan benar, ketepatan dihitung",
+        "Buat menjadi menyenangkan",
+        "Mari melakukan bersama"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-3",
+      "number": 3,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Pendidikan, Kebudayaan",
+        "Pencapaian, Penghargaan",
+        "Keselamatan, Keamanan",
+        "Sosial, Pertemuan kelompok"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-4",
+      "number": 4,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Lembut , Pendiam",
+        "Optimis, Penghayal",
+        "Pusat perhatian, mudah bersosialiasi",
+        "Suka mendamaikan, membawa ketenangan"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-5",
+      "number": 5,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Akan melakukan tanpa kontrol diri",
+        "Akan membeli berdasarkan hasrat",
+        "Akan menunggu, tidak ada tekanan",
+        "Akan membelanjakan apa yang saya inginkan"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-6",
+      "number": 6,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Bertanggung jawab, pendekatan langsung",
+        "Mudah bergaul, Antusias",
+        "Mudah ditebak, konsisten",
+        "Waspada, berhati-hati"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-7",
+      "number": 7,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Mendorong orang lain",
+        "Berjuang demi kesempurnaan",
+        "Menjadi bagian tim",
+        "Ingin mencapai tujuan"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-8",
+      "number": 8,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Ramah, mudah berteman",
+        "Unik, bosan dengan rutinitas",
+        "Aktif merubah sesuatu hal",
+        "Menginginkan sesuatu yang pasti"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-9",
+      "number": 9,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Tidak mudah dikalahkan",
+        "Melakukan sesuai perintah, mengikuti pimpinan",
+        "Riang, ceria",
+        "Ingin segalanya teratur, rapi"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-10",
+      "number": 10,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Menjadi Frustasi",
+        "Memendam perasaan dalam hati",
+        "Menceritakan sisi kehidupan",
+        "Berpihak pada oposisi"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-11",
+      "number": 11,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Non Konfrontasi, Mengalah",
+        "Penuh dengan rincian",
+        "Perubahan pada menit terakhir",
+        "Penuntut, Pemarah"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-12",
+      "number": 12,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Saya akan pimpin mereka",
+        "Saya akan mengikuti mereka",
+        "Saya akan bujuk mereka",
+        "Saya akan mendapatkan faktanya"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-13",
+      "number": 13,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Hidup, Cerewet",
+        "Bekerja dengan cepat, tekup",
+        "Mencoba mempertahankan keseimbangan",
+        "Mencoba mengikuti aturan"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-14",
+      "number": 14,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Menginginkan kemajuan",
+        "Puas dengan beberapa hal, mudah puas",
+        "Menggambarkan perasaan secara terbuka",
+        "Rendah hati, sederhana"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-15",
+      "number": 15,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Memikirkan orang lain dahulu",
+        "Kompetitif, Menyukai tantangan",
+        "Optimis, Positif",
+        "Berpikir logis, Sistimatis"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-16",
+      "number": 16,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Mengatur waktu secara efisien",
+        "Sering terburu-buru, merasa tertekan",
+        "Hal-hal Sosial merupakan hal penting",
+        "Menyelesaikan apa yang telah dimulai"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-17",
+      "number": 17,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Tenang, Pendiam",
+        "Bahagia, Riang",
+        "Menyenangkan, Baik",
+        "Tegas, Berani"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-18",
+      "number": 18,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Menyenangkan orang, ramah",
+        "Tertawa keras, hidup",
+        "Berani, Tegas",
+        "Tenang, Pendiam"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-19",
+      "number": 19,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Menolak perubahan mendadak",
+        "Cenderung sering berjanji",
+        "Menyendiri jika dibawah tekanan",
+        "Tidak takut berkelahi"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-20",
+      "number": 20,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Menghabiskan waktu berharga dengan orang lain",
+        "Merencanakan masa depan, Menyiapkan diri",
+        "Perjalanan menuju petualangan baru",
+        "Mendapat penghargaan jika mencapai tujuan"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-21",
+      "number": 21,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Menginginkan kekuasan lebih",
+        "Menginginkan kesempatan baru",
+        "Menghindari konflik apapun",
+        "Menginginkan arah yang jelas"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-22",
+      "number": 22,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Seorang pendukung yang baik",
+        "Seorang pendengar yang baik",
+        "Seorang penganalisa yang baik",
+        "Seorang delegasi yang baik"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-23",
+      "number": 23,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Peraturan perlu ditolak",
+        "Peraturan membuat adil",
+        "Peraturan membuat bosan",
+        "Peraturan membuat aman"
+      ],
+      "duration": 30
+    },
+    {
+      "id": "t2-24",
+      "number": 24,
+      "type": "most_least",
+      "prompt": "Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.",
+      "options": [
+        "Bisa diandalkan, bisa digantungkan",
+        "Kreatif, Unik",
+        "Berorientasi kepada hasil, Inti",
+        "Memegang teguh standar tinggi, akurat"
+      ],
+      "duration": 30
+    }
+  ]
+}
