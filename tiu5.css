@@ -1,10 +1,16 @@
 .image-question{border:1px solid var(--line);border-radius:16px;padding:18px;background:#fff;overflow:auto}
-.image-question img{display:block;width:min(100%,820px);min-width:620px;height:auto;margin:auto}
-.number-options{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:18px}
-.number-option{cursor:pointer}
-.number-option input{position:absolute;opacity:0}
-.number-option span{height:54px;display:grid;place-items:center;border:1px solid var(--line);border-radius:13px;font:800 18px Manrope;background:#fff}
-.number-option:hover span,.number-option.selected span{border-color:#5b9ed8;background:#eaf4ff;color:var(--blue)}
+.image-question img{display:block;width:min(100%,500px);height:auto;margin:auto}
+.image-labels{display:grid;grid-template-columns:repeat(3,1fr);max-width:500px;margin:0 auto 6px;text-align:center;color:var(--blue);font-weight:800}
+.choice-title{font-weight:700;margin:20px 0 10px}
+.image-options{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.image-option{position:relative;cursor:pointer;border:2px solid var(--line);border-radius:14px;padding:8px;background:#fff;min-width:0;transition:.18s}
+.image-option input{position:absolute;opacity:0}
+.image-option img{display:block;width:100%;height:100px;object-fit:contain}
+.image-option strong{position:absolute;left:8px;top:8px;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:var(--sky);color:var(--blue)}
+.radio-mark{position:absolute;right:8px;top:8px;width:24px;height:24px;border:2px solid #78a6cf;border-radius:50%;background:#fff;z-index:2}
+.image-option:hover,.image-option.selected{border-color:#428fd0;background:#f1f8ff;box-shadow:0 5px 15px rgba(23,104,179,.12)}
+.image-option.selected .radio-mark{border:7px solid var(--blue)}
+@media(max-width:760px){.image-options{grid-template-columns:repeat(2,1fr)}.image-option:last-child{grid-column:1/-1;width:50%;justify-self:center}.image-option img{height:115px}}
 .setting-order{display:flex;gap:13px;align-items:center}
 .setting-order>strong{width:38px;height:38px;border-radius:11px;background:var(--sky);color:var(--blue);display:grid;place-items:center}
 .setting-order small{color:var(--muted)}

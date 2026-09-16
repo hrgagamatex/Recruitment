@@ -154,14 +154,14 @@ async function quizPage(testCode, index) {
   const options=q.type==='paired_choice'
     ? `<div class="options">${q.options.map((option,i)=>`<label class="option"><input type="radio" name="answer" value="${i}"><span>${escapeHtml(option)}</span></label>`).join('')}</div>`
     : q.type==='image_choice'
-      ? `<div class="image-question"><img src="${escapeHtml(q.image_url)}" alt="Soal gambar nomor ${q.number}"></div><div class="number-options">${[1,2,3,4,5].map(i=>`<label class="number-option"><input type="radio" name="answer" value="${i}"><span>${i}</span></label>`).join('')}</div>`
+      ? `<div class="image-question"><div class="image-labels"><span>A</span><span>B</span><span>C</span></div><img src="${escapeHtml(q.image_url)}" alt="Pola A, B, dan C soal nomor ${q.number}"></div><p class="choice-title">Pilih gambar jawaban:</p><div class="image-options">${[1,2,3,4,5].map(i=>`<label class="image-option"><input type="radio" name="answer" value="${i}"><span class="radio-mark"></span><strong>${i}</strong><img src="assets/tiu5/options/q${String(q.number).padStart(2,'0')}_${i}.png" alt="Pilihan ${i}"></label>`).join('')}</div>`
       : `<div class="most-least"><div class="ml-row" style="border:0;padding-top:0"><span></span><span class="ml-head">Paling</span><span class="ml-head">Kurang</span></div>${q.options.map((option,i)=>`<div class="ml-row"><span>${escapeHtml(option)}</span><label class="ml-choice"><input type="radio" name="most" value="${i}" aria-label="Paling"></label><label class="ml-choice"><input type="radio" name="least" value="${i}" aria-label="Kurang"></label></div>`).join('')}</div>`;
   layout(`<div class="test-head"><div><span class="eyebrow">${meta.name}</span><h2 style="margin-top:10px">Soal ${index+1}</h2></div><div id="timer" class="timer">${remaining}</div></div>
     <div class="progress"><span style="width:${((index+1)/questions.length)*100}%"></span></div>
     <div class="question">${escapeHtml(q.prompt)}</div>${options}
     <div class="actions"><button id="nextQuestion" class="btn btn-primary" disabled>Jawab & Lanjutkan</button></div>`);
   const next=document.querySelector('#nextQuestion');
-  if(q.type==='paired_choice'||q.type==='image_choice') document.querySelectorAll('[name=answer]').forEach(input=>input.onchange=()=>{answer={choice:Number(input.value)};next.disabled=false;document.querySelectorAll('.option,.number-option').forEach(x=>x.classList.toggle('selected',x.contains(input)));});
+  if(q.type==='paired_choice'||q.type==='image_choice') document.querySelectorAll('[name=answer]').forEach(input=>input.onchange=()=>{answer={choice:Number(input.value)};next.disabled=false;document.querySelectorAll('.option,.image-option').forEach(x=>x.classList.toggle('selected',x.contains(input)));});
   else document.querySelectorAll('[name=most],[name=least]').forEach(input=>input.onchange=()=>{
     const most=document.querySelector('[name=most]:checked'); const least=document.querySelector('[name=least]:checked');
     if(most&&least&&most.value===least.value){input.checked=false;toast('Pilihan Paling dan Kurang harus berbeda.');return;}
