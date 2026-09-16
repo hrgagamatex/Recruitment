@@ -10,6 +10,8 @@ Web seleksi calon karyawan PT. Gamatex, siap dipasang di Cloudflare Pages dan me
 - Tes 2: 24 kelompok Paling/Kurang, 30 detik per kelompok.
 - Penyimpanan jawaban otomatis dan status waktu habis.
 - Dashboard HR dengan login Supabase Auth.
+- Bank Soal HR untuk menambah, mengedit, mengaktifkan, atau menonaktifkan soal.
+- Pengaturan pengacakan soal dan pilihan jawaban.
 - Tampilan responsif untuk komputer dan ponsel.
 
 ## 1. Menyiapkan Supabase
@@ -43,3 +45,7 @@ Versi ini menyimpan jawaban mentah. Rumus penilaian kepribadian belum ditambahka
 ## Perbaikan login
 
 Jika muncul pesan `function digest(text, unknown) does not exist`, jalankan isi file `supabase/update-01-fix-login.sql` melalui SQL Editor. Tidak perlu mengunggah ulang web ke Cloudflare.
+
+## Mengaktifkan Bank Soal dan Pengacakan
+
+Untuk instalasi lama, jalankan seluruh isi `supabase/update-02-admin-question-bank.sql` di SQL Editor. File ini memindahkan 114 soal ke Supabase tanpa menghapus peserta atau jawaban yang sudah tersimpan. Setelah itu unggah ulang file web ke GitHub dan tunggu deployment Cloudflare selesai.

@@ -122,7 +122,7 @@ function instructionsPage(testCode) {
     <div class="notice">Timer dimulai setelah tombol di bawah ditekan. Jika waktu habis, soal akan otomatis dilanjutkan.</div>
     <div class="actions"><button id="startTest" class="btn btn-primary">Mulai ${isFirst?'Tes 1':'Tes 2'}</button></div>`);
   document.querySelector('#startTest').onclick=async()=>{
-    try { await rpc('start_test_attempt',{p_session_token:session.token,p_test_code:testCode}); localStorage.setItem('rtg_test_state',JSON.stringify({testCode,index:0})); route(`/quiz/${testCode}/0`); }
+    try { const snapshot=await rpc('start_test_attempt_v2',{p_session_token:session.token,p_test_code:testCode}); questionBank ||= {}; questionBank[testCode]=snapshot; localStorage.setItem('rtg_test_state',JSON.stringify({testCode,index:0})); route(`/quiz/${testCode}/0`); }
     catch(error){toast(error.message||'Tes belum dapat dimulai.');}
   };
 }
@@ -130,7 +130,12 @@ function instructionsPage(testCode) {
 async function quizPage(testCode, index) {
   if (!session.token) return route('/');
   clearTimer();
-  questionBank ||= await fetch('data/questions.json').then(r=>r.json());
+  questionBank ||= {};
+  if(!questionBank[testCode]){
+    const snapshot=await rpc('get_test_snapshot',{p_session_token:session.token,p_test_code:testCode});
+    if(snapshot) questionBank[testCode]=snapshot;
+    else questionBank=await fetch('data/questions.json').then(r=>r.json());
+  }
   const questions=questionBank[testCode];
   if (!questions || index >= questions.length) return finishTest(testCode);
   const q=questions[index]; let remaining=q.duration; let answer=null;
@@ -168,15 +173,53 @@ function completePage(){
   document.querySelector('#logout').onclick=()=>{session.clear();route('/');};
 }
 
-async function adminPage(){
-  setHeader('HR Recruitment');
+function adminShell(active,content){
+  const nav=[['dashboard','Dashboard'],['candidates','Data Peserta'],['questions','Bank Soal'],['settings','Pengaturan Tes']];
+  layout(`<div class="admin-layout"><aside class="admin-nav"><div><span class="eyebrow">HR Recruitment</span><h3 style="margin:12px 0 20px">Panel Admin</h3></div>${nav.map(([id,label])=>`<a class="${active===id?'active':''}" href="#/admin/${id}">${label}</a>`).join('')}<button id="adminOut" class="btn btn-secondary">Keluar</button></aside><div class="admin-content">${content}</div></div>`);
+  document.querySelector('#adminOut').onclick=()=>db.auth.signOut().then(()=>route('/admin'));
+}
+
+async function requireAdmin(){
   const {data:{session:authSession}}=await db.auth.getSession();
-  if(!authSession){layout(`<span class="eyebrow">Akses HR</span><h2 style="margin-top:12px">Dashboard Recruitment</h2><p class="muted">Masuk menggunakan akun HR yang terdaftar di Supabase.</p><form id="adminLogin" class="form-grid"><div class="field full"><label>Email</label><input name="email" type="email" required></div><div class="field full"><label>Kata sandi</label><input name="password" type="password" required></div><div class="field full"><button class="btn btn-primary">Masuk</button></div></form>`);document.querySelector('#adminLogin').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget);const {error}=await db.auth.signInWithPassword({email:f.get('email'),password:f.get('password')});if(error)toast(error.message);else adminPage();};return;}
+  if(authSession)return true;
+  layout(`<span class="eyebrow">Akses HR</span><h2 style="margin-top:12px">Dashboard Recruitment</h2><p class="muted">Masuk menggunakan akun HR yang terdaftar di Supabase.</p><form id="adminLogin" class="form-grid"><div class="field full"><label>Email</label><input name="email" type="email" required></div><div class="field full"><label>Kata sandi</label><input name="password" type="password" required></div><div class="field full"><button class="btn btn-primary">Masuk</button></div></form>`);
+  document.querySelector('#adminLogin').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget);const {error}=await db.auth.signInWithPassword({email:f.get('email'),password:f.get('password')});if(error)toast(error.message);else route('/admin/dashboard');};
+  return false;
+}
+
+async function adminPage(section='dashboard'){
+  setHeader('HR Recruitment'); if(!await requireAdmin())return;
+  if(section==='questions')return adminQuestions();
+  if(section==='settings')return adminSettings();
   const {data,error}=await db.from('admin_candidate_summary').select('*').order('created_at',{ascending:false});
-  if(error){layout(`<h2>Akses belum tersedia</h2><p class="muted">${escapeHtml(error.message)}</p><button id="adminOut" class="btn btn-secondary">Keluar</button>`);document.querySelector('#adminOut').onclick=()=>db.auth.signOut().then(()=>adminPage());return;}
-  const rows=data||[]; const completed=rows.filter(x=>x.test_2_status==='completed').length;
-  layout(`<div class="section-title"><div><span class="eyebrow">Dashboard HR</span><h2 style="margin-top:10px">Ringkasan Peserta</h2></div><button id="adminOut" class="btn btn-secondary">Keluar</button></div><div class="dashboard-grid"><div class="stat"><strong>${rows.length}</strong><span>Total peserta</span></div><div class="stat"><strong>${completed}</strong><span>Tes selesai</span></div><div class="stat"><strong>${rows.filter(x=>x.test_1_status==='in_progress').length}</strong><span>Sedang Tes 1</span></div><div class="stat"><strong>${rows.filter(x=>x.test_2_status==='in_progress').length}</strong><span>Sedang Tes 2</span></div></div><div class="table-wrap"><table><thead><tr><th>Nama</th><th>Posisi</th><th>Tes 1</th><th>Tes 2</th><th>Terdaftar</th></tr></thead><tbody>${rows.map(x=>`<tr><td><strong>${escapeHtml(x.full_name)}</strong></td><td>${escapeHtml(x.position||'-')}</td><td><span class="pill ${x.test_1_status==='completed'?'done':''}">${escapeHtml(x.test_1_status||'belum')}</span></td><td><span class="pill ${x.test_2_status==='completed'?'done':''}">${escapeHtml(x.test_2_status||'belum')}</span></td><td>${new Date(x.created_at).toLocaleDateString('id-ID')}</td></tr>`).join('')||'<tr><td colspan="5">Belum ada peserta.</td></tr>'}</tbody></table></div>`);
-  document.querySelector('#adminOut').onclick=()=>db.auth.signOut().then(()=>adminPage());
+  if(error)return adminShell(section,`<h2>Akses belum tersedia</h2><p class="muted">${escapeHtml(error.message)}</p>`);
+  const rows=data||[],completed=rows.filter(x=>x.test_2_status==='completed').length;
+  const table=`<div class="section-title"><div><h2>${section==='candidates'?'Data Peserta':'Ringkasan Peserta'}</h2><p class="muted">Pantau proses seleksi secara langsung.</p></div></div>${section==='dashboard'?`<div class="dashboard-grid"><div class="stat"><strong>${rows.length}</strong><span>Total peserta</span></div><div class="stat"><strong>${completed}</strong><span>Tes selesai</span></div><div class="stat"><strong>${rows.filter(x=>x.test_1_status==='in_progress').length}</strong><span>Sedang Tes 1</span></div><div class="stat"><strong>${rows.filter(x=>x.test_2_status==='in_progress').length}</strong><span>Sedang Tes 2</span></div></div>`:''}<div class="table-wrap"><table><thead><tr><th>Nama</th><th>Posisi</th><th>Tes 1</th><th>Tes 2</th><th>Terdaftar</th></tr></thead><tbody>${rows.map(x=>`<tr><td><strong>${escapeHtml(x.full_name)}</strong></td><td>${escapeHtml(x.position||'-')}</td><td><span class="pill ${x.test_1_status==='completed'?'done':''}">${escapeHtml(x.test_1_status||'belum')}</span></td><td><span class="pill ${x.test_2_status==='completed'?'done':''}">${escapeHtml(x.test_2_status||'belum')}</span></td><td>${new Date(x.created_at).toLocaleDateString('id-ID')}</td></tr>`).join('')||'<tr><td colspan="5">Belum ada peserta.</td></tr>'}</tbody></table></div>`;
+  adminShell(section,table);
+}
+
+async function adminQuestions(){
+  const testCode=new URLSearchParams(location.hash.split('?')[1]||'').get('test')||'test1';
+  const {data,error}=await db.from('question_bank').select('*').eq('test_code',testCode).order('question_number');
+  if(error)return adminShell('questions',`<h2>Bank Soal belum aktif</h2><p class="muted">Jalankan update-02-admin-question-bank.sql.</p>`);
+  adminShell('questions',`<div class="section-title"><div><h2>Bank Soal</h2><p class="muted">Edit isi, durasi, urutan, dan status soal.</p></div><button id="addQuestion" class="btn btn-primary">+ Tambah Soal</button></div><div class="segmented"><a class="${testCode==='test1'?'active':''}" href="#/admin/questions?test=test1">Tes 1</a><a class="${testCode==='test2'?'active':''}" href="#/admin/questions?test=test2">Tes 2</a></div><div class="question-list">${data.map(q=>`<div class="question-item ${q.active?'':'inactive'}"><div><small>Soal ${q.question_number} · ${q.duration_seconds} detik</small><strong>${escapeHtml(q.options.join(' / '))}</strong></div><div class="question-actions"><button class="btn btn-secondary edit-question" data-id="${q.id}">Edit</button><button class="btn btn-secondary toggle-question" data-id="${q.id}" data-active="${q.active}">${q.active?'Nonaktifkan':'Aktifkan'}</button></div></div>`).join('')}</div><div id="questionEditor"></div>`);
+  document.querySelector('#addQuestion').onclick=()=>renderQuestionEditor(null,testCode,(data.at(-1)?.question_number||0)+1);
+  document.querySelectorAll('.edit-question').forEach(b=>b.onclick=()=>renderQuestionEditor(data.find(q=>q.id===b.dataset.id),testCode));
+  document.querySelectorAll('.toggle-question').forEach(b=>b.onclick=async()=>{const {error}=await db.from('question_bank').update({active:b.dataset.active!=='true'}).eq('id',b.dataset.id);if(error)toast(error.message);else adminQuestions();});
+}
+
+function renderQuestionEditor(q,testCode,number){
+  const count=testCode==='test1'?2:4,options=q?.options||Array(count).fill('');
+  document.querySelector('#questionEditor').innerHTML=`<div class="editor-panel"><h3>${q?'Edit':'Tambah'} Soal</h3><form id="questionForm" class="form-grid"><div class="field"><label>Nomor urut</label><input name="question_number" type="number" value="${q?.question_number||number}" required></div><div class="field"><label>Durasi (detik)</label><input name="duration_seconds" type="number" min="5" max="600" value="${q?.duration_seconds||(testCode==='test1'?15:30)}" required></div>${options.map((x,i)=>`<div class="field full"><label>Pernyataan ${i+1}</label><textarea name="option_${i}" required>${escapeHtml(x)}</textarea></div>`).join('')}<div class="field full"><label><input name="active" type="checkbox" ${q?.active===false?'':'checked'}> Soal aktif</label></div><div class="field full actions"><button class="btn btn-primary">Simpan Soal</button><button type="button" id="cancelEdit" class="btn btn-secondary">Batal</button></div></form></div>`;
+  document.querySelector('#questionEditor').scrollIntoView({behavior:'smooth'});document.querySelector('#cancelEdit').onclick=()=>document.querySelector('#questionEditor').innerHTML='';
+  document.querySelector('#questionForm').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget),payload={test_code:testCode,question_number:Number(f.get('question_number')),duration_seconds:Number(f.get('duration_seconds')),active:f.get('active')==='on',question_type:testCode==='test1'?'paired_choice':'most_least',prompt:testCode==='test1'?'Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.':'Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.',options:options.map((_,i)=>f.get(`option_${i}`).trim())};const query=q?db.from('question_bank').update(payload).eq('id',q.id):db.from('question_bank').insert(payload);const {error}=await query;if(error)toast(error.message);else{toast('Soal berhasil disimpan.');adminQuestions();}};
+}
+
+async function adminSettings(){
+  const {data,error}=await db.from('test_settings').select('*').order('test_code');
+  if(error)return adminShell('settings',`<h2>Pengaturan belum aktif</h2><p class="muted">Jalankan update-02-admin-question-bank.sql.</p>`);
+  adminShell('settings',`<div class="section-title"><div><h2>Pengaturan Tes</h2><p class="muted">Pengaturan berlaku untuk peserta yang baru memulai tes.</p></div></div><div class="settings-grid">${data.map(s=>`<form class="setting-card" data-code="${s.test_code}"><h3>${escapeHtml(s.display_name)}</h3><label><input name="randomize_questions" type="checkbox" ${s.randomize_questions?'checked':''}> Acak urutan soal</label><label><input name="randomize_options" type="checkbox" ${s.randomize_options?'checked':''}> Acak pilihan jawaban</label><label><input name="allow_back" type="checkbox" ${s.allow_back?'checked':''}> Izinkan kembali</label><label><input name="active" type="checkbox" ${s.active?'checked':''}> Tes aktif</label><button class="btn btn-primary">Simpan</button></form>`).join('')}</div>`);
+  document.querySelectorAll('.setting-card').forEach(form=>form.onsubmit=async e=>{e.preventDefault();const f=new FormData(form),payload={randomize_questions:f.get('randomize_questions')==='on',randomize_options:f.get('randomize_options')==='on',allow_back:f.get('allow_back')==='on',active:f.get('active')==='on',updated_at:new Date().toISOString()};const {error}=await db.from('test_settings').update(payload).eq('test_code',form.dataset.code);toast(error?error.message:'Pengaturan berhasil disimpan.');});
 }
 
 async function router(){
@@ -185,7 +228,7 @@ async function router(){
   if(path[0]==='instructions') return instructionsPage(path[1]||'test1');
   if(path[0]==='quiz') return quizPage(path[1],Number(path[2]||0));
   if(path[0]==='complete') return completePage();
-  if(path[0]==='admin') return adminPage();
+  if(path[0]==='admin') return adminPage((path[1]||'dashboard').split('?')[0]);
   if(session.token) return route('/application');
   return loginPage();
 }
