@@ -1,3 +1,5 @@
+import { renderTiuSvgQuestion } from './tiu5-svg-temp.js';
+
 const { supabaseUrl, supabasePublishableKey } = window.APP_CONFIG;
 const db = window.supabase.createClient(supabaseUrl, supabasePublishableKey);
 const app = document.querySelector('#app');
@@ -31,6 +33,33 @@ function escapeHtml(value = '') {
 function setHeader(text = '') { headerStatus.textContent = text; }
 function route(path) { location.hash = `#${path}`; }
 function clearTimer() { if (timerId) clearInterval(timerId); timerId = null; }
+
+async function loadTemporaryTiuCsv() {
+  const response = await fetch('data/tiu5-questions.csv', { cache: 'no-store' });
+  if (!response.ok) throw new Error('Data CSV TIU 5 tidak dapat dimuat.');
+  const rows = (await response.text()).trim().split(/\r?\n/);
+  const headers = rows.shift().split(',');
+  return rows.map(row => {
+    const values = row.split(',');
+    const item = Object.fromEntries(headers.map((header, index) => [header, values[index] || '']));
+    return {
+      number: Number(item.number),
+      type: item.type,
+      prompt: item.prompt,
+      duration: Number(item.duration),
+      image_url: item.image_url,
+      renderer: item.renderer
+    };
+  });
+}
+
+function imageChoiceHtml(q) {
+  const temporarySvg = q.renderer === 'svg' ? renderTiuSvgQuestion(Number(q.number)) : null;
+  if (!temporarySvg) {
+    return `<div class="image-question"><div class="image-labels"><span>A</span><span>B</span><span>C</span></div><img src="${escapeHtml(q.image_url)}" alt="Pola A, B, dan C soal nomor ${q.number}"></div><p class="choice-title">Pilih gambar jawaban:</p><div class="image-options">${[1,2,3,4,5].map(i=>`<label class="image-option"><input type="radio" name="answer" value="${i}"><span class="radio-mark"></span><strong>${i}</strong><img src="assets/tiu5/options/q${String(q.number).padStart(2,'0')}_${i}.png" alt="Pilihan ${i}"></label>`).join('')}</div>`;
+  }
+  return `<div class="image-question tiu-svg-question"><div class="image-labels"><span>A</span><span>B</span><span>C</span></div><div class="tiu-svg-prompt">${temporarySvg.prompt.map(symbol=>`<div class="tiu-svg-cell">${symbol}</div>`).join('')}</div></div><p class="choice-title">Pilih gambar jawaban:</p><div class="image-options">${temporarySvg.options.map((symbol,index)=>`<label class="image-option tiu-svg-option"><input type="radio" name="answer" value="${index+1}"><span class="radio-mark"></span><strong>${index+1}</strong>${symbol}</label>`).join('')}</div>`;
+}
 
 const testMeta={
   test1:{name:'Tes 1',total:90,seconds:15,unit:'soal',description:'Setiap soal berisi dua pernyataan. Pilih satu yang paling sesuai dengan diri Anda.'},
@@ -141,6 +170,10 @@ async function quizPage(testCode, index) {
   if (!session.token) return route('/');
   clearTimer();
   questionBank ||= {};
+  if(testCode==='tiu5'&&!questionBank[testCode]){
+    try{questionBank[testCode]=await loadTemporaryTiuCsv();}
+    catch(error){toast(error.message);}
+  }
   if(!questionBank[testCode]){
     const snapshot=await rpc('get_test_snapshot',{p_session_token:session.token,p_test_code:testCode});
     if(snapshot) questionBank[testCode]=snapshot;
@@ -154,7 +187,7 @@ async function quizPage(testCode, index) {
   const options=q.type==='paired_choice'
     ? `<div class="options">${q.options.map((option,i)=>`<label class="option"><input type="radio" name="answer" value="${i}"><span>${escapeHtml(option)}</span></label>`).join('')}</div>`
     : q.type==='image_choice'
-      ? `<div class="image-question"><div class="image-labels"><span>A</span><span>B</span><span>C</span></div><img src="${escapeHtml(q.image_url)}" alt="Pola A, B, dan C soal nomor ${q.number}"></div><p class="choice-title">Pilih gambar jawaban:</p><div class="image-options">${[1,2,3,4,5].map(i=>`<label class="image-option"><input type="radio" name="answer" value="${i}"><span class="radio-mark"></span><strong>${i}</strong><img src="assets/tiu5/options/q${String(q.number).padStart(2,'0')}_${i}.png" alt="Pilihan ${i}"></label>`).join('')}</div>`
+      ? imageChoiceHtml(q)
       : `<div class="most-least"><div class="ml-row" style="border:0;padding-top:0"><span></span><span class="ml-head">Paling</span><span class="ml-head">Kurang</span></div>${q.options.map((option,i)=>`<div class="ml-row"><span>${escapeHtml(option)}</span><label class="ml-choice"><input type="radio" name="most" value="${i}" aria-label="Paling"></label><label class="ml-choice"><input type="radio" name="least" value="${i}" aria-label="Kurang"></label></div>`).join('')}</div>`;
   layout(`<div class="test-head"><div><span class="eyebrow">${meta.name}</span><h2 style="margin-top:10px">Soal ${index+1}</h2></div><div id="timer" class="timer">${remaining}</div></div>
     <div class="progress"><span style="width:${((index+1)/questions.length)*100}%"></span></div>

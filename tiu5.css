@@ -10,6 +10,12 @@
 .radio-mark{position:absolute;right:8px;top:8px;width:24px;height:24px;border:2px solid #78a6cf;border-radius:50%;background:#fff;z-index:2}
 .image-option:hover,.image-option.selected{border-color:#428fd0;background:#f1f8ff;box-shadow:0 5px 15px rgba(23,104,179,.12)}
 .image-option.selected .radio-mark{border:7px solid var(--blue)}
+.tiu-svg-prompt{display:grid;grid-template-columns:repeat(3,1fr);max-width:500px;margin:auto}
+.tiu-svg-cell{min-width:0;display:grid;place-items:center;border-right:1px solid #c9e1f3}
+.tiu-svg-cell:last-child{border-right:0}
+.tiu-symbol{display:block;width:100%;height:118px;color:var(--blue)}
+.tiu-svg-option{min-height:132px;display:grid;place-items:center}
+.tiu-svg-option .tiu-symbol{width:100%;height:105px;margin-top:12px}
 @media(max-width:760px){.image-options{grid-template-columns:repeat(2,1fr)}.image-option:last-child{grid-column:1/-1;width:50%;justify-self:center}.image-option img{height:115px}}
 .setting-order{display:flex;gap:13px;align-items:center}
 .setting-order>strong{width:38px;height:38px;border-radius:11px;background:var(--sky);color:var(--blue);display:grid;place-items:center}

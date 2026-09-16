@@ -96,7 +96,7 @@ begin
   select a.id into v_attempt_id from public.test_attempts a join public.candidates c on c.id=a.candidate_id
   where c.session_token=p_session_token and a.test_code=p_test_code and a.status='in_progress';
   if v_attempt_id is null then raise exception 'Sesi tes tidak aktif'; end if;
-  insert into public.answers(attempt_id,question_number,answer,timed_out,elapsed_seconds)
+  insert into public.test_answers(attempt_id,question_number,answer,timed_out,elapsed_seconds)
   values(v_attempt_id,p_question_number,case when p_timed_out then null else p_answer end,p_timed_out,greatest(0,p_elapsed_seconds))
   on conflict(attempt_id,question_number) do update set answer=excluded.answer,timed_out=excluded.timed_out,elapsed_seconds=excluded.elapsed_seconds,answered_at=now();
 end; $$;
@@ -105,4 +105,3 @@ revoke all on function public.get_active_test_sequence() from public;
 grant execute on function public.get_active_test_sequence() to anon,authenticated;
 grant execute on function public.start_test_attempt_v2(uuid,text) to anon,authenticated;
 grant execute on function public.save_test_answer(uuid,text,integer,jsonb,boolean,integer) to anon,authenticated;
-
