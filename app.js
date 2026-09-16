@@ -32,6 +32,17 @@ function setHeader(text = '') { headerStatus.textContent = text; }
 function route(path) { location.hash = `#${path}`; }
 function clearTimer() { if (timerId) clearInterval(timerId); timerId = null; }
 
+const testMeta={
+  test1:{name:'Tes 1',total:90,seconds:15,unit:'soal',description:'Setiap soal berisi dua pernyataan. Pilih satu yang paling sesuai dengan diri Anda.'},
+  test2:{name:'Tes 2',total:24,seconds:30,unit:'kelompok',description:'Setiap kelompok berisi empat pernyataan. Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.'},
+  tiu5:{name:'TIU 5',total:30,seconds:45,unit:'soal',description:'Perhatikan perubahan gambar A menjadi B. Pilih gambar 1–5 yang menghasilkan perubahan serupa jika diterapkan pada gambar C.'}
+};
+
+async function getTestSequence(){
+  try{return await rpc('get_active_test_sequence')||['test1','test2','tiu5'];}
+  catch{return ['test1','test2','tiu5'];}
+}
+
 function layout(content, compact = false) {
   app.innerHTML = `<section class="card ${compact ? '' : 'page-card'}">${content}</section>`;
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -105,22 +116,21 @@ function applicationPage() {
   document.querySelector('#applicationForm').addEventListener('submit', async e => {
     e.preventDefault(); const button=e.submitter; button.disabled=true; button.textContent='Menyimpan...';
     const values=Object.fromEntries(new FormData(e.currentTarget));
-    try { await rpc('save_candidate_application',{p_session_token:session.token,p_application:values}); route('/instructions/test1'); }
+    try { await rpc('save_candidate_application',{p_session_token:session.token,p_application:values}); const sequence=await getTestSequence(); route(sequence.length?`/instructions/${sequence[0]}`:'/complete'); }
     catch(error){toast(error.message||'Data belum dapat disimpan.');button.disabled=false;button.textContent='Simpan dan lanjutkan';}
   });
 }
 
 function instructionsPage(testCode) {
   if (!session.token) return route('/');
-  const isFirst=testCode==='test1';
-  const total=isFirst?90:24, seconds=isFirst?15:30;
-  setHeader(`${session.name} · ${isFirst?'Tes 1':'Tes 2'}`);
-  layout(`<span class="eyebrow">${isFirst?'Tahap 2 dari 3':'Tahap 3 dari 3'}</span>
-    <h2 style="margin-top:12px">Petunjuk ${isFirst?'Tes 1':'Tes 2'}</h2>
-    <p class="muted">${isFirst?'Setiap soal berisi dua pernyataan. Pilih satu yang paling sesuai dengan diri Anda.':'Setiap kelompok berisi empat pernyataan. Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.'}</p>
-    <div class="steps"><div class="step"><small>Jumlah</small><strong>${total} ${isFirst?'soal':'kelompok'}</strong></div><div class="step"><small>Waktu</small><strong>${seconds} detik / soal</strong></div><div class="step"><small>Navigasi</small><strong>Tidak dapat kembali</strong></div></div>
+  const meta=testMeta[testCode]||testMeta.test1;
+  setHeader(`${session.name} · ${meta.name}`);
+  layout(`<span class="eyebrow">Sesi Tes</span>
+    <h2 style="margin-top:12px">Petunjuk ${meta.name}</h2>
+    <p class="muted">${meta.description}</p>
+    <div class="steps"><div class="step"><small>Jumlah</small><strong>${meta.total} ${meta.unit}</strong></div><div class="step"><small>Waktu</small><strong>${meta.seconds} detik / soal</strong></div><div class="step"><small>Navigasi</small><strong>Tidak dapat kembali</strong></div></div>
     <div class="notice">Timer dimulai setelah tombol di bawah ditekan. Jika waktu habis, soal akan otomatis dilanjutkan.</div>
-    <div class="actions"><button id="startTest" class="btn btn-primary">Mulai ${isFirst?'Tes 1':'Tes 2'}</button></div>`);
+    <div class="actions"><button id="startTest" class="btn btn-primary">Mulai ${meta.name}</button></div>`);
   document.querySelector('#startTest').onclick=async()=>{
     try { const snapshot=await rpc('start_test_attempt_v2',{p_session_token:session.token,p_test_code:testCode}); questionBank ||= {}; questionBank[testCode]=snapshot; localStorage.setItem('rtg_test_state',JSON.stringify({testCode,index:0})); route(`/quiz/${testCode}/0`); }
     catch(error){toast(error.message||'Tes belum dapat dimulai.');}
@@ -139,16 +149,19 @@ async function quizPage(testCode, index) {
   const questions=questionBank[testCode];
   if (!questions || index >= questions.length) return finishTest(testCode);
   const q=questions[index]; let remaining=q.duration; let answer=null;
-  setHeader(`${testCode==='test1'?'Tes 1':'Tes 2'} · ${index+1}/${questions.length}`);
+  const meta=testMeta[testCode]||testMeta.test1;
+  setHeader(`${meta.name} · ${index+1}/${questions.length}`);
   const options=q.type==='paired_choice'
     ? `<div class="options">${q.options.map((option,i)=>`<label class="option"><input type="radio" name="answer" value="${i}"><span>${escapeHtml(option)}</span></label>`).join('')}</div>`
-    : `<div class="most-least"><div class="ml-row" style="border:0;padding-top:0"><span></span><span class="ml-head">Paling</span><span class="ml-head">Kurang</span></div>${q.options.map((option,i)=>`<div class="ml-row"><span>${escapeHtml(option)}</span><label class="ml-choice"><input type="radio" name="most" value="${i}" aria-label="Paling"></label><label class="ml-choice"><input type="radio" name="least" value="${i}" aria-label="Kurang"></label></div>`).join('')}</div>`;
-  layout(`<div class="test-head"><div><span class="eyebrow">${testCode==='test1'?'Tes 1':'Tes 2'}</span><h2 style="margin-top:10px">Soal ${index+1}</h2></div><div id="timer" class="timer">${remaining}</div></div>
+    : q.type==='image_choice'
+      ? `<div class="image-question"><img src="${escapeHtml(q.image_url)}" alt="Soal gambar nomor ${q.number}"></div><div class="number-options">${[1,2,3,4,5].map(i=>`<label class="number-option"><input type="radio" name="answer" value="${i}"><span>${i}</span></label>`).join('')}</div>`
+      : `<div class="most-least"><div class="ml-row" style="border:0;padding-top:0"><span></span><span class="ml-head">Paling</span><span class="ml-head">Kurang</span></div>${q.options.map((option,i)=>`<div class="ml-row"><span>${escapeHtml(option)}</span><label class="ml-choice"><input type="radio" name="most" value="${i}" aria-label="Paling"></label><label class="ml-choice"><input type="radio" name="least" value="${i}" aria-label="Kurang"></label></div>`).join('')}</div>`;
+  layout(`<div class="test-head"><div><span class="eyebrow">${meta.name}</span><h2 style="margin-top:10px">Soal ${index+1}</h2></div><div id="timer" class="timer">${remaining}</div></div>
     <div class="progress"><span style="width:${((index+1)/questions.length)*100}%"></span></div>
     <div class="question">${escapeHtml(q.prompt)}</div>${options}
     <div class="actions"><button id="nextQuestion" class="btn btn-primary" disabled>Jawab & Lanjutkan</button></div>`);
   const next=document.querySelector('#nextQuestion');
-  if(q.type==='paired_choice') document.querySelectorAll('[name=answer]').forEach(input=>input.onchange=()=>{answer={choice:Number(input.value)};next.disabled=false;document.querySelectorAll('.option').forEach(x=>x.classList.toggle('selected',x.contains(input)));});
+  if(q.type==='paired_choice'||q.type==='image_choice') document.querySelectorAll('[name=answer]').forEach(input=>input.onchange=()=>{answer={choice:Number(input.value)};next.disabled=false;document.querySelectorAll('.option,.number-option').forEach(x=>x.classList.toggle('selected',x.contains(input)));});
   else document.querySelectorAll('[name=most],[name=least]').forEach(input=>input.onchange=()=>{
     const most=document.querySelector('[name=most]:checked'); const least=document.querySelector('[name=least]:checked');
     if(most&&least&&most.value===least.value){input.checked=false;toast('Pilihan Paling dan Kurang harus berbeda.');return;}
@@ -163,7 +176,7 @@ async function quizPage(testCode, index) {
 
 async function finishTest(testCode){
   clearTimer();
-  try{await rpc('complete_test_attempt',{p_session_token:session.token,p_test_code:testCode});localStorage.removeItem('rtg_test_state');if(testCode==='test1')route('/instructions/test2');else route('/complete');}
+  try{await rpc('complete_test_attempt',{p_session_token:session.token,p_test_code:testCode});localStorage.removeItem('rtg_test_state');const sequence=await getTestSequence();const next=sequence[sequence.indexOf(testCode)+1];route(next?`/instructions/${next}`:'/complete');}
   catch(error){toast(error.message||'Status tes belum tersimpan.');}
 }
 
@@ -202,24 +215,24 @@ async function adminQuestions(){
   const testCode=new URLSearchParams(location.hash.split('?')[1]||'').get('test')||'test1';
   const {data,error}=await db.from('question_bank').select('*').eq('test_code',testCode).order('question_number');
   if(error)return adminShell('questions',`<h2>Bank Soal belum aktif</h2><p class="muted">Jalankan update-02-admin-question-bank.sql.</p>`);
-  adminShell('questions',`<div class="section-title"><div><h2>Bank Soal</h2><p class="muted">Edit isi, durasi, urutan, dan status soal.</p></div><button id="addQuestion" class="btn btn-primary">+ Tambah Soal</button></div><div class="segmented"><a class="${testCode==='test1'?'active':''}" href="#/admin/questions?test=test1">Tes 1</a><a class="${testCode==='test2'?'active':''}" href="#/admin/questions?test=test2">Tes 2</a></div><div class="question-list">${data.map(q=>`<div class="question-item ${q.active?'':'inactive'}"><div><small>Soal ${q.question_number} · ${q.duration_seconds} detik</small><strong>${escapeHtml(q.options.join(' / '))}</strong></div><div class="question-actions"><button class="btn btn-secondary edit-question" data-id="${q.id}">Edit</button><button class="btn btn-secondary toggle-question" data-id="${q.id}" data-active="${q.active}">${q.active?'Nonaktifkan':'Aktifkan'}</button></div></div>`).join('')}</div><div id="questionEditor"></div>`);
+  adminShell('questions',`<div class="section-title"><div><h2>Bank Soal</h2><p class="muted">Edit isi, durasi, urutan, dan status soal.</p></div><button id="addQuestion" class="btn btn-primary">+ Tambah Soal</button></div><div class="segmented"><a class="${testCode==='test1'?'active':''}" href="#/admin/questions?test=test1">Tes 1</a><a class="${testCode==='test2'?'active':''}" href="#/admin/questions?test=test2">Tes 2</a><a class="${testCode==='tiu5'?'active':''}" href="#/admin/questions?test=tiu5">TIU 5</a></div><div class="question-list">${data.map(q=>`<div class="question-item ${q.active?'':'inactive'}"><div><small>Soal ${q.question_number} · ${q.duration_seconds} detik</small><strong>${escapeHtml(q.question_type==='image_choice'?(q.image_url||'Gambar belum diisi'):q.options.join(' / '))}</strong></div><div class="question-actions"><button class="btn btn-secondary edit-question" data-id="${q.id}">Edit</button><button class="btn btn-secondary toggle-question" data-id="${q.id}" data-active="${q.active}">${q.active?'Nonaktifkan':'Aktifkan'}</button></div></div>`).join('')}</div><div id="questionEditor"></div>`);
   document.querySelector('#addQuestion').onclick=()=>renderQuestionEditor(null,testCode,(data.at(-1)?.question_number||0)+1);
   document.querySelectorAll('.edit-question').forEach(b=>b.onclick=()=>renderQuestionEditor(data.find(q=>q.id===b.dataset.id),testCode));
   document.querySelectorAll('.toggle-question').forEach(b=>b.onclick=async()=>{const {error}=await db.from('question_bank').update({active:b.dataset.active!=='true'}).eq('id',b.dataset.id);if(error)toast(error.message);else adminQuestions();});
 }
 
 function renderQuestionEditor(q,testCode,number){
-  const count=testCode==='test1'?2:4,options=q?.options||Array(count).fill('');
-  document.querySelector('#questionEditor').innerHTML=`<div class="editor-panel"><h3>${q?'Edit':'Tambah'} Soal</h3><form id="questionForm" class="form-grid"><div class="field"><label>Nomor urut</label><input name="question_number" type="number" value="${q?.question_number||number}" required></div><div class="field"><label>Durasi (detik)</label><input name="duration_seconds" type="number" min="5" max="600" value="${q?.duration_seconds||(testCode==='test1'?15:30)}" required></div>${options.map((x,i)=>`<div class="field full"><label>Pernyataan ${i+1}</label><textarea name="option_${i}" required>${escapeHtml(x)}</textarea></div>`).join('')}<div class="field full"><label><input name="active" type="checkbox" ${q?.active===false?'':'checked'}> Soal aktif</label></div><div class="field full actions"><button class="btn btn-primary">Simpan Soal</button><button type="button" id="cancelEdit" class="btn btn-secondary">Batal</button></div></form></div>`;
+  const isImage=testCode==='tiu5',count=testCode==='test1'?2:4,options=q?.options||Array(count).fill('');
+  document.querySelector('#questionEditor').innerHTML=`<div class="editor-panel"><h3>${q?'Edit':'Tambah'} Soal</h3><form id="questionForm" class="form-grid"><div class="field"><label>Nomor urut</label><input name="question_number" type="number" value="${q?.question_number||number}" required></div><div class="field"><label>Durasi (detik)</label><input name="duration_seconds" type="number" min="5" max="600" value="${q?.duration_seconds||(isImage?45:testCode==='test1'?15:30)}" required></div>${isImage?`<div class="field full"><label>Lokasi gambar</label><input name="image_url" value="${escapeHtml(q?.image_url||`assets/tiu5/q${String(number).padStart(2,'0')}.png`)}" required></div>`:options.map((x,i)=>`<div class="field full"><label>Pernyataan ${i+1}</label><textarea name="option_${i}" required>${escapeHtml(x)}</textarea></div>`).join('')}<div class="field full"><label><input name="active" type="checkbox" ${q?.active===false?'':'checked'}> Soal aktif</label></div><div class="field full actions"><button class="btn btn-primary">Simpan Soal</button><button type="button" id="cancelEdit" class="btn btn-secondary">Batal</button></div></form></div>`;
   document.querySelector('#questionEditor').scrollIntoView({behavior:'smooth'});document.querySelector('#cancelEdit').onclick=()=>document.querySelector('#questionEditor').innerHTML='';
-  document.querySelector('#questionForm').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget),payload={test_code:testCode,question_number:Number(f.get('question_number')),duration_seconds:Number(f.get('duration_seconds')),active:f.get('active')==='on',question_type:testCode==='test1'?'paired_choice':'most_least',prompt:testCode==='test1'?'Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.':'Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.',options:options.map((_,i)=>f.get(`option_${i}`).trim())};const query=q?db.from('question_bank').update(payload).eq('id',q.id):db.from('question_bank').insert(payload);const {error}=await query;if(error)toast(error.message);else{toast('Soal berhasil disimpan.');adminQuestions();}};
+  document.querySelector('#questionForm').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget),payload={test_code:testCode,question_number:Number(f.get('question_number')),duration_seconds:Number(f.get('duration_seconds')),active:f.get('active')==='on',question_type:isImage?'image_choice':testCode==='test1'?'paired_choice':'most_least',prompt:isImage?'Pilih jawaban gambar yang tepat.':testCode==='test1'?'Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.':'Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.',options:isImage?[1,2,3,4,5]:options.map((_,i)=>f.get(`option_${i}`).trim()),image_url:isImage?f.get('image_url').trim():null};const query=q?db.from('question_bank').update(payload).eq('id',q.id):db.from('question_bank').insert(payload);const {error}=await query;if(error)toast(error.message);else{toast('Soal berhasil disimpan.');adminQuestions();}};
 }
 
 async function adminSettings(){
-  const {data,error}=await db.from('test_settings').select('*').order('test_code');
+  const {data,error}=await db.from('test_settings').select('*').order('sort_order');
   if(error)return adminShell('settings',`<h2>Pengaturan belum aktif</h2><p class="muted">Jalankan update-02-admin-question-bank.sql.</p>`);
-  adminShell('settings',`<div class="section-title"><div><h2>Pengaturan Tes</h2><p class="muted">Pengaturan berlaku untuk peserta yang baru memulai tes.</p></div></div><div class="settings-grid">${data.map(s=>`<form class="setting-card" data-code="${s.test_code}"><h3>${escapeHtml(s.display_name)}</h3><label><input name="randomize_questions" type="checkbox" ${s.randomize_questions?'checked':''}> Acak urutan soal</label><label><input name="randomize_options" type="checkbox" ${s.randomize_options?'checked':''}> Acak pilihan jawaban</label><label><input name="allow_back" type="checkbox" ${s.allow_back?'checked':''}> Izinkan kembali</label><label><input name="active" type="checkbox" ${s.active?'checked':''}> Tes aktif</label><button class="btn btn-primary">Simpan</button></form>`).join('')}</div>`);
-  document.querySelectorAll('.setting-card').forEach(form=>form.onsubmit=async e=>{e.preventDefault();const f=new FormData(form),payload={randomize_questions:f.get('randomize_questions')==='on',randomize_options:f.get('randomize_options')==='on',allow_back:f.get('allow_back')==='on',active:f.get('active')==='on',updated_at:new Date().toISOString()};const {error}=await db.from('test_settings').update(payload).eq('test_code',form.dataset.code);toast(error?error.message:'Pengaturan berhasil disimpan.');});
+  adminShell('settings',`<div class="section-title"><div><h2>Urutan Sesi Tes</h2><p class="muted">Pindahkan posisi sesi. Urutan soal di dalam setiap sesi tetap.</p></div></div><div class="settings-grid">${data.map((s,i)=>`<form class="setting-card" data-code="${s.test_code}"><div class="setting-order"><strong>${i+1}</strong><div><h3>${escapeHtml(s.display_name)}</h3><small>${escapeHtml(s.test_code)}</small></div></div><label><input name="active" type="checkbox" ${s.active?'checked':''}> Sesi aktif</label><div class="question-actions"><button type="button" class="btn btn-secondary move-session" data-direction="-1" ${i===0?'disabled':''}>↑ Naik</button><button type="button" class="btn btn-secondary move-session" data-direction="1" ${i===data.length-1?'disabled':''}>↓ Turun</button><button class="btn btn-primary">Simpan</button></div></form>`).join('')}</div>`);
+  document.querySelectorAll('.setting-card').forEach(form=>{form.onsubmit=async e=>{e.preventDefault();const f=new FormData(form),payload={active:f.get('active')==='on',updated_at:new Date().toISOString()};const {error}=await db.from('test_settings').update(payload).eq('test_code',form.dataset.code);toast(error?error.message:'Pengaturan berhasil disimpan.');};form.querySelectorAll('.move-session').forEach(button=>button.onclick=async()=>{const index=data.findIndex(x=>x.test_code===form.dataset.code),target=index+Number(button.dataset.direction);if(target<0||target>=data.length)return;const first=data[index],second=data[target];const updates=await Promise.all([db.from('test_settings').update({sort_order:second.sort_order}).eq('test_code',first.test_code),db.from('test_settings').update({sort_order:first.sort_order}).eq('test_code',second.test_code)]);const failed=updates.find(x=>x.error);if(failed)toast(failed.error.message);else adminSettings();});});
 }
 
 async function router(){
