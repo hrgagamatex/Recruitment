@@ -30,24 +30,25 @@ export function questionMarkup(questions,readonly=false) {
   return `<div class="tiu6">${rows.join('')}</div>`;
 }
 
-export async function mountTiu6({rpc,token,layout,setHeader,onComplete,onNotStarted,isCurrent=()=>true}) {
-  const state=await rpc('tiu6_session',{p_session_token:token,p_start:false});
+export async function mountTiu6({rpc,token,layout,setHeader,onComplete,onNotStarted,isCurrent=()=>true,code="tiu6",title="Tes",total=40,markup=questionMarkup}) {
+  const normalize=values=>{if(!Array.isArray(values)||values.length!==total||values.some(v=>v!==null&&(code==='tiu5'?(!Number.isInteger(v)||v<1||v>5):!['B','S'].includes(v))))throw new Error('Jawaban tidak valid');return values.slice();};
+  const state=await rpc(`${code}_session`,{p_session_token:token,p_start:false});
   if(!isCurrent())return ()=>{};
   if(state.status==='not_started'){onNotStarted();return ()=>{};}
   if(state.status==='completed'){
-    layout('<h2>TIU 6 sudah selesai</h2><p>Jawaban Anda telah tersimpan.</p><button id="tiu6Continue" class="btn btn-primary">Lanjutkan</button>');
+    layout(`<h2>${title} sudah selesai</h2><p>Jawaban Anda telah tersimpan.</p><button id="tiu6Continue" class="btn btn-primary">Lanjutkan</button>`);
     document.querySelector('#tiu6Continue').onclick=onComplete;return ()=>{};
   }
-  let answers=normalizeAnswers(state.answers),revision=state.revision;
-  const draftKey=`rtg_tiu6_${state.id}`;
-  try {const draft=JSON.parse(localStorage.getItem(draftKey));if(draft?.revision===revision)answers=normalizeAnswers(draft.answers);}catch{}
+  let answers=normalize(state.answers),revision=state.revision;
+  const draftKey=`rtg_${code}_${state.id}`;
+  try {const draft=JSON.parse(localStorage.getItem(draftKey));if(draft?.revision===revision)answers=normalize(draft.answers);}catch{}
   let pending=false,dirty=JSON.stringify(answers)!==JSON.stringify(state.answers),wantFinish=false,disposed=false,expired=false,finished=false;
   let serverBase=Date.parse(state.server_now),clockBase=performance.now();
   const deadline=state.deadline_at?Date.parse(state.deadline_at):null;
-  setHeader('TIU 6 · 8 kelompok · 40 gambar');
-  layout(`<div class="tiu-all-toolbar"><div><span class="eyebrow">TIU 6</span><h2>Jaring-jaring Bangun</h2><span id="tiu6Count"></span></div><div id="tiu6Timer" class="timer"></div></div><div class="notice">Pilih B jika jaring-jaring dapat membentuk bangun acuan, atau S jika tidak. Klik bulatan pada setiap gambar. Isian yang belum dijawab tetap kosong.</div><p id="tiu6SaveStatus" role="status"></p><form id="tiu6Form">${questionMarkup(state.questions)}<div class="actions"><button id="tiu6Finish" class="btn btn-primary">Selesai dan Simpan TIU 6</button><button id="tiu6Retry" class="btn btn-secondary" type="button" hidden>Coba Simpan Lagi</button></div></form>`);
-  const fields=[...document.querySelectorAll('.tiu6 select')],button=document.querySelector('#tiu6Finish'),retry=document.querySelector('#tiu6Retry'),status=document.querySelector('#tiu6SaveStatus'),timer=document.querySelector('#tiu6Timer');
-  const paint=()=>{fields.forEach(f=>{f.value=answers[Number(f.dataset.number)-1]||'';f.classList.toggle('answered',!!f.value);});document.querySelector('#tiu6Count').textContent=`${answers.filter(Boolean).length} / 40 terisi`;};
+  setHeader(`${title} · ${total} soal`);
+  layout(`<div class="tiu-all-toolbar"><div><span class="eyebrow">Sesi Tes</span><h2>${title}</h2><span id="tiu6Count"></span></div><div id="tiu6Timer" class="timer"></div></div><div class="notice">${code==='tiu5'?'Pilih satu jawaban 1–5 untuk setiap soal.':'Pilih B jika jaring-jaring dapat membentuk bangun acuan, atau S jika tidak. Klik bulatan pada setiap gambar.'} Isian yang belum dijawab tetap kosong.</div><p id="tiu6SaveStatus" role="status"></p><form id="tiu6Form">${markup(state.questions)}<div class="actions"><button id="tiu6Finish" class="btn btn-primary">Selesai dan Simpan</button><button id="tiu6Retry" class="btn btn-secondary" type="button" hidden>Coba Simpan Lagi</button></div></form>`);
+  const fields=[...document.querySelectorAll(code==='tiu5'?'.tiu-all-choice input':'.tiu6 select')],button=document.querySelector('#tiu6Finish'),retry=document.querySelector('#tiu6Retry'),status=document.querySelector('#tiu6SaveStatus'),timer=document.querySelector('#tiu6Timer');
+  const paint=()=>{fields.forEach(f=>{const v=answers[Number(f.dataset.number)-1];if(code==='tiu5'){f.checked=v===Number(f.value);f.closest('label').classList.toggle('selected',f.checked);}else{f.value=v||'';f.classList.toggle('answered',!!f.value);}});document.querySelector('#tiu6Count').textContent=`${answers.filter(Boolean).length} / ${total} terisi`;};
   const persist=()=>{try{localStorage.setItem(draftKey,JSON.stringify({revision,answers}));}catch{}};
   const lock=value=>{fields.forEach(f=>f.disabled=value);button.disabled=value;};
   paint();status.textContent=dirty?'Memulihkan jawaban yang belum tersimpan…':'Jawaban tersimpan.';
@@ -60,11 +61,11 @@ export async function mountTiu6({rpc,token,layout,setHeader,onComplete,onNotStar
         const sent=answers.slice(),sentFinish=wantFinish;dirty=false;
         if(sentFinish)lock(true);
         status.textContent='Menyimpan jawaban…';
-        const saved=await rpc('save_tiu6_answers',{p_session_token:token,p_answers:sent,p_revision:revision,p_finish:sentFinish});
+        const saved=await rpc(`save_${code}_answers`,{p_session_token:token,p_answers:sent,p_revision:revision,p_finish:sentFinish});
         revision=saved.revision;serverBase=Date.parse(saved.server_now);clockBase=performance.now();
         if(saved.status==='completed') {
           finished=true;try{localStorage.removeItem(draftKey);}catch{}
-          if(!disposed){answers=normalizeAnswers(saved.answers);paint();lock(true);status.textContent='Seluruh jawaban tersimpan. TIU 6 selesai.';onComplete();}return;
+          if(!disposed){answers=normalize(saved.answers);paint();lock(true);status.textContent='Seluruh jawaban tersimpan. Tes selesai.';onComplete();}return;
         }
         persist();if(!disposed)status.textContent=dirty?'Menyimpan perubahan berikutnya…':'Jawaban tersimpan.';
       } while(!disposed&&(dirty||wantFinish));
@@ -73,8 +74,8 @@ export async function mountTiu6({rpc,token,layout,setHeader,onComplete,onNotStar
       if(!disposed){status.textContent=`Belum tersimpan: ${error.message||'Periksa koneksi internet.'}`;retry.hidden=false;if(!expired){wantFinish=false;lock(false);}}
     } finally {pending=false;}
   }
-  fields.forEach(f=>f.onchange=()=>{if(expired||finished)return;answers[Number(f.dataset.number)-1]=f.value||null;dirty=true;paint();persist();void flush();});
-  document.querySelector('#tiu6Form').onsubmit=e=>{e.preventDefault();const blank=answers.filter(x=>!x).length;if(blank&&!confirm(`${blank} gambar belum dijawab dan akan disimpan kosong. Selesaikan TIU 6?`))return;void flush(true);};
+  fields.forEach(f=>f.onchange=()=>{if(expired||finished)return;answers[Number(f.dataset.number)-1]=code==='tiu5'?Number(f.value):f.value||null;dirty=true;paint();persist();void flush();});
+  document.querySelector('#tiu6Form').onsubmit=e=>{e.preventDefault();const blank=answers.filter(x=>!x).length;if(blank&&!confirm(`${blank} gambar belum dijawab dan akan disimpan kosong. Selesaikan ${title}?`))return;void flush(true);};
   retry.onclick=()=>void flush(expired);
   function tick(){
     if(disposed||finished)return;

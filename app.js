@@ -1,3 +1,4 @@
+import { mountResults } from './results.js';
 import { renderTiuSvgQuestion } from './tiu5-svg-temp.js';
 import { mountTiu6, questionMarkup, answersCsv } from './tiu6.js';
 
@@ -64,8 +65,8 @@ function imageChoiceHtml(q) {
 }
 
 const testMeta={
-  test1:{name:'Tes 1',total:90,seconds:15,unit:'soal',description:'Setiap soal berisi dua pernyataan. Pilih satu yang paling sesuai dengan diri Anda.'},
-  test2:{name:'Tes 2',total:24,seconds:30,unit:'kelompok',description:'Setiap kelompok berisi empat pernyataan. Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.'},
+  test1:{name:'PAPI Kostic',total:90,seconds:15,unit:'soal',description:'Setiap soal berisi dua pernyataan. Pilih satu yang paling sesuai dengan diri Anda.'},
+  test2:{name:'DISC',total:24,seconds:30,unit:'kelompok',description:'Setiap kelompok berisi empat pernyataan. Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.'},
   tiu5:{name:'TIU 5',total:30,seconds:300,unit:'soal',description:'Perhatikan perubahan gambar A menjadi B. Terapkan perubahan yang sama pada gambar C, lalu pilih jawaban 1–5.'},
   tiu6:{name:'TIU 6',total:40,unit:'gambar',description:'Tentukan apakah setiap jaring-jaring dapat membentuk bangun acuan. Pilih B (benar) atau S (salah) untuk setiap gambar.'}
 };
@@ -91,6 +92,8 @@ async function getTestSequence(){
   try{return await rpc('get_active_test_sequence')||['test1','test2','tiu5'];}
   catch{return ['test1','test2','tiu5'];}
 }
+
+async function participantTitle(code){const sequence=await getTestSequence();const i=sequence.indexOf(code);return i>=0?`Urutan Tes ${i+1}`:'Sesi Tes';}
 
 function layout(content, compact = false) {
   app.innerHTML = `<section class="card ${compact ? '' : 'page-card'}">${content}</section>`;
@@ -173,14 +176,17 @@ function applicationPage() {
 async function instructionsPage(testCode) {
   if (!session.token) return route('/');
   if(testCode==='tiu6')return tiu6Instructions();
-  const meta=testMeta[testCode]||testMeta.test1;
+  const meta={...(testMeta[testCode]||testMeta.test1),name:await participantTitle(testCode)};
   setHeader(`${session.name} · ${meta.name}`);
   if(testCode==='tiu5'){
-    layout(`<span class="eyebrow">Sesi Tes</span><h2 style="margin-top:12px">Petunjuk TIU 5</h2><p class="muted">${meta.description}</p>
-      <div class="steps"><div class="step"><small>Jumlah</small><strong>30 soal</strong></div><div class="step"><small>Waktu total</small><strong>5 menit</strong></div><div class="step"><small>Tampilan</small><strong>Semua soal sekaligus</strong></div></div>
+    const state=await rpc('tiu5_session',{p_session_token:session.token,p_start:false});
+    const seconds=state.status==='in_progress'?(state.deadline_at?(Date.parse(state.deadline_at)-Date.parse(state.started_at))/1000:null):state.duration_seconds;
+    const duration=seconds?`${seconds/60} menit`:'Tanpa batas waktu';
+    layout(`<span class="eyebrow">Sesi Tes</span><h2 style="margin-top:12px">Petunjuk ${meta.name}</h2><p class="muted">${meta.description}</p>
+      <div class="steps"><div class="step"><small>Jumlah</small><strong>30 soal</strong></div><div class="step"><small>Waktu total</small><strong>${duration}</strong></div><div class="step"><small>Tampilan</small><strong>Semua soal sekaligus</strong></div></div>
       ${tiuInstructionsHtml()}
-      <div class="notice">Setelah tombol mulai ditekan, seluruh soal 1–30 akan tampil dan timer 5 menit langsung berjalan. Jawaban yang belum dipilih akan disimpan kosong.</div>
-      <div class="actions"><button id="startTest" class="btn btn-primary">Saya Mengerti · Mulai TIU 5</button></div>`);
+      <div class="notice">Setelah tombol mulai ditekan, seluruh soal 1–30 akan tampil dan waktu pengerjaan ${duration} langsung berjalan. Jawaban yang belum dipilih akan disimpan kosong.</div>
+      <div class="actions"><button id="startTest" class="btn btn-primary">Saya Mengerti · Mulai ${meta.name}</button></div>`);
   }else layout(`<span class="eyebrow">Sesi Tes</span>
     <h2 style="margin-top:12px">Petunjuk ${meta.name}</h2>
     <p class="muted">${meta.description}</p>
@@ -188,25 +194,20 @@ async function instructionsPage(testCode) {
     <div class="notice">Timer dimulai setelah tombol di bawah ditekan. Jika waktu habis, soal akan otomatis dilanjutkan.</div>
     <div class="actions"><button id="startTest" class="btn btn-primary">Mulai ${meta.name}</button></div>`);
   document.querySelector('#startTest').onclick=async()=>{
-    try { const snapshot=await rpc('start_test_attempt_v2',{p_session_token:session.token,p_test_code:testCode}); questionBank ||= {}; questionBank[testCode]=snapshot; localStorage.setItem('rtg_test_state',JSON.stringify({testCode,index:testCode==='tiu5'?'all':0})); route(testCode==='tiu5'?'/quiz/tiu5/all':`/quiz/${testCode}/0`); }
+    try { if(testCode==='tiu5'){const state=await rpc('tiu5_session',{p_session_token:session.token,p_start:true});if(state.status==='completed')return finishTest('tiu5');route('/quiz/tiu5/all');return;} const snapshot=await rpc('start_test_attempt_v2',{p_session_token:session.token,p_test_code:testCode}); questionBank ||= {}; questionBank[testCode]=snapshot; localStorage.setItem('rtg_test_state',JSON.stringify({testCode,index:testCode==='tiu5'?'all':0})); route(testCode==='tiu5'?'/quiz/tiu5/all':`/quiz/${testCode}/0`); }
     catch(error){toast(error.message||'Tes belum dapat dimulai.');}
   };
 }
 
 async function tiu5AllPage(){
   if(!session.token)return route('/');
-  clearTimer();questionBank||={};
-  try{questionBank.tiu5=await loadTemporaryTiuCsv();}catch(error){toast(error.message);return;}
-  const questions=questionBank.tiu5,startedAt=Date.now();let remaining=300,saving=false;
-  setHeader(`TIU 5 · ${questions.length} soal`);
-  const questionHtml=questions.map(q=>{const shapes=renderTiuSvgQuestion(q.number);return `<section class="tiu-all-question" data-number="${q.number}"><strong class="tiu-number">${q.number}</strong><div class="tiu-all-row"><div class="tiu-abc-row">${shapes.prompt.map((shape,i)=>`<div class="tiu-shape"><b>${'ABC'[i]}</b>${shape}</div>`).join('')}</div><div class="tiu-choice-row">${shapes.options.map((shape,i)=>`<label class="tiu-all-choice"><b>${i+1}</b><input type="radio" name="tiu5_${q.number}" value="${i+1}">${shape}</label>`).join('')}</div></div></section>`}).join('');
-  layout(`<div class="tiu-all-toolbar"><div><span class="eyebrow">TIU 5</span><h2>30 Soal Analogi Gambar</h2></div><div><small>Waktu tersisa</small><div id="tiuTotalTimer" class="timer">05:00</div></div></div><div class="notice">Pilih satu jawaban untuk setiap soal. Soal yang tidak dijawab akan dibiarkan kosong.</div><form id="tiuAllForm"><div class="tiu-all-list">${questionHtml}</div><div class="actions"><button id="finishTiu" class="btn btn-primary" type="submit">Selesai dan Simpan Jawaban</button></div></form>`);
-  document.querySelectorAll('.tiu-all-choice input').forEach(input=>input.onchange=()=>{const group=input.closest('.tiu-choice-row');group.querySelectorAll('.tiu-all-choice').forEach(label=>label.classList.toggle('selected',label.contains(input)));});
-  const timer=document.querySelector('#tiuTotalTimer');
-  const formatTime=value=>`${String(Math.floor(value/60)).padStart(2,'0')}:${String(value%60).padStart(2,'0')}`;
-  const submit=async timedOut=>{if(saving)return;saving=true;clearTimer();const button=document.querySelector('#finishTiu');button.disabled=true;button.textContent='Menyimpan 30 jawaban...';const elapsed=Math.min(300,Math.round((Date.now()-startedAt)/1000));try{for(const q of questions){const selected=document.querySelector(`[name="tiu5_${q.number}"]:checked`);await rpc('save_test_answer',{p_session_token:session.token,p_test_code:'tiu5',p_question_number:q.number,p_answer:selected?{choice:Number(selected.value)}:null,p_timed_out:timedOut&&!selected,p_elapsed_seconds:elapsed});}await finishTest('tiu5');}catch(error){saving=false;button.disabled=false;button.textContent='Coba Simpan Lagi';toast(error.message||'Jawaban belum tersimpan.');}};
-  document.querySelector('#tiuAllForm').onsubmit=e=>{e.preventDefault();submit(false);};
-  timerId=setInterval(()=>{remaining--;timer.textContent=formatTime(Math.max(0,remaining));timer.classList.toggle('warning',remaining<=60);timer.classList.toggle('danger',remaining<=15);if(remaining<=0)submit(true);},1000);
+  const expectedHash=location.hash;
+  try{
+    const title=await participantTitle('tiu5');
+    const markup=questions=>`<div class="tiu-all-list">${questions.map(q=>{const shapes=renderTiuSvgQuestion(q.number);if(!shapes)throw new Error('Soal belum tersedia');return `<section class="tiu-all-question"><strong class="tiu-number">${q.number}</strong><div class="tiu-all-row"><div class="tiu-abc-row">${shapes.prompt.map((shape,i)=>`<div class="tiu-shape"><b>${'ABC'[i]}</b>${shape}</div>`).join('')}</div><div class="tiu-choice-row">${shapes.options.map((shape,i)=>`<label class="tiu-all-choice"><b>${i+1}</b><input type="radio" data-number="${q.number}" name="tiu5_${q.number}" value="${i+1}">${shape}</label>`).join('')}</div></div></section>`;}).join('')}</div>`;
+    const cleanup=await mountTiu6({rpc,token:session.token,layout,setHeader,title,code:'tiu5',total:30,markup,onComplete:()=>finishTest('tiu5'),onNotStarted:()=>route('/instructions/tiu5'),isCurrent:()=>location.hash===expectedHash});
+    if(location.hash!==expectedHash)cleanup();else disposeTiu6=cleanup;
+  }catch(error){layout(`<h2>Tes belum dapat dibuka</h2><p>${escapeHtml(error.message)}</p>`);}
 }
 
 async function quizPage(testCode, index) {
@@ -225,7 +226,7 @@ async function quizPage(testCode, index) {
   const questions=questionBank[testCode];
   if (!questions || index >= questions.length) return finishTest(testCode);
   const q=questions[index]; let remaining=q.duration; let answer=null;
-  const meta=testMeta[testCode]||testMeta.test1;
+  const meta={...(testMeta[testCode]||testMeta.test1),name:await participantTitle(testCode)};
   setHeader(`${meta.name} · ${index+1}/${questions.length}`);
   const options=q.type==='paired_choice'
     ? `<div class="options">${q.options.map((option,i)=>`<label class="option"><input type="radio" name="answer" value="${i}"><span>${escapeHtml(option)}</span></label>`).join('')}</div>`
@@ -263,7 +264,7 @@ function completePage(){
 }
 
 function adminShell(active,content){
-  const nav=[['dashboard','Dashboard'],['candidates','Data Peserta'],['tiu6-results','Hasil TIU 6'],['questions','Bank Soal'],['settings','Pengaturan Tes']];
+  const nav=[['dashboard','Dashboard'],['candidates','Data Peserta'],['results','Hasil Tes'],['questions','Bank Soal'],['settings','Pengaturan Tes']];
   layout(`<div class="admin-layout"><aside class="admin-nav"><div><span class="eyebrow">HR Recruitment</span><h3 style="margin:12px 0 20px">Panel Admin</h3></div>${nav.map(([id,label])=>`<a class="${active===id?'active':''}" href="#/admin/${id}">${label}</a>`).join('')}<button id="adminOut" class="btn btn-secondary">Keluar</button></aside><div class="admin-content">${content}</div></div>`);
   document.querySelector('#adminOut').onclick=()=>db.auth.signOut().then(()=>route('/admin'));
 }
@@ -280,11 +281,11 @@ async function adminPage(section='dashboard'){
   setHeader('HR Recruitment'); if(!await requireAdmin())return;
   if(section==='questions')return adminQuestions();
   if(section==='settings')return adminSettings();
-  if(section==='tiu6-results')return adminTiu6Results();
+  if(section==='results'||section==='tiu6-results')return mountResults({db,shell:adminShell});
   const {data,error}=await db.from('admin_candidate_summary').select('*').order('created_at',{ascending:false});
   if(error)return adminShell(section,`<h2>Akses belum tersedia</h2><p class="muted">${escapeHtml(error.message)}</p>`);
   const rows=data||[],completed=rows.filter(x=>x.all_tests_completed===true).length;
-  const table=`<div class="section-title"><div><h2>${section==='candidates'?'Data Peserta':'Ringkasan Peserta'}</h2><p class="muted">Pantau proses seleksi secara langsung.</p></div></div>${section==='dashboard'?`<div class="dashboard-grid"><div class="stat"><strong>${rows.length}</strong><span>Total peserta</span></div><div class="stat"><strong>${completed}</strong><span>Tes selesai</span></div><div class="stat"><strong>${rows.filter(x=>x.test_1_status==='in_progress').length}</strong><span>Sedang Tes 1</span></div><div class="stat"><strong>${rows.filter(x=>x.test_2_status==='in_progress').length}</strong><span>Sedang Tes 2</span></div></div>`:''}<div class="table-wrap"><table><thead><tr><th>Nama</th><th>Posisi</th><th>Tes 1</th><th>Tes 2</th><th>Terdaftar</th></tr></thead><tbody>${rows.map(x=>`<tr><td><strong>${escapeHtml(x.full_name)}</strong></td><td>${escapeHtml(x.position||'-')}</td><td><span class="pill ${x.test_1_status==='completed'?'done':''}">${escapeHtml(x.test_1_status||'belum')}</span></td><td><span class="pill ${x.test_2_status==='completed'?'done':''}">${escapeHtml(x.test_2_status||'belum')}</span></td><td>${new Date(x.created_at).toLocaleDateString('id-ID')}</td></tr>`).join('')||'<tr><td colspan="5">Belum ada peserta.</td></tr>'}</tbody></table></div>`;
+  const table=`<div class="section-title"><div><h2>${section==='candidates'?'Data Peserta':'Ringkasan Peserta'}</h2><p class="muted">Pantau proses seleksi secara langsung.</p></div></div>${section==='dashboard'?`<div class="dashboard-grid"><div class="stat"><strong>${rows.length}</strong><span>Total peserta</span></div><div class="stat"><strong>${completed}</strong><span>Tes selesai</span></div><div class="stat"><strong>${rows.filter(x=>x.test_1_status==='in_progress').length}</strong><span>Sedang PAPI Kostic</span></div><div class="stat"><strong>${rows.filter(x=>x.test_2_status==='in_progress').length}</strong><span>Sedang DISC</span></div></div>`:''}<div class="table-wrap"><table><thead><tr><th>Nama</th><th>Posisi</th><th>PAPI Kostic</th><th>DISC</th><th>Terdaftar</th></tr></thead><tbody>${rows.map(x=>`<tr><td><strong>${escapeHtml(x.full_name)}</strong></td><td>${escapeHtml(x.position||'-')}</td><td><span class="pill ${x.test_1_status==='completed'?'done':''}">${escapeHtml(x.test_1_status||'belum')}</span></td><td><span class="pill ${x.test_2_status==='completed'?'done':''}">${escapeHtml(x.test_2_status||'belum')}</span></td><td>${new Date(x.created_at).toLocaleDateString('id-ID')}</td></tr>`).join('')||'<tr><td colspan="5">Belum ada peserta.</td></tr>'}</tbody></table></div>`;
   adminShell(section,table);
   const head=document.querySelector('.table-wrap thead tr');
   ['TIU 5','TIU 6'].forEach(label=>{const th=document.createElement('th');th.textContent=label;head.append(th);});
@@ -297,7 +298,7 @@ async function adminQuestions(){
   if(testCode==='tiu6')return adminTiu6Bank();
   const {data,error}=await db.from('question_bank').select('*').eq('test_code',testCode).order('question_number');
   if(error)return adminShell('questions',`<h2>Bank Soal belum aktif</h2><p class="muted">Jalankan update-02-admin-question-bank.sql.</p>`);
-  adminShell('questions',`<div class="section-title"><div><h2>Bank Soal</h2><p class="muted">Edit isi, durasi, urutan, dan status soal.</p></div><button id="addQuestion" class="btn btn-primary">+ Tambah Soal</button></div><div class="segmented"><a class="${testCode==='test1'?'active':''}" href="#/admin/questions?test=test1">Tes 1</a><a class="${testCode==='test2'?'active':''}" href="#/admin/questions?test=test2">Tes 2</a><a class="${testCode==='tiu5'?'active':''}" href="#/admin/questions?test=tiu5">TIU 5</a></div><div class="question-list">${data.map(q=>`<div class="question-item ${q.active?'':'inactive'}"><div><small>Soal ${q.question_number} · ${q.duration_seconds} detik</small><strong>${escapeHtml(q.question_type==='image_choice'?(q.image_url||'Gambar belum diisi'):q.options.join(' / '))}</strong></div><div class="question-actions"><button class="btn btn-secondary edit-question" data-id="${q.id}">Edit</button><button class="btn btn-secondary toggle-question" data-id="${q.id}" data-active="${q.active}">${q.active?'Nonaktifkan':'Aktifkan'}</button></div></div>`).join('')}</div><div id="questionEditor"></div>`);
+  adminShell('questions',`<div class="section-title"><div><h2>Bank Soal</h2><p class="muted">Edit isi, durasi, urutan, dan status soal.</p></div><button id="addQuestion" class="btn btn-primary">+ Tambah Soal</button></div><div class="segmented"><a class="${testCode==='test1'?'active':''}" href="#/admin/questions?test=test1">PAPI Kostic</a><a class="${testCode==='test2'?'active':''}" href="#/admin/questions?test=test2">DISC</a><a class="${testCode==='tiu5'?'active':''}" href="#/admin/questions?test=tiu5">TIU 5</a></div><div class="question-list">${data.map(q=>`<div class="question-item ${q.active?'':'inactive'}"><div><small>Soal ${q.question_number} · ${q.duration_seconds} detik</small><strong>${escapeHtml(q.question_type==='image_choice'?(q.image_url||'Gambar belum diisi'):q.options.join(' / '))}</strong></div><div class="question-actions"><button class="btn btn-secondary edit-question" data-id="${q.id}">Edit</button><button class="btn btn-secondary toggle-question" data-id="${q.id}" data-active="${q.active}">${q.active?'Nonaktifkan':'Aktifkan'}</button></div></div>`).join('')}</div><div id="questionEditor"></div>`);
   document.querySelector('#addQuestion').onclick=()=>renderQuestionEditor(null,testCode,(data.at(-1)?.question_number||0)+1);
   document.querySelector('.segmented').insertAdjacentHTML('beforeend','<a href="#/admin/questions?test=tiu6">TIU 6</a>');
   document.querySelectorAll('.edit-question').forEach(b=>b.onclick=()=>renderQuestionEditor(data.find(q=>q.id===b.dataset.id),testCode));
@@ -317,21 +318,22 @@ async function advanceTiu6(){
 }
 
 async function tiu6Instructions(){
-  setHeader(`${session.name} · TIU 6`);
+  const title=await participantTitle('tiu6');
+  setHeader(`${session.name} · ${title}`);
   try{
     const state=await rpc('tiu6_session',{p_session_token:session.token,p_start:false});
     const complete=state.status==='completed',started=state.status==='in_progress';
     const seconds=started?(state.deadline_at?Math.round((Date.parse(state.deadline_at)-Date.parse(state.started_at))/1000):null):state.duration_seconds;
-    layout(`<span class="eyebrow">Sesi Tes</span><h2>Petunjuk TIU 6</h2><p>${testMeta.tiu6.description}</p><div class="steps"><div class="step"><small>Jumlah</small><strong>8 kelompok · 40 gambar</strong></div><div class="step"><small>Waktu total</small><strong>${seconds?`${seconds/60} menit`:'Tanpa batas waktu'}</strong></div></div><div class="notice">Perhatikan bangun acuan di sebelah kiri. Nilai setiap gambar secara terpisah: B jika bisa membentuk bangun acuan, S jika tidak. Jumlah B pada setiap kelompok dapat berbeda. Klik bulatan untuk memilih jawaban. Anda boleh mengubah pilihan sebelum selesai. Isian kosong tetap kosong.</div><p>Jawaban disimpan otomatis. ${seconds?'Saat waktu habis, hanya jawaban yang sudah diterima server sebelum batas waktu yang digunakan.':'Pastikan keterangan “Jawaban tersimpan” muncul sebelum meninggalkan halaman.'}</p>${complete?'<p>TIU 6 sudah selesai dan tersimpan.</p>':''}<button id="tiu6Start" class="btn btn-primary" ${state.active===false?'disabled':''}>${complete?'Lanjut ke sesi berikutnya':started?'Lanjutkan TIU 6':'Saya mengerti · Mulai TIU 6'}</button>`);
+    layout(`<span class="eyebrow">Sesi Tes</span><h2>Petunjuk ${title}</h2><p>${testMeta.tiu6.description}</p><div class="steps"><div class="step"><small>Jumlah</small><strong>8 kelompok · 40 gambar</strong></div><div class="step"><small>Waktu total</small><strong>${seconds?`${seconds/60} menit`:'Tanpa batas waktu'}</strong></div></div><div class="notice">Perhatikan bangun acuan di sebelah kiri. Nilai setiap gambar secara terpisah: B jika bisa membentuk bangun acuan, S jika tidak. Jumlah B pada setiap kelompok dapat berbeda. Klik bulatan untuk memilih jawaban. Anda boleh mengubah pilihan sebelum selesai. Isian kosong tetap kosong.</div><p>Jawaban disimpan otomatis. ${seconds?'Saat waktu habis, hanya jawaban yang sudah diterima server sebelum batas waktu yang digunakan.':'Pastikan keterangan “Jawaban tersimpan” muncul sebelum meninggalkan halaman.'}</p>${complete?'<p>Tes sudah selesai dan tersimpan.</p>':''}<button id="tiu6Start" class="btn btn-primary" ${state.active===false?'disabled':''}>${complete?'Lanjut ke sesi berikutnya':started?'Lanjutkan tes':'Saya mengerti · Mulai tes'}</button>`);
     document.querySelector('#tiu6Start').onclick=async e=>{if(complete)return advanceTiu6();e.currentTarget.disabled=true;try{await rpc('tiu6_session',{p_session_token:session.token,p_start:true});localStorage.setItem('rtg_test_state',JSON.stringify({testCode:'tiu6',index:'all'}));route('/quiz/tiu6/all');}catch(error){toast(error.message);document.querySelector('#tiu6Start').disabled=false;}};
-  }catch(error){layout(`<h2>TIU 6 belum tersedia</h2><p>${escapeHtml(error.message)}</p><p>Hubungi HR untuk memastikan pembaruan TIU 6 sudah dipasang.</p>`);}
+  }catch(error){layout(`<h2>Tes belum tersedia</h2><p>${escapeHtml(error.message)}</p><p>Hubungi HR untuk memastikan sesi tes sudah tersedia.</p>`);}
 }
 
 async function adminTiu6Bank(){
   const {data,error}=await db.from('question_bank').select('*').eq('test_code','tiu6').order('question_number');
   if(error||data?.length!==40)return adminShell('questions','<h2>Bank TIU 6 belum lengkap</h2><p>Jalankan supabase/update-04-tiu6.sql untuk memasang 40 gambar.</p>');
   const questions=data.map(q=>({number:q.question_number,visual:q.visual_data}));
-  try{adminShell('questions',`<h2>Bank Soal TIU 6</h2><div class="segmented"><a href="#/admin/questions?test=test1">Tes 1</a><a href="#/admin/questions?test=test2">Tes 2</a><a href="#/admin/questions?test=tiu5">TIU 5</a><a class="active" href="#/admin/questions?test=tiu6">TIU 6</a></div><p>8 kelompok · 40 gambar B/S. Gambar mengikuti revisi yang sudah disetujui. Durasi dan posisi sesi dapat diatur di Pengaturan Tes.</p>${questionMarkup(questions,true)}`);}catch(e){adminShell('questions',`<p>${escapeHtml(e.message)}</p>`);}
+  try{adminShell('questions',`<h2>Bank Soal TIU 6</h2><div class="segmented"><a href="#/admin/questions?test=test1">PAPI Kostic</a><a href="#/admin/questions?test=test2">DISC</a><a href="#/admin/questions?test=tiu5">TIU 5</a><a class="active" href="#/admin/questions?test=tiu6">TIU 6</a></div><p>8 kelompok · 40 gambar B/S. Gambar mengikuti revisi yang sudah disetujui. Durasi dan posisi sesi dapat diatur di Pengaturan Tes.</p>${questionMarkup(questions,true)}`);}catch(e){adminShell('questions',`<p>${escapeHtml(e.message)}</p>`);}
 }
 
 async function adminTiu6Results(){
@@ -353,10 +355,10 @@ async function adminTiu6Results(){
 async function adminSettings(){
   const {data,error}=await db.from('test_settings').select('*').order('sort_order');
   if(error)return adminShell('settings',`<h2>Pengaturan belum aktif</h2><p class="muted">Jalankan update-02-admin-question-bank.sql.</p>`);
-  adminShell('settings',`<div class="section-title"><div><h2>Urutan Sesi Tes</h2><p class="muted">Pindahkan posisi sesi. Urutan soal di dalam setiap sesi tetap.</p></div></div><div class="settings-grid">${data.map((s,i)=>`<form class="setting-card" data-code="${s.test_code}"><div class="setting-order"><strong>${i+1}</strong><div><h3>${escapeHtml(s.display_name)}</h3><small>${escapeHtml(s.test_code)}</small></div></div><label><input name="active" type="checkbox" ${s.active?'checked':''}> Sesi aktif</label><div class="question-actions"><button type="button" class="btn btn-secondary move-session" data-direction="-1" ${i===0?'disabled':''}>↑ Naik</button><button type="button" class="btn btn-secondary move-session" data-direction="1" ${i===data.length-1?'disabled':''}>↓ Turun</button><button class="btn btn-primary">Simpan</button></div></form>`).join('')}</div>`);
+  adminShell('settings',`<div class="section-title"><div><h2>Urutan Sesi Tes</h2><p class="muted">Pindahkan posisi sesi. Urutan soal di dalam setiap sesi tetap.</p></div></div><div class="settings-grid">${data.map((s,i)=>`<form class="setting-card" data-code="${s.test_code}"><div class="setting-order"><strong>${i+1}</strong><div><h3>${escapeHtml(testMeta[s.test_code]?.name||s.display_name)}</h3><small>${escapeHtml(s.test_code)}</small></div></div><label><input name="active" type="checkbox" ${s.active?'checked':''}> Sesi aktif</label><div class="question-actions"><button type="button" class="btn btn-secondary move-session" data-direction="-1" ${i===0?'disabled':''}>↑ Naik</button><button type="button" class="btn btn-secondary move-session" data-direction="1" ${i===data.length-1?'disabled':''}>↓ Turun</button><button class="btn btn-primary">Simpan</button></div></form>`).join('')}</div>`);
   document.querySelectorAll('.setting-card').forEach(form=>{
-    if(form.dataset.code==='tiu6'){const s=data.find(x=>x.test_code==='tiu6');form.querySelector('.question-actions').insertAdjacentHTML('beforebegin',`<div class="field"><label>Waktu total TIU 6 (menit)</label><input name="session_minutes" type="number" min="1" max="1440" step="1" value="${s.session_duration_seconds?s.session_duration_seconds/60:''}" placeholder="Kosong = tanpa batas waktu"><small>Berlaku untuk sesi yang baru dimulai.</small></div>`);}
-    form.onsubmit=async e=>{e.preventDefault();const f=new FormData(form),payload={active:f.get('active')==='on',updated_at:new Date().toISOString()};if(form.dataset.code==='tiu6')payload.session_duration_seconds=f.get('session_minutes')?Number(f.get('session_minutes'))*60:null;const {error}=await db.from('test_settings').update(payload).eq('test_code',form.dataset.code);toast(error?error.message:'Pengaturan berhasil disimpan.');};
+    if(['tiu5','tiu6'].includes(form.dataset.code)){const s=data.find(x=>x.test_code===form.dataset.code);form.querySelector('.question-actions').insertAdjacentHTML('beforebegin',`<div class="field"><label>Waktu total ${testMeta[form.dataset.code].name} (menit)</label><input name="session_minutes" type="number" min="1" max="1440" step="1" value="${s.session_duration_seconds?s.session_duration_seconds/60:''}" placeholder="Kosong = tanpa batas waktu"><small>Berlaku untuk sesi yang baru dimulai.</small></div>`);}
+    form.onsubmit=async e=>{e.preventDefault();const f=new FormData(form),payload={active:f.get('active')==='on',updated_at:new Date().toISOString()};if(['tiu5','tiu6'].includes(form.dataset.code))payload.session_duration_seconds=f.get('session_minutes')?Number(f.get('session_minutes'))*60:null;const {error}=await db.from('test_settings').update(payload).eq('test_code',form.dataset.code);toast(error?error.message:'Pengaturan berhasil disimpan.');};
     form.querySelectorAll('.move-session').forEach(button=>button.onclick=async()=>{const index=data.findIndex(x=>x.test_code===form.dataset.code),target=index+Number(button.dataset.direction);if(target<0||target>=data.length)return;const first=data[index],second=data[target];const updates=await Promise.all([db.from('test_settings').update({sort_order:second.sort_order}).eq('test_code',first.test_code),db.from('test_settings').update({sort_order:first.sort_order}).eq('test_code',second.test_code)]);const failed=updates.find(x=>x.error);if(failed)toast(failed.error.message);else adminSettings();});});
 }
 
@@ -369,8 +371,8 @@ async function router(){
   if(path[0]==='quiz'&&path[1]==='tiu6') {
     if(!session.token)return route('/');
     const expectedHash=location.hash;
-    try{const cleanup=await mountTiu6({rpc,token:session.token,layout,setHeader,onComplete:advanceTiu6,onNotStarted:()=>route('/instructions/tiu6'),isCurrent:()=>location.hash===expectedHash});if(location.hash!==expectedHash)cleanup();else disposeTiu6=cleanup;}
-    catch(error){layout(`<h2>TIU 6 belum dapat dibuka</h2><p>${escapeHtml(error.message)}</p><a class="btn btn-secondary" href="#/instructions/tiu6">Kembali ke petunjuk</a>`);}return;
+    try{const cleanup=await mountTiu6({rpc,token:session.token,layout,setHeader,title:await participantTitle('tiu6'),onComplete:advanceTiu6,onNotStarted:()=>route('/instructions/tiu6'),isCurrent:()=>location.hash===expectedHash});if(location.hash!==expectedHash)cleanup();else disposeTiu6=cleanup;}
+    catch(error){layout(`<h2>Tes belum dapat dibuka</h2><p>${escapeHtml(error.message)}</p><a class="btn btn-secondary" href="#/instructions/tiu6">Kembali ke petunjuk</a>`);}return;
   }
   if(path[0]==='quiz') return quizPage(path[1],Number(path[2]||0));
   if(path[0]==='complete') return completePage();
@@ -379,6 +381,7 @@ async function router(){
   return loginPage();
 }
 
-window.addEventListener('hashchange',router);
+const navigate=()=>router().catch(error=>layout(`<h2>Halaman belum dapat dibuka</h2><p>${escapeHtml(error.message)}</p>`));
+window.addEventListener('hashchange',navigate);
 window.addEventListener('beforeunload',e=>{if(location.hash.includes('/quiz/')){e.preventDefault();e.returnValue='';}});
-router();
+navigate();
