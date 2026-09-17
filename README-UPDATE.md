@@ -19,3 +19,13 @@ Jika teks soal/opsi versi lama tidak cocok dengan acuan, jawaban asli tetap dita
 300 nilai PAPI dari 15 peserta cocok dengan Excel. Seluruh 12 titik grafik contoh DISC cocok. Uji kunci TIU, kategori tumpang tindih, jawaban kosong, pemetaan opsi, simpan otomatis, pemulihan, retry, dan timeout lulus di pengujian lokal.
 SVG TIU 5 dan CSV SVG TIU 6 identik dengan versi yang disetujui.
 Paket belum diterbitkan otomatis. Migrasi PostgreSQL dan alur login/database langsung belum dijalankan dalam lingkungan ini. Setelah pemasangan, uji dengan peserta khusus sebelum dipakai untuk rekrutmen.
+
+
+## Update 06 — MBTI & HR Dashboard
+- Menambahkan MBTI 70 soal berdasarkan `MBTI V2,1 Open.xlsx`. Pemetaan E/I, S/N, T/F, J/P mengikuti sheet Hasil pada file acuan; uraian 16 tipe mengikuti sheet uraian.
+- Tambahkan `update-06-mbti.sql` ke Supabase. Migrasi memasang 70 soal MBTI dan satu sesi MBTI di `test_settings`.
+- Bank Soal TIU 5 sekarang menampilkan seluruh 30 SVG dan dikunci seperti TIU 6: tidak ada edit/tambah/nonaktif.
+- Dashboard menampilkan jumlah soal aktif TIU 5, TIU 6, dan MBTI. Data peserta menampilkan status semua lima tes.
+- Klik nama peserta membuka identitas, ringkasan hasil, dan tombol print laporan.
+- MBTI dapat diatur aktif/nonaktif dan waktu total melalui Pengaturan Tes; soal MBTI dapat diedit dari Bank Soal, tetapi urutan pilihan A/B jangan ditukar karena pemetaan scoring mengacu pada nomor soal.
+- Laporan print dibuat dalam halaman khusus dan dapat disimpan sebagai PDF melalui dialog print browser.

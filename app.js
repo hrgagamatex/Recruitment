@@ -1,6 +1,8 @@
-import { mountResults } from './results.js';
+import { mountResults, renderResult } from './results.js';
 import { renderTiuSvgQuestion } from './tiu5-svg-temp.js';
 import { mountTiu6, questionMarkup, answersCsv } from './tiu6.js';
+import { MBTI_QUESTIONS, scoreMbti } from './mbti.js';
+window.__mbtiModule={scoreMbti};
 
 const { supabaseUrl, supabasePublishableKey } = window.APP_CONFIG;
 const db = window.supabase.createClient(supabaseUrl, supabasePublishableKey);
@@ -68,7 +70,8 @@ const testMeta={
   test1:{name:'PAPI Kostic',total:90,seconds:15,unit:'soal',description:'Setiap soal berisi dua pernyataan. Pilih satu yang paling sesuai dengan diri Anda.'},
   test2:{name:'DISC',total:24,seconds:30,unit:'kelompok',description:'Setiap kelompok berisi empat pernyataan. Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.'},
   tiu5:{name:'TIU 5',total:30,seconds:300,unit:'soal',description:'Perhatikan perubahan gambar A menjadi B. Terapkan perubahan yang sama pada gambar C, lalu pilih jawaban 1–5.'},
-  tiu6:{name:'TIU 6',total:40,unit:'gambar',description:'Tentukan apakah setiap jaring-jaring dapat membentuk bangun acuan. Pilih B (benar) atau S (salah) untuk setiap gambar.'}
+  tiu6:{name:'TIU 6',total:40,unit:'gambar',description:'Tentukan apakah setiap jaring-jaring dapat membentuk bangun acuan. Pilih B (benar) atau S (salah) untuk setiap gambar.'},
+  mbti:{name:'MBTI',total:70,seconds:20,unit:'soal',description:'Pilih satu dari dua pernyataan yang paling menggambarkan kecenderungan diri Anda. Tidak ada jawaban benar atau salah.'}
 };
 
 function tiuDemoSvg(body) {
@@ -89,8 +92,8 @@ function tiuInstructionsHtml() {
 }
 
 async function getTestSequence(){
-  try{return await rpc('get_active_test_sequence')||['test1','test2','tiu5'];}
-  catch{return ['test1','test2','tiu5'];}
+  try{return await rpc('get_active_test_sequence')||['test1','test2','tiu5','mbti'];}
+  catch{return ['test1','test2','tiu5','mbti'];}
 }
 
 async function participantTitle(code){const sequence=await getTestSequence();const i=sequence.indexOf(code);return i>=0?`Urutan Tes ${i+1}`:'Sesi Tes';}
@@ -221,6 +224,7 @@ async function quizPage(testCode, index) {
   if(!questionBank[testCode]){
     const snapshot=await rpc('get_test_snapshot',{p_session_token:session.token,p_test_code:testCode});
     if(snapshot) questionBank[testCode]=snapshot;
+    else if(testCode==='mbti') questionBank[testCode]=MBTI_QUESTIONS.map(q=>({...q,type:'paired_choice',duration:20}));
     else questionBank=await fetch('data/questions.json').then(r=>r.json());
   }
   const questions=questionBank[testCode];
@@ -282,34 +286,95 @@ async function adminPage(section='dashboard'){
   if(section==='questions')return adminQuestions();
   if(section==='settings')return adminSettings();
   if(section==='results'||section==='tiu6-results')return mountResults({db,shell:adminShell});
-  const {data,error}=await db.from('admin_candidate_summary').select('*').order('created_at',{ascending:false});
+  if(section==='candidate'){
+    const id=new URLSearchParams(location.hash.split('?')[1]||'').get('id');
+    return candidateProfile(id);
+  }
+  const [{data,error},{data:attempts,error:attemptError},{data:questionCounts,error:questionError}]=await Promise.all([
+    db.from('admin_candidate_summary').select('*').order('created_at',{ascending:false}),
+    db.from('test_attempts').select('candidate_id,test_code,status'),
+    db.from('question_bank').select('test_code,active').in('test_code',['tiu5','tiu6','mbti'])
+  ]);
   if(error)return adminShell(section,`<h2>Akses belum tersedia</h2><p class="muted">${escapeHtml(error.message)}</p>`);
-  const rows=data||[],completed=rows.filter(x=>x.all_tests_completed===true).length;
-  const table=`<div class="section-title"><div><h2>${section==='candidates'?'Data Peserta':'Ringkasan Peserta'}</h2><p class="muted">Pantau proses seleksi secara langsung.</p></div></div>${section==='dashboard'?`<div class="dashboard-grid"><div class="stat"><strong>${rows.length}</strong><span>Total peserta</span></div><div class="stat"><strong>${completed}</strong><span>Tes selesai</span></div><div class="stat"><strong>${rows.filter(x=>x.test_1_status==='in_progress').length}</strong><span>Sedang PAPI Kostic</span></div><div class="stat"><strong>${rows.filter(x=>x.test_2_status==='in_progress').length}</strong><span>Sedang DISC</span></div></div>`:''}<div class="table-wrap"><table><thead><tr><th>Nama</th><th>Posisi</th><th>PAPI Kostic</th><th>DISC</th><th>Terdaftar</th></tr></thead><tbody>${rows.map(x=>`<tr><td><strong>${escapeHtml(x.full_name)}</strong></td><td>${escapeHtml(x.position||'-')}</td><td><span class="pill ${x.test_1_status==='completed'?'done':''}">${escapeHtml(x.test_1_status||'belum')}</span></td><td><span class="pill ${x.test_2_status==='completed'?'done':''}">${escapeHtml(x.test_2_status||'belum')}</span></td><td>${new Date(x.created_at).toLocaleDateString('id-ID')}</td></tr>`).join('')||'<tr><td colspan="5">Belum ada peserta.</td></tr>'}</tbody></table></div>`;
-  adminShell(section,table);
-  const head=document.querySelector('.table-wrap thead tr');
-  ['TIU 5','TIU 6'].forEach(label=>{const th=document.createElement('th');th.textContent=label;head.append(th);});
-  document.querySelectorAll('.table-wrap tbody tr').forEach((tr,i)=>{if(!rows[i])return;for(const key of ['tiu5_status','tiu6_status']){const td=document.createElement('td');td.textContent=rows[i][key]||'belum';tr.append(td);}});
-  if(rows.some(x=>x.all_tests_completed===undefined))toast('Jalankan update-04-tiu6.sql agar ringkasan sesi lengkap tersedia.');
+  const rows=data||[], attemptRows=attempts||[], qCounts=questionCounts||[];
+  const statusByCandidate={};
+  attemptRows.forEach(a=>(statusByCandidate[a.candidate_id] ||= {})[a.test_code]=a.status);
+  const activeCount=code=>qCounts.filter(q=>q.test_code===code&&q.active).length;
+  const completed=rows.filter(x=>x.all_tests_completed===true).length;
+  const status=(x,code,key)=>statusByCandidate[x.id]?.[code]||x[key]||'belum';
+  const candidateRows=rows.map(x=>`<tr class="candidate-row" data-id="${escapeHtml(x.id)}"><td><a class="candidate-link" href="#/admin/candidate?id=${encodeURIComponent(x.id)}"><strong>${escapeHtml(x.full_name)}</strong><small>${escapeHtml(x.position||'Posisi belum diisi')}</small></a></td><td>${escapeHtml(x.position||'-')}</td><td><span class="pill ${status(x,'test1','test_1_status')==='completed'?'done':''}">${escapeHtml(status(x,'test1','test_1_status'))}</span></td><td><span class="pill ${status(x,'test2','test_2_status')==='completed'?'done':''}">${escapeHtml(status(x,'test2','test_2_status'))}</span></td><td><span class="pill ${status(x,'tiu5','tiu5_status')==='completed'?'done':''}">${escapeHtml(status(x,'tiu5','tiu5_status'))}</span></td><td><span class="pill ${status(x,'tiu6','tiu6_status')==='completed'?'done':''}">${escapeHtml(status(x,'tiu6','tiu6_status'))}</span></td><td><span class="pill ${status(x,'mbti','mbti_status')==='completed'?'done':''}">${escapeHtml(status(x,'mbti','mbti_status'))}</span></td><td>${new Date(x.created_at).toLocaleDateString('id-ID')}</td></tr>`).join('')||'<tr><td colspan="8">Belum ada peserta.</td></tr>';
+  const dashboardStats=section==='dashboard'?`<div class="dashboard-grid">
+    <div class="stat"><strong>${rows.length}</strong><span>Total peserta</span></div>
+    <div class="stat"><strong>${completed}</strong><span>Seluruh sesi selesai</span></div>
+    <div class="stat"><strong>${activeCount('tiu5')}</strong><span>Soal TIU 5 aktif</span></div>
+    <div class="stat"><strong>${activeCount('tiu6')}</strong><span>Soal TIU 6 aktif</span></div>
+    <div class="stat"><strong>${activeCount('mbti')}</strong><span>Soal MBTI aktif</span></div>
+  </div>`:'';
+  const title=section==='candidates'?'Data Peserta':'Ringkasan Peserta';
+  adminShell(section,`<div class="section-title"><div><h2>${title}</h2><p class="muted">Klik nama peserta untuk membuka identitas dan ringkasan seluruh hasil tes.</p></div></div>${dashboardStats}<div class="table-wrap"><table class="candidate-table"><thead><tr><th>Nama</th><th>Posisi</th><th>PAPI</th><th>DISC</th><th>TIU 5</th><th>TIU 6</th><th>MBTI</th><th>Terdaftar</th></tr></thead><tbody>${candidateRows}</tbody></table></div>`);
+}
+
+async function candidateProfile(id){
+  if(!id)return adminShell('candidates','<h2>Peserta tidak dipilih</h2><a class="btn btn-secondary" href="#/admin/candidates">Kembali</a>');
+  const [{data:candidate,error:cErr},{data:attempts,error:aErr},{data:config,error:sErr}]=await Promise.all([
+    db.from('candidates').select('*').eq('id',id).single(),
+    db.from('test_attempts').select('*').eq('candidate_id',id).order('started_at'),
+    db.from('scoring_config').select('config').eq('id','excel-2026-09-17').single()
+  ]);
+  if(cErr)return adminShell('candidates',`<h2>Peserta tidak ditemukan</h2><p>${escapeHtml(cErr.message)}</p>`);
+  if(aErr)return adminShell('candidates',`<h2>Hasil peserta belum tersedia</h2><p>${escapeHtml(aErr.message)}</p>`);
+  if(sErr)return adminShell('candidates',`<h2>Konfigurasi hasil belum tersedia</h2><p>${escapeHtml(sErr.message)}</p>`);
+  const ids=(attempts||[]).map(a=>a.id);
+  const {data:answers,error:ansErr}=ids.length?await db.from('test_answers').select('*').in('attempt_id',ids):{data:[],error:null};
+  if(ansErr)return adminShell('candidates',`<h2>Jawaban belum tersedia</h2><p>${escapeHtml(ansErr.message)}</p>`);
+  const byCode=Object.fromEntries((attempts||[]).map(a=>[a.test_code,a]));
+  const names=['test1','test2','tiu5','tiu6','mbti'];
+  const summary=names.map(code=>{const a=byCode[code];const rows=(answers||[]).filter(r=>r.attempt_id===a?.id);return {code,a,rows};});
+  const fieldLabels={full_name:'Nama Lengkap',nik:'NIK',position:'Posisi yang dilamar',birth_place_date:'Tempat & tanggal lahir',gender:'Jenis kelamin',marital_status:'Status perkawinan',religion:'Agama',ktp_address:'Alamat sesuai KTP',current_address:'Alamat tinggal',email:'Email',social_media:'Media sosial',height:'Tinggi badan',weight:'Berat badan',glasses:'Berkacamata',education:'Pendidikan',experience:'Pengalaman kerja',skills:'Keahlian',strengths:'Kelebihan',weaknesses:'Kekurangan',motivation:'Motivasi'};
+  const identity=Object.entries(fieldLabels).map(([key,label])=>candidate[key]!==undefined&&candidate[key]!==null&&candidate[key]!==''?`<div class="profile-field"><small>${label}</small><strong>${escapeHtml(candidate[key])}</strong></div>`:'').join('');
+  const cards=summary.map(({code,a,rows})=>{let short='Belum dikerjakan'; if(a){if(code==='mbti'){const vals=Array.from({length:70},(_,i)=>{const v=rows.find(r=>r.question_number===i+1)?.answer?.choice;return Number.isInteger(v)?v:null});const r=scoreMbti(vals);short=a.status==='completed'&&r?`Tipe ${r.type} · ${r.answered}/70 terjawab`:`${r?.answered||0}/70 terjawab`;}else short=`${a.status==='completed'?'Selesai':'Dalam pengerjaan'} · ${rows.length} jawaban tersimpan`;} return `<article class="result-card"><div><span class="eyebrow">${escapeHtml(code==='test1'?'PAPI Kostic':code==='test2'?'DISC':code.toUpperCase())}</span><h3>${escapeHtml(a?'Tes tersedia':'Belum dikerjakan')}</h3><p class="muted">${escapeHtml(short)}</p></div><button class="btn btn-secondary profile-result" data-code="${code}">Lihat hasil</button></article>`;}).join('');
+  adminShell('candidates',`<div class="profile-header"><div><a class="back-link" href="#/admin/candidates">← Kembali ke Data Peserta</a><span class="eyebrow">Profil Peserta</span><h2>${escapeHtml(candidate.full_name||'Peserta')}</h2><p class="muted">${escapeHtml(candidate.position||'Posisi belum diisi')}</p></div><button id="printProfile" class="btn btn-primary">🖨 Print Hasil Tes</button></div><section class="profile-section"><h3>Identitas</h3><div class="profile-grid">${identity||'<p class="muted">Belum ada data identitas.</p>'}</div></section><section class="profile-section"><h3>Ringkasan Hasil Tes</h3><div class="result-card-grid">${cards}</div></section><div id="profileResult" class="profile-result-panel"></div>`);
+  document.querySelectorAll('.profile-result').forEach(btn=>btn.onclick=()=>{const item=summary.find(x=>x.code===btn.dataset.code);document.querySelector('#profileResult').innerHTML=renderResultForProfile(item,config.config);document.querySelector('#profileResult').scrollIntoView({behavior:'smooth'});});
+  document.querySelector('#printProfile').onclick=()=>printCandidateReport(candidate,summary,config.config);
+}
+
+function renderResultForProfile(item,config){
+  // renderResult is imported in the results module; avoid duplicating scoring logic here by dispatching through a tiny DOM event.
+  if(item.code==='mbti'){
+    const vals=Array.from({length:70},(_,i)=>{const v=item.rows.find(r=>r.question_number===i+1)?.answer?.choice;return Number.isInteger(v)?v:null});
+    const r=scoreMbti(vals); 
+    return `<h3>MBTI</h3><div class="mbti-type">${r.type}</div><p>${r.answered}/70 terjawab</p><div class="mbti-bars">${[['E','I'],['S','N'],['T','F'],['J','P']].map(([a,b])=>`<div class="mbti-dimension"><div><b>${a}</b><span>${r.counts[a]}</span></div><div><b>${b}</b><span>${r.counts[b]}</span></div></div>`).join('')}</div><div class="profile-note"><p>${escapeHtml(r.description)}</p></div>`;
+  }
+  return `<p class="notice">Gunakan menu <b>Hasil Tes</b> untuk membuka tampilan lengkap ${escapeHtml(item.code)}.</p>`;
+}
+
+function printCandidateReport(candidate,summary,config){
+  const win=window.open('','_blank','width=1100,height=800'); if(!win)return toast('Izinkan pop-up browser untuk mencetak laporan.');
+  const esc=escapeHtml;
+  const identity=`<div class="print-grid">${[['Nama',candidate.full_name],['NIK',candidate.nik],['Posisi',candidate.position],['Tempat/Tgl Lahir',candidate.birth_place_date],['Jenis Kelamin',candidate.gender],['Status Perkawinan',candidate.marital_status],['Email',candidate.email],['Pendidikan',candidate.education]].map(([k,v])=>`<div><small>${k}</small><strong>${esc(v||'-')}</strong></div>`).join('')}</div>`;
+  const resultBlocks=summary.map(item=>{if(!item.a)return '';return `<section><h2>${esc(item.code==='test1'?'PAPI Kostic':item.code==='test2'?'DISC':item.code.toUpperCase())}</h2>${renderResult(item.code,item.a,item.rows,config)}</section>`;}).join('');
+  win.document.write(`<!doctype html><html><head><title>Hasil Tes - ${esc(candidate.full_name)}</title><link rel="stylesheet" href="styles.css"><style>body{background:#fff;color:#172235;padding:35px;font-family:Arial,sans-serif}.print-head{border-bottom:3px solid #153d72;padding-bottom:15px;margin-bottom:22px}.print-head h1{margin:0}.print-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:15px 0 28px}.print-grid div{border:1px solid #ddd;padding:10px;border-radius:8px}.print-grid small{display:block;color:#666}.print-grid strong{display:block;margin-top:4px}.print-dims{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:15px 0}.print-dims div{padding:10px;border:1px solid #ddd;border-radius:8px;text-align:center}@media print{body{padding:0}.no-print{display:none!important}section{break-inside:avoid;margin-bottom:25px}}</style></head><body><header class="print-head"><h1>PT. GAMATEX</h1><p>HASIL TES RECRUITMENT</p></header><h2>Identitas Peserta</h2>${identity}${resultBlocks}<button class="no-print" onclick="window.print()">Print / Simpan PDF</button></body></html>`); win.document.close(); win.focus();
 }
 
 async function adminQuestions(){
   const testCode=new URLSearchParams(location.hash.split('?')[1]||'').get('test')||'test1';
   if(testCode==='tiu6')return adminTiu6Bank();
+  if(testCode==='tiu5')return adminTiu5Bank();
   const {data,error}=await db.from('question_bank').select('*').eq('test_code',testCode).order('question_number');
-  if(error)return adminShell('questions',`<h2>Bank Soal belum aktif</h2><p class="muted">Jalankan update-02-admin-question-bank.sql.</p>`);
-  adminShell('questions',`<div class="section-title"><div><h2>Bank Soal</h2><p class="muted">Edit isi, durasi, urutan, dan status soal.</p></div><button id="addQuestion" class="btn btn-primary">+ Tambah Soal</button></div><div class="segmented"><a class="${testCode==='test1'?'active':''}" href="#/admin/questions?test=test1">PAPI Kostic</a><a class="${testCode==='test2'?'active':''}" href="#/admin/questions?test=test2">DISC</a><a class="${testCode==='tiu5'?'active':''}" href="#/admin/questions?test=tiu5">TIU 5</a></div><div class="question-list">${data.map(q=>`<div class="question-item ${q.active?'':'inactive'}"><div><small>Soal ${q.question_number} · ${q.duration_seconds} detik</small><strong>${escapeHtml(q.question_type==='image_choice'?(q.image_url||'Gambar belum diisi'):q.options.join(' / '))}</strong></div><div class="question-actions"><button class="btn btn-secondary edit-question" data-id="${q.id}">Edit</button><button class="btn btn-secondary toggle-question" data-id="${q.id}" data-active="${q.active}">${q.active?'Nonaktifkan':'Aktifkan'}</button></div></div>`).join('')}</div><div id="questionEditor"></div>`);
+  if(error)return adminShell('questions',`<h2>Bank Soal belum aktif</h2><p class="muted">Jalankan migrasi bank soal yang diperlukan.</p>`);
+  const isTiu5=testCode==='tiu5', isMbti=testCode==='mbti';
+  adminShell('questions',`<div class="section-title"><div><h2>Bank Soal ${escapeHtml(testCode==='test1'?'PAPI Kostic':testCode==='test2'?'DISC':testCode.toUpperCase())}</h2><p class="muted">Edit isi, durasi, urutan, dan status soal.</p></div><button id="addQuestion" class="btn btn-primary">+ Tambah Soal</button></div><div class="segmented"><a class="${testCode==='test1'?'active':''}" href="#/admin/questions?test=test1">PAPI Kostic</a><a class="${testCode==='test2'?'active':''}" href="#/admin/questions?test=test2">DISC</a><a class="${isTiu5?'active':''}" href="#/admin/questions?test=tiu5">TIU 5</a><a class="${testCode==='tiu6'?'active':''}" href="#/admin/questions?test=tiu6">TIU 6</a><a class="${isMbti?'active':''}" href="#/admin/questions?test=mbti">MBTI</a></div>${isTiu5?'<div class="notice">TIU 5 menggunakan SVG. Preview di bawah mengikuti soal SVG yang digunakan peserta. Anda dapat mengubah teks, durasi, nomor, dan status tanpa mengubah gambar yang sudah disetujui.</div>':''}${isMbti?'<div class="notice">MBTI menggunakan dua pilihan dengan pemetaan scoring tetap berdasarkan nomor soal. Edit teks diperbolehkan; jangan menukar urutan pilihan A/B karena akan mengubah pemetaan dimensi.</div>':''}<div class="question-list">${data.map(q=>{const shapes=isTiu5?renderTiuSvgQuestion(Number(q.question_number)):null;return `<div class="question-item ${q.active?'':'inactive'} ${isTiu5?'question-item-visual':''}"><div class="question-main"><small>Soal ${q.question_number} · ${q.duration_seconds||20} detik · ${q.active?'Aktif':'Nonaktif'}</small><strong>${escapeHtml(isTiu5?'Pola SVG TIU 5':q.options?.join(' / ')||q.prompt||'')}</strong>${shapes?`<div class="bank-svg-preview"><div class="tiu-abc-row">${shapes.prompt.map((shape,i)=>`<div class="tiu-shape"><b>${'ABC'[i]}</b>${shape}</div>`).join('')}</div><div class="tiu-choice-row">${shapes.options.map((shape,i)=>`<div class="tiu-shape"><b>${i+1}</b>${shape}</div>`).join('')}</div></div>`:''}</div><div class="question-actions"><button class="btn btn-secondary edit-question" data-id="${q.id}">Edit</button><button class="btn btn-secondary toggle-question" data-id="${q.id}" data-active="${q.active}">${q.active?'Nonaktifkan':'Aktifkan'}</button></div></div>`;}).join('')||'<p class="muted">Belum ada soal.</p>'}</div><div id="questionEditor"></div>`);
   document.querySelector('#addQuestion').onclick=()=>renderQuestionEditor(null,testCode,(data.at(-1)?.question_number||0)+1);
-  document.querySelector('.segmented').insertAdjacentHTML('beforeend','<a href="#/admin/questions?test=tiu6">TIU 6</a>');
   document.querySelectorAll('.edit-question').forEach(b=>b.onclick=()=>renderQuestionEditor(data.find(q=>q.id===b.dataset.id),testCode));
   document.querySelectorAll('.toggle-question').forEach(b=>b.onclick=async()=>{const {error}=await db.from('question_bank').update({active:b.dataset.active!=='true'}).eq('id',b.dataset.id);if(error)toast(error.message);else adminQuestions();});
 }
 
 function renderQuestionEditor(q,testCode,number){
-  const isImage=testCode==='tiu5',count=testCode==='test1'?2:4,options=q?.options||Array(count).fill('');
-  document.querySelector('#questionEditor').innerHTML=`<div class="editor-panel"><h3>${q?'Edit':'Tambah'} Soal</h3><form id="questionForm" class="form-grid"><div class="field"><label>Nomor urut</label><input name="question_number" type="number" value="${q?.question_number||number}" required></div><div class="field"><label>Durasi (detik)</label><input name="duration_seconds" type="number" min="5" max="600" value="${q?.duration_seconds||(isImage?45:testCode==='test1'?15:30)}" required></div>${isImage?`<div class="field full"><div class="notice">Soal TIU 5 versi sementara dikelola melalui CSV dan SVG.</div><input name="image_url" type="hidden" value=""> </div>`:options.map((x,i)=>`<div class="field full"><label>Pernyataan ${i+1}</label><textarea name="option_${i}" required>${escapeHtml(x)}</textarea></div>`).join('')}<div class="field full"><label><input name="active" type="checkbox" ${q?.active===false?'':'checked'}> Soal aktif</label></div><div class="field full actions"><button class="btn btn-primary">Simpan Soal</button><button type="button" id="cancelEdit" class="btn btn-secondary">Batal</button></div></form></div>`;
+  const isImage=testCode==='tiu5', isMbti=testCode==='mbti', count=testCode==='test1'||isMbti?2:4, options=q?.options||Array(count).fill('');
+  const svg= isImage && q ? renderTiuSvgQuestion(Number(q.question_number)) : null;
+  document.querySelector('#questionEditor').innerHTML=`<div class="editor-panel"><h3>${q?'Edit':'Tambah'} Soal</h3>${svg?`<div class="bank-svg-editor-preview"><div class="tiu-abc-row">${svg.prompt.map((shape,i)=>`<div class="tiu-shape"><b>${'ABC'[i]}</b>${shape}</div>`).join('')}</div><div class="tiu-choice-row">${svg.options.map((shape,i)=>`<div class="tiu-shape"><b>${i+1}</b>${shape}</div>`).join('')}</div></div>`:''}<form id="questionForm" class="form-grid"><div class="field"><label>Nomor urut</label><input name="question_number" type="number" value="${q?.question_number||number}" required></div><div class="field"><label>Durasi (detik)</label><input name="duration_seconds" type="number" min="5" max="600" value="${q?.duration_seconds||(isImage?45:isMbti?20:testCode==='test1'?15:30)}" required></div>${isImage?`<div class="field full"><div class="notice">Gambar SVG ditentukan oleh nomor soal. Untuk menjaga kesesuaian dengan bank yang disetujui, editor tidak mengubah artwork SVG.</div></div>`:options.map((x,i)=>`<div class="field full"><label>Pernyataan ${i===0?'A':i===1?'B':i+1}</label><textarea name="option_${i}" required>${escapeHtml(x)}</textarea></div>`).join('')}<div class="field full"><label><input name="active" type="checkbox" ${q?.active===false?'':'checked'}> Soal aktif</label></div><div class="field full actions"><button class="btn btn-primary">Simpan Soal</button><button type="button" id="cancelEdit" class="btn btn-secondary">Batal</button></div></form></div>`;
   document.querySelector('#questionEditor').scrollIntoView({behavior:'smooth'});document.querySelector('#cancelEdit').onclick=()=>document.querySelector('#questionEditor').innerHTML='';
-  document.querySelector('#questionForm').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget),payload={test_code:testCode,question_number:Number(f.get('question_number')),duration_seconds:Number(f.get('duration_seconds')),active:f.get('active')==='on',question_type:isImage?'image_choice':testCode==='test1'?'paired_choice':'most_least',prompt:isImage?'Pilih jawaban gambar yang tepat.':testCode==='test1'?'Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.':'Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.',options:isImage?[1,2,3,4,5]:options.map((_,i)=>f.get(`option_${i}`).trim()),image_url:isImage?f.get('image_url').trim():null};const query=q?db.from('question_bank').update(payload).eq('id',q.id):db.from('question_bank').insert(payload);const {error}=await query;if(error)toast(error.message);else{toast('Soal berhasil disimpan.');adminQuestions();}};
+  document.querySelector('#questionForm').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget),payload={test_code:testCode,question_number:Number(f.get('question_number')),duration_seconds:Number(f.get('duration_seconds')),active:f.get('active')==='on',question_type:isImage?'image_choice':(testCode==='test1'||isMbti)?'paired_choice':'most_least',prompt:isImage?'Pilih jawaban gambar yang tepat.':isMbti?'Pilih pernyataan yang paling sesuai dengan diri Anda.':testCode==='test1'?'Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.':'Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.',options:isImage?[1,2,3,4,5]:options.map((_,i)=>f.get(`option_${i}`).trim()),image_url:isImage?null:null};const query=q?db.from('question_bank').update(payload).eq('id',q.id):db.from('question_bank').insert(payload);const {error}=await query;if(error)toast(error.message);else{toast('Soal berhasil disimpan.');adminQuestions();}};
 }
 
 async function advanceTiu6(){
@@ -327,6 +392,11 @@ async function tiu6Instructions(){
     layout(`<span class="eyebrow">Sesi Tes</span><h2>Petunjuk ${title}</h2><p>${testMeta.tiu6.description}</p><div class="steps"><div class="step"><small>Jumlah</small><strong>8 kelompok · 40 gambar</strong></div><div class="step"><small>Waktu total</small><strong>${seconds?`${seconds/60} menit`:'Tanpa batas waktu'}</strong></div></div><div class="notice">Perhatikan bangun acuan di sebelah kiri. Nilai setiap gambar secara terpisah: B jika bisa membentuk bangun acuan, S jika tidak. Jumlah B pada setiap kelompok dapat berbeda. Klik bulatan untuk memilih jawaban. Anda boleh mengubah pilihan sebelum selesai. Isian kosong tetap kosong.</div><p>Jawaban disimpan otomatis. ${seconds?'Saat waktu habis, hanya jawaban yang sudah diterima server sebelum batas waktu yang digunakan.':'Pastikan keterangan “Jawaban tersimpan” muncul sebelum meninggalkan halaman.'}</p>${complete?'<p>Tes sudah selesai dan tersimpan.</p>':''}<button id="tiu6Start" class="btn btn-primary" ${state.active===false?'disabled':''}>${complete?'Lanjut ke sesi berikutnya':started?'Lanjutkan tes':'Saya mengerti · Mulai tes'}</button>`);
     document.querySelector('#tiu6Start').onclick=async e=>{if(complete)return advanceTiu6();e.currentTarget.disabled=true;try{await rpc('tiu6_session',{p_session_token:session.token,p_start:true});localStorage.setItem('rtg_test_state',JSON.stringify({testCode:'tiu6',index:'all'}));route('/quiz/tiu6/all');}catch(error){toast(error.message);document.querySelector('#tiu6Start').disabled=false;}};
   }catch(error){layout(`<h2>Tes belum tersedia</h2><p>${escapeHtml(error.message)}</p><p>Hubungi HR untuk memastikan sesi tes sudah tersedia.</p>`);}
+}
+
+async function adminTiu5Bank(){
+  const questions=Array.from({length:30},(_,i)=>({number:i+1,visual:renderTiuSvgQuestion(i+1)}));
+  adminShell('questions',`<h2>Bank Soal TIU 5</h2><div class="segmented"><a href="#/admin/questions?test=test1">PAPI Kostic</a><a href="#/admin/questions?test=test2">DISC</a><a class="active" href="#/admin/questions?test=tiu5">TIU 5</a><a href="#/admin/questions?test=tiu6">TIU 6</a><a href="#/admin/questions?test=mbti">MBTI</a></div><div class="notice">TIU 5 dikunci seperti TIU 6. Soal dan artwork SVG adalah versi yang disetujui dan tidak dapat diedit, ditambah, atau dinonaktifkan dari dashboard.</div><div class="question-list">${questions.map(q=>`<div class="question-item question-item-visual"><div class="question-main"><small>Soal ${q.number} · SVG · Terkunci</small><strong>Pola gambar TIU 5</strong><div class="bank-svg-preview"><div class="tiu-abc-row">${q.visual.prompt.map((shape,i)=>`<div class="tiu-shape"><b>${'ABC'[i]}</b>${shape}</div>`).join('')}</div><div class="tiu-choice-row">${q.visual.options.map((shape,i)=>`<div class="tiu-shape"><b>${i+1}</b>${shape}</div>`).join('')}</div></div></div><div class="question-actions"><span class="pill done">Terkunci</span></div></div>`).join('')}</div>`);
 }
 
 async function adminTiu6Bank(){
@@ -357,8 +427,8 @@ async function adminSettings(){
   if(error)return adminShell('settings',`<h2>Pengaturan belum aktif</h2><p class="muted">Jalankan update-02-admin-question-bank.sql.</p>`);
   adminShell('settings',`<div class="section-title"><div><h2>Urutan Sesi Tes</h2><p class="muted">Pindahkan posisi sesi. Urutan soal di dalam setiap sesi tetap.</p></div></div><div class="settings-grid">${data.map((s,i)=>`<form class="setting-card" data-code="${s.test_code}"><div class="setting-order"><strong>${i+1}</strong><div><h3>${escapeHtml(testMeta[s.test_code]?.name||s.display_name)}</h3><small>${escapeHtml(s.test_code)}</small></div></div><label><input name="active" type="checkbox" ${s.active?'checked':''}> Sesi aktif</label><div class="question-actions"><button type="button" class="btn btn-secondary move-session" data-direction="-1" ${i===0?'disabled':''}>↑ Naik</button><button type="button" class="btn btn-secondary move-session" data-direction="1" ${i===data.length-1?'disabled':''}>↓ Turun</button><button class="btn btn-primary">Simpan</button></div></form>`).join('')}</div>`);
   document.querySelectorAll('.setting-card').forEach(form=>{
-    if(['tiu5','tiu6'].includes(form.dataset.code)){const s=data.find(x=>x.test_code===form.dataset.code);form.querySelector('.question-actions').insertAdjacentHTML('beforebegin',`<div class="field"><label>Waktu total ${testMeta[form.dataset.code].name} (menit)</label><input name="session_minutes" type="number" min="1" max="1440" step="1" value="${s.session_duration_seconds?s.session_duration_seconds/60:''}" placeholder="Kosong = tanpa batas waktu"><small>Berlaku untuk sesi yang baru dimulai.</small></div>`);}
-    form.onsubmit=async e=>{e.preventDefault();const f=new FormData(form),payload={active:f.get('active')==='on',updated_at:new Date().toISOString()};if(['tiu5','tiu6'].includes(form.dataset.code))payload.session_duration_seconds=f.get('session_minutes')?Number(f.get('session_minutes'))*60:null;const {error}=await db.from('test_settings').update(payload).eq('test_code',form.dataset.code);toast(error?error.message:'Pengaturan berhasil disimpan.');};
+    if(['tiu5','tiu6','mbti'].includes(form.dataset.code)){const s=data.find(x=>x.test_code===form.dataset.code);form.querySelector('.question-actions').insertAdjacentHTML('beforebegin',`<div class="field"><label>Waktu total ${testMeta[form.dataset.code].name} (menit)</label><input name="session_minutes" type="number" min="1" max="1440" step="1" value="${s.session_duration_seconds?s.session_duration_seconds/60:''}" placeholder="Kosong = tanpa batas waktu"><small>Berlaku untuk sesi yang baru dimulai.</small></div>`);}
+    form.onsubmit=async e=>{e.preventDefault();const f=new FormData(form),payload={active:f.get('active')==='on',updated_at:new Date().toISOString()};if(['tiu5','tiu6','mbti'].includes(form.dataset.code))payload.session_duration_seconds=f.get('session_minutes')?Number(f.get('session_minutes'))*60:null;const {error}=await db.from('test_settings').update(payload).eq('test_code',form.dataset.code);toast(error?error.message:'Pengaturan berhasil disimpan.');};
     form.querySelectorAll('.move-session').forEach(button=>button.onclick=async()=>{const index=data.findIndex(x=>x.test_code===form.dataset.code),target=index+Number(button.dataset.direction);if(target<0||target>=data.length)return;const first=data[index],second=data[target];const updates=await Promise.all([db.from('test_settings').update({sort_order:second.sort_order}).eq('test_code',first.test_code),db.from('test_settings').update({sort_order:first.sort_order}).eq('test_code',second.test_code)]);const failed=updates.find(x=>x.error);if(failed)toast(failed.error.message);else adminSettings();});});
 }
 
