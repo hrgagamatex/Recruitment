@@ -49,3 +49,6 @@ Kunci WPT yang dimasukkan ke konfigurasi adalah kunci untuk 50 soal WPT baru yan
 
 ### MBTI Bank Soal (wajib jika MBTI belum muncul)
 Jalankan `update-09-mbti-bank.sql` setelah migration sebelumnya. File ini memastikan constraint menerima `mbti`, memasang 70 soal MBTI, dan membuat entry MBTI di `test_settings`.
+
+## update-10-rpc-test-code-validation.sql
+Jika MBTI/WPT masih menampilkan "Jenis tes tidak valid" saat tombol Mulai ditekan, jalankan migration ini setelah update-06 sampai update-09. Migration ini mencari fungsi publik yang memakai validasi kode tes lama atau pesan "Jenis tes tidak valid" dan memperluas daftar kode menjadi mbti dan wpt, termasuk perbedaan spasi/baris.

@@ -224,16 +224,27 @@ async function tiu5AllPage(){
 async function wptQuizPage(index) {
   if (!session.token) return route('/');
   clearTimer();
-  const questions=WPT_QUESTIONS;
+  // WPT uses the database snapshot so HR edits to prompt/options/duration are used by participants.
+  // The approved SVG artwork remains mapped from WPT_QUESTIONS by question number.
+  questionBank ||= {};
+  if(!questionBank.wpt){
+    const snapshot=await rpc('get_test_snapshot',{p_session_token:session.token,p_test_code:'wpt'});
+    questionBank.wpt=(snapshot||[]).map(q=>{
+      const source=WPT_QUESTIONS.find(x=>x.number===Number(q.number));
+      return {...q,response_type:source?.response_type||((q.options||[]).length?'choice':'manual'),visual:source?.visual||''};
+    });
+  }
+  const questions=questionBank.wpt;
   if(index>=questions.length)return finishTest('wpt');
   const q=questions[index];
   const meta={...testMeta.wpt,name:await participantTitle('wpt')};
   let remaining=q.duration_seconds||60;
   setHeader(`${meta.name} · ${index+1}/${questions.length}`);
   let body='';
-  if(q.response_type==='manual') body=`<div class="wpt-manual"><label for="wptAnswer">Jawaban Anda</label><input id="wptAnswer" type="text" autocomplete="off" spellcheck="false" placeholder="Tulis jawaban di sini"></div>`;
-  else if(q.response_type==='image_choice') body=`<div class="wpt-visual">${q.visual}</div><div class="image-options wpt-options">${q.options.map((o,i)=>`<label class="image-option"><input type="radio" name="wptAnswer" value="${i+1}"><span class="radio-mark"></span><strong>${i+1}</strong></label>`).join('')}</div>`;
-  else body=`<div class="options">${q.options.map((o,i)=>`<label class="option"><input type="radio" name="wptAnswer" value="${escapeHtml(o)}"><span>${escapeHtml(o)}</span></label>`).join('')}</div>`;
+  const visual = q.visual ? `<div class="wpt-visual">${q.visual}</div>` : '';
+  if(q.response_type==='manual') body=`${visual}<div class="wpt-manual"><label for="wptAnswer">Jawaban Anda</label><input id="wptAnswer" type="text" autocomplete="off" spellcheck="false" placeholder="Tulis jawaban di sini"></div>`;
+  else if(q.response_type==='choice' || q.response_type==='image_choice') body=`${visual}<div class="${q.visual ? 'image-options wpt-options' : 'options'}">${q.options.map((o,i)=>q.visual ? `<label class="image-option"><input type="radio" name="wptAnswer" value="${i+1}"><span class="radio-mark"></span><strong>${i+1}</strong></label>` : `<label class="option"><input type="radio" name="wptAnswer" value="${escapeHtml(o)}"><span>${escapeHtml(o)}</span></label>`).join('')}</div>`;
+  else body=visual;
   layout(`<div class="test-head"><div><span class="eyebrow">${meta.name}</span><h2 style="margin-top:10px">Soal ${index+1}</h2></div><div id="timer" class="timer">${remaining}</div></div><div class="progress"><span style="width:${((index+1)/questions.length)*100}%"></span></div><div class="question">${escapeHtml(q.prompt)}</div>${body}<div class="actions"><button id="nextQuestion" class="btn btn-primary" disabled>Jawab & Lanjutkan</button></div>`);
   const next=document.querySelector('#nextQuestion');
   let answer=null;
@@ -436,11 +447,23 @@ async function tiu6Instructions(){
 }
 
 async function adminWptBank(){
-  const {data,error}=await db.from('question_bank').select('question_number,active,duration_seconds').eq('test_code','wpt').order('question_number');
+  const {data,error}=await db.from('question_bank').select('*').eq('test_code','wpt').order('question_number');
   const dbCount=(data||[]).length;
   const byNo=Object.fromEntries((data||[]).map(q=>[q.question_number,q]));
-  const sourceNote=error?'<div class="notice">Bank WPT belum dapat dibaca dari database. Jalankan update-07-wpt.sql terlebih dahulu.</div>':`<div class="notice">${dbCount}/50 soal WPT terdaftar di database. Preview SVG No. 7, 38, 42, dan 49 ditampilkan dari bank yang disetujui.</div>`;
-  adminShell('questions',`<div class="section-title"><div><h2>Bank Soal WPT</h2><p class="muted">50 soal · pilihan dan isian manual. Kunci dan parameter penilaian disimpan di konfigurasi HR.</p></div></div><div class="segmented"><a href="#/admin/questions?test=test1">PAPI Kostic</a><a href="#/admin/questions?test=test2">DISC</a><a href="#/admin/questions?test=tiu5">TIU 5</a><a href="#/admin/questions?test=tiu6">TIU 6</a><a href="#/admin/questions?test=mbti">MBTI</a><a class="active" href="#/admin/questions?test=wpt">WPT</a></div>${sourceNote}<div class="question-list">${WPT_QUESTIONS.map(q=>{const dbq=byNo[q.number];return `<div class="question-item question-item-visual ${dbq?.active===false?'inactive':''}"><div class="question-main"><small>Soal ${q.number} · ${q.response_type==='manual'?'Isian manual':'Pilihan'} · ${dbq?.duration_seconds||q.duration_seconds} detik · ${dbq?'Terdaftar di DB':'Belum di DB'}</small><strong>${escapeHtml(q.prompt)}</strong>${q.visual?`<div class="bank-svg-preview wpt-bank-visual">${q.visual}</div>`:''}${q.options?.length?`<small>Pilihan: ${q.options.map(escapeHtml).join(' · ')}</small>`:''}</div></div>`;}).join('')}</div>`);
+  const sourceNote=error?'<div class="notice">Bank WPT belum dapat dibaca dari database. Jalankan update-07-wpt.sql terlebih dahulu.</div>':`<div class="notice">${dbCount}/50 soal WPT terdaftar di database. Teks, pilihan, durasi, dan status soal dapat diedit. SVG No. 7, 38, 42, dan 49 tetap menggunakan artwork yang sudah disetujui.</div>`;
+  adminShell('questions',`<div class="section-title"><div><h2>Bank Soal WPT</h2><p class="muted">50 soal · pilihan dan isian manual. Edit untuk memperbaiki pengetikan, durasi, atau status soal.</p></div></div><div class="segmented"><a href="#/admin/questions?test=test1">PAPI Kostic</a><a href="#/admin/questions?test=test2">DISC</a><a href="#/admin/questions?test=tiu5">TIU 5</a><a href="#/admin/questions?test=tiu6">TIU 6</a><a href="#/admin/questions?test=mbti">MBTI</a><a class="active" href="#/admin/questions?test=wpt">WPT</a></div>${sourceNote}<div class="question-list">${WPT_QUESTIONS.map(q=>{const dbq=byNo[q.number], prompt=dbq?.prompt??q.prompt, options=dbq?.options??q.options, duration=dbq?.duration_seconds??q.duration_seconds, active=dbq?.active!==false, type=q.response_type==='manual'?'Isian manual':'Pilihan';return `<div class="question-item question-item-visual ${active?'':'inactive'}"><div class="question-main"><small>Soal ${q.number} · ${type} · ${duration} detik · ${active?'Aktif':'Nonaktif'}</small><strong>${escapeHtml(prompt)}</strong>${q.visual?`<div class="bank-svg-preview wpt-bank-visual">${q.visual}</div>`:''}${options?.length?`<small>Pilihan: ${options.map(escapeHtml).join(' · ')}</small>`:''}</div><div class="question-actions"><button class="btn btn-secondary edit-wpt-question" data-id="${dbq?.id||''}" data-number="${q.number}">Edit</button><button class="btn btn-secondary toggle-wpt-question" data-id="${dbq?.id||''}" data-active="${active}">${active?'Nonaktifkan':'Aktifkan'}</button></div></div>`;}).join('')}</div><div id="wptQuestionEditor"></div>`);
+  document.querySelectorAll('.edit-wpt-question').forEach(b=>b.onclick=()=>renderWptQuestionEditor(byNo[Number(b.dataset.number)],WPT_QUESTIONS.find(q=>q.number===Number(b.dataset.number))));
+  document.querySelectorAll('.toggle-wpt-question').forEach(b=>b.onclick=async()=>{if(!b.dataset.id){toast('Soal WPT belum terdaftar di database.');return;}const {error}=await db.from('question_bank').update({active:b.dataset.active!=='true'}).eq('id',b.dataset.id);if(error)toast(error.message);else adminWptBank();});
+}
+
+function renderWptQuestionEditor(dbq,source){
+  if(!dbq)return toast('Soal WPT belum terdaftar di database.');
+  const manual=source?.response_type==='manual';
+  const options=dbq.options||source?.options||[];
+  document.querySelector('#wptQuestionEditor').innerHTML=`<div class="editor-panel"><h3>Edit Soal WPT No. ${dbq.question_number}</h3>${source?.visual?`<div class="bank-svg-editor-preview"><div class="notice">Artwork SVG tidak diubah oleh editor ini.</div><div class="wpt-bank-visual">${source.visual}</div></div>`:''}<form id="wptQuestionForm" class="form-grid"><div class="field full"><label>Pertanyaan</label><textarea name="prompt" rows="4" required>${escapeHtml(dbq.prompt||source?.prompt||'')}</textarea></div><div class="field"><label>Durasi (detik)</label><input name="duration_seconds" type="number" min="5" max="600" value="${dbq.duration_seconds||source?.duration_seconds||60}" required></div>${manual?'':options.map((x,i)=>`<div class="field full"><label>Pilihan ${i+1}</label><textarea name="option_${i}" required>${escapeHtml(x)}</textarea></div>`).join('')}<div class="field full"><label><input name="active" type="checkbox" ${dbq.active===false?'':'checked'}> Soal aktif</label></div><div class="field full actions"><button class="btn btn-primary">Simpan Perubahan</button><button type="button" id="cancelWptEdit" class="btn btn-secondary">Batal</button></div></form></div>`;
+  document.querySelector('#wptQuestionEditor').scrollIntoView({behavior:'smooth'});
+  document.querySelector('#cancelWptEdit').onclick=()=>document.querySelector('#wptQuestionEditor').innerHTML='';
+  document.querySelector('#wptQuestionForm').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget);const payload={prompt:String(f.get('prompt')).trim(),duration_seconds:Number(f.get('duration_seconds')),active:f.get('active')==='on',updated_at:new Date().toISOString()};if(!manual)payload.options=options.map((_,i)=>String(f.get(`option_${i}`)||'').trim());const {error}=await db.from('question_bank').update(payload).eq('id',dbq.id);if(error)toast(error.message);else{toast('Soal WPT berhasil diperbarui.');adminWptBank();}};
 }
 
 async function adminTiu5Bank(){
