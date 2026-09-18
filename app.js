@@ -102,7 +102,11 @@ async function getTestSequence(){
 async function participantTitle(code){const sequence=await getTestSequence();const i=sequence.indexOf(code);return i>=0?`Urutan Tes ${i+1}`:'Sesi Tes';}
 
 function layout(content, compact = false) {
-  app.innerHTML = `<section class="card ${compact ? '' : 'page-card'}">${content}</section>`;
+  const isCompletion = String(content).includes('completion-screen');
+  app.innerHTML = `<section class="card ${compact ? '' : 'page-card'}${isCompletion ? ' completion-card' : ''}">${content}</section>`;
+  app.classList.remove('glitch-enter');
+  void app.offsetWidth;
+  app.classList.add('glitch-enter');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -306,8 +310,72 @@ async function finishTest(testCode){
 
 function completePage(){
   setHeader('Tes selesai');
-  layout(`<div class="center"><div class="success-icon">✓</div><span class="eyebrow">Berhasil dikirim</span><h2 style="margin-top:14px">Terima kasih, ${escapeHtml(session.name||'Peserta')}.</h2><p class="muted">Formulir dan seluruh jawaban tes Anda telah tersimpan. Tim HR akan menghubungi Anda untuk proses berikutnya.</p><div class="actions" style="justify-content:center"><button id="logout" class="btn btn-secondary">Selesai dan keluar</button></div></div>`);
+  const candidateName = escapeHtml(session.name || 'Peserta');
+  layout(`<div class="completion-screen">
+    <div class="completion-corner tl">PEOPLE<br>DENIM<br>PROGRESS</div>
+    <div class="completion-corner br">A STRONGER<br>TOMORROW<br>TOGETHER</div>
+    <section class="completion-tab" aria-label="Tes selesai">
+      <div class="completion-head">
+        <span><i style="display:inline-block;width:9px;height:9px;background:var(--denim);margin-right:8px"></i>RECRUITMENT</span>
+        <span class="completion-count">SELESAI</span>
+      </div>
+      <span id="completionKicker" class="completion-kicker">06 / 06 · FINAL</span>
+      <div id="completionTitle" class="completion-title">TERIMA KASIH</div>
+      <div id="completionCopy" class="completion-copy" aria-live="polite">
+        <span id="typingLine1" class="typing-line"></span>
+        <span id="typingLine2" class="typing-line"></span>
+        <span id="typingLine3" class="typing-line"></span>
+      </div>
+      <div class="completion-divider"></div>
+      <div id="completionFooter" class="completion-footer-text"></div>
+      <div id="completionLogo" class="completion-logo" aria-label="The Reliable Denim Company GAMATEX">
+        <span class="logo-line">The Reliable</span>
+        <span class="logo-line logo-company">Denim Company</span>
+        <span class="logo-gamatex">GAMATEX</span>
+      </div>
+      <div class="actions" style="justify-content:center;margin-top:20px">
+        <button id="logout" class="btn btn-secondary">Selesai dan keluar</button>
+      </div>
+    </section>
+  </div>`);
+
+  const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+  const typeInto = async (el, text, speed = 30) => {
+    if(!el) return;
+    el.textContent = '';
+    const cursor = document.createElement('span');
+    cursor.className = 'typing-cursor';
+    el.appendChild(cursor);
+    for(const char of text){
+      cursor.before(document.createTextNode(char));
+      await wait(char === '.' ? speed * 5 : char === ',' ? speed * 2 : speed);
+    }
+    cursor.remove();
+  };
+
+  const runCompletion = async () => {
+    await wait(350);
+    document.querySelector('#completionKicker')?.classList.add('show');
+    await wait(420);
+    document.querySelector('#completionTitle')?.classList.add('show');
+    await wait(520);
+    await typeInto(document.querySelector('#typingLine1'),
+      `Halo ${session.name || 'Peserta'}, seluruh rangkaian tes recruitment telah selesai.`, 27);
+    await wait(170);
+    await typeInto(document.querySelector('#typingLine2'),
+      'Jawaban Anda telah berhasil diterima dan tersimpan.', 27);
+    await wait(170);
+    await typeInto(document.querySelector('#typingLine3'),
+      'Tim HR akan melakukan proses evaluasi dan menghubungi Anda sesuai tahapan selanjutnya.', 23);
+    await wait(240);
+    await typeInto(document.querySelector('#completionFooter'),
+      'Sampai jumpa di kesempatan berikutnya.', 28);
+    await wait(750);
+    document.querySelector('#completionLogo')?.classList.add('show');
+  };
+
   document.querySelector('#logout').onclick=()=>{session.clear();route('/');};
+  runCompletion();
 }
 
 function adminShell(active,content){
