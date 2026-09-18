@@ -20,12 +20,21 @@ Jika teks soal/opsi versi lama tidak cocok dengan acuan, jawaban asli tetap dita
 SVG TIU 5 dan CSV SVG TIU 6 identik dengan versi yang disetujui.
 Paket belum diterbitkan otomatis. Migrasi PostgreSQL dan alur login/database langsung belum dijalankan dalam lingkungan ini. Setelah pemasangan, uji dengan peserta khusus sebelum dipakai untuk rekrutmen.
 
+## Update final – MBTI, WPT, Dashboard & Profil Peserta
+- Dashboard Ringkasan Peserta menampilkan jumlah sesi yang berstatus `completed` untuk PAPI, DISC, TIU 5, TIU 6, MBTI, dan WPT; bukan jumlah soal aktif.
+- Nama peserta pada Data Peserta dapat dibuka untuk melihat identitas yang diinput peserta, ringkasan setiap tes, dan tombol Print Hasil Tes.
+- DISC menggunakan judul `GRAPH 1 MOST Mask Public Self`, `GRAPH 2 LEAST Core Private Self`, dan `GRAPH 3 CHANGE Mirror Perceived Self`, serta D/I/S/C, Deskripsi Kepribadian, dan Job Match dari konfigurasi profil.
+- PAPI tidak menampilkan teks `Skala 0–9`; grafik menggunakan arah K/Z sesuai revisi dan tabel menggunakan skor aspek asli.
+- TIU 5 dikunci seperti TIU 6 di Bank Soal: tidak dapat diedit, ditambah, atau dinonaktifkan; preview SVG tetap ditampilkan.
+- MBTI 70 soal mengikuti pemetaan jawaban dari `MBTI V2,1 Open.xlsx`; pemetaan E/I, S/N, T/F, J/P diambil dari sheet `Hasil`.
+- WPT ditambahkan sebagai sesi 50 soal dengan pilihan dan isian manual. No. 7, 38, 42, dan 49 menggunakan preview SVG yang telah disetujui. Penilaian WPT menggunakan jumlah benar -> tabel konversi point -> kategori, dengan parameter tersimpan pada konfigurasi HR.
+- Jalankan `update-06-mbti.sql` terlebih dahulu, lalu `update-07-wpt.sql` di Supabase SQL Editor. Update-07 memperluas whitelist kode tes dan memasang 50 soal WPT + konfigurasi WPT.
 
-## Update 06 — MBTI & HR Dashboard
-- Menambahkan MBTI 70 soal berdasarkan `MBTI V2,1 Open.xlsx`. Pemetaan E/I, S/N, T/F, J/P mengikuti sheet Hasil pada file acuan; uraian 16 tipe mengikuti sheet uraian.
-- Tambahkan `update-06-mbti.sql` ke Supabase. Migrasi memasang 70 soal MBTI dan satu sesi MBTI di `test_settings`.
-- Bank Soal TIU 5 sekarang menampilkan seluruh 30 SVG dan dikunci seperti TIU 6: tidak ada edit/tambah/nonaktif.
-- Dashboard menampilkan jumlah soal aktif TIU 5, TIU 6, dan MBTI. Data peserta menampilkan status semua lima tes.
-- Klik nama peserta membuka identitas, ringkasan hasil, dan tombol print laporan.
-- MBTI dapat diatur aktif/nonaktif dan waktu total melalui Pengaturan Tes; soal MBTI dapat diedit dari Bank Soal, tetapi urutan pilihan A/B jangan ditukar karena pemetaan scoring mengacu pada nomor soal.
-- Laporan print dibuat dalam halaman khusus dan dapat disimpan sebagai PDF melalui dialog print browser.
+### Urutan pemasangan SQL
+1. Paket/migrasi dasar website tetap dipertahankan.
+2. Jalankan `update-06-mbti.sql` untuk MBTI 70 soal dan whitelist `mbti`.
+3. Jalankan `update-07-wpt.sql` untuk WPT dan whitelist `wpt`.
+4. Setelah deployment, login sebagai HR dan cek Dashboard, Data Peserta, Bank Soal, Pengaturan Tes, dan Hasil Tes.
+
+### Catatan WPT
+Kunci WPT yang dimasukkan ke konfigurasi adalah kunci untuk 50 soal WPT baru yang dipasang pada paket ini. Tabel konversi jumlah benar menjadi point disimpan sebagai parameter dan tidak dihitung dengan formula hard-code.

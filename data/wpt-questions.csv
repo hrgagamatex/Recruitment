@@ -1,0 +1,51 @@
+number,response_type,prompt,options,duration_seconds
+1,choice,Awal minggu lalu adalah hari Senin. Hari apa yang jatuh tiga hari setelah hari Kamis?,Senin|Selasa|Jumat|Sabtu|Minggu,60
+2,choice,PASIF adalah lawan kata dari:,aktif|tenang|cepat|hati-hati|tertib,60
+3,choice,Manakah yang berbeda dari kelompok berikut?,April|Juni|September|November|Februari,60
+4,manual,Tuliskan YA atau TIDAK. Apakah singkatan 'dst.' berarti 'dan seterusnya'?,,60
+5,choice,"Dalam kelompok kata berikut, mana yang berbeda makna dari yang lain?",regu|tim|kelompok|pasukan|individu,60
+6,choice,STABIL adalah lawan kata dari:,tetap|labil|kuat|aman|mantap,60
+7,choice,Pilih gambar yang berbeda pola internalnya dari empat gambar lainnya.,1|2|3|4|5,60
+8,choice,"Perhatikan urutan: 16, 8, 4, 2, 1, ... Angka berikutnya adalah:",1/2|1/3|1/4|2|4,60
+9,choice,Kata 'hemat' dan 'boros' memiliki arti:,sama|berlawanan|tidak berkaitan|sama dalam konteks tertentu|tidak dapat dibandingkan,60
+10,choice,Manakah yang paling berhubungan dengan aroma?,hidung|telinga|kulit|mata|tangan,60
+11,choice,MUSIM SEMI paling tepat dipasangkan dengan:,salju|mekarnya bunga|daun berguguran|malam panjang|panen musim dingin,60
+12,choice,"Sebuah mesin menghasilkan 240 unit dalam 6 jam. Dengan kecepatan sama, berapa unit dihasilkan dalam 10 jam?",300|360|400|420|480,60
+13,choice,"Jika semua A adalah B, dan sebagian B adalah C, apakah pasti sebagian A adalah C?",Ya|Tidak|Tidak dapat ditentukan|Selalu benar|Selalu salah,60
+14,choice,DEKAT adalah lawan kata dari:,jauh|rapat|samping|sempit|cepat,60
+15,manual,Sebuah barang berharga Rp48.000 mendapat potongan harga 25%. Berapa harga setelah diskon? Tuliskan angka rupiahnya.,,60
+16,choice,"Pasangan angka mana yang mengikuti pola yang sama? 12→24, 15→30, 18→?",24|30|32|36|40,60
+17,manual,Susun kata berikut menjadi kalimat yang benar: 'setiap / pagi / membaca / Rina / koran'. Tuliskan kata terakhir.,,60
+18,choice,Umur Dika 10 tahun. Kakaknya 4 tahun lebih tua. Berapa umur kakaknya?,12|13|14|15|16,60
+19,choice,'CERDAS' dan 'PANDAI' adalah kata yang:,berarti sama|berlawanan|tidak berkaitan|selalu berlawanan|tidak dapat dibandingkan,60
+20,choice,Andi lebih tinggi daripada Budi. Budi lebih tinggi daripada Citra. Siapa yang paling pendek?,Andi|Budi|Citra|Andi dan Citra|Tidak dapat ditentukan,60
+21,choice,"Harga satu buku Rp18.000. Dengan Rp90.000, berapa buku yang dapat dibeli?",4|5|6|7|8,60
+22,manual,Susun kata berikut menjadi kalimat lengkap: 'semua / karyawan / mengikuti / pelatihan'. Tuliskan kata kedua.,,60
+23,choice,Dua pernyataan berikut paling dekat maknanya. Mana yang setara? 1) 'Ia datang tepat waktu.' 2) 'Ia tiba sebelum batas waktu.',Ya|Tidak|Hanya kadang|Berlawanan|Tidak berkaitan,60
+24,choice,"Sebuah jam terlambat 45 detik setiap hari. Dalam 8 hari, berapa detik total keterlambatannya?",240|300|360|420|480,60
+25,choice,'MENYUSUT' paling dekat artinya dengan:,bertambah|berkurang|berputar|berpindah|berubah,60
+26,choice,"Jika 3 pekerja menyelesaikan pekerjaan dalam 12 hari dengan kemampuan sama, secara teori 6 pekerja memerlukan:",3 hari|4 hari|6 hari|12 hari|24 hari,60
+27,manual,"Dalam 20 hari, seseorang menabung total Rp500.000 dengan jumlah sama setiap hari. Berapa rupiah tabungan per hari?",,60
+28,choice,Manakah pasangan kata yang memiliki arti berlawanan?,naik-turun|cepat-lincah|besar-luas|diam-tenang|pandai-cerdas,60
+29,choice,"Sebuah toko menjual 48 barang. Barang A terjual 3 kali lebih banyak daripada barang B. Jika hanya A dan B yang terjual, berapa barang B?",8|10|12|16|18,60
+30,choice,"Sebuah kotak berisi 600 kubus. Jika panjang 10 kubus dan lebar 10 kubus, berapa kubus kedalamannya?",4|5|6|8|10,60
+31,choice,"Pilih angka yang berbeda pola: 1/2, 1/4, 1/8, 1/16, 1/20.",1/2|1/4|1/8|1/16|1/20,60
+32,manual,Tuliskan YA atau TIDAK. Apakah 'P.M.' dapat berarti 'post meridiem'?,,60
+33,choice,'DAPAT DIPERCAYA' dan 'TERPERCAYA' memiliki arti:,sama|berlawanan|tidak sama maupun berlawanan|selalu berlawanan|tidak dapat ditentukan,60
+34,choice,"Satu rak membutuhkan 2 meter papan. Dari 36 meter papan, berapa rak utuh yang dapat dibuat?",16|18|20|22|24,60
+35,choice,Sebuah kendaraan berjalan 60 km/jam. Berapa kilometer ditempuh dalam 45 menit?,30|40|45|50|60,60
+36,choice,"Sebuah tim kalah 6 kali, dan itu merupakan 1/4 dari seluruh pertandingan. Berapa total pertandingan?",18|20|24|28|30,60
+37,choice,"Angka berikut: 2, 4, 8, 16, ... Angka selanjutnya adalah:",20|24|30|32|36,60
+38,manual,"Tarik satu garis lurus yang menghubungkan dua angka pada batas bentuk sehingga bentuk terbagi menjadi dua bagian yang sama luas. Tuliskan dua nomor titik yang dihubungkan, misalnya '2-8'.",,60
+39,choice,Kalimat: 'Karyawan baru bekerja dengan teliti. Pekerjaan yang selesai dengan teliti jarang memerlukan perbaikan.' Kesimpulan yang paling tepat:,Karyawan baru selalu sempurna|Pekerjaan teliti cenderung mengurangi perbaikan|Semua pekerjaan perlu diperbaiki|Karyawan lama tidak teliti|Tidak ada hubungan,60
+40,choice,"Berapa banyak duplikasi yang tepat pada pasangan nama berikut? 'Raka, Raka; Sinta, Sinta; Bima, Dimas; Nia, Nia'",1|2|3|4|0,60
+41,choice,Manakah pernyataan yang maknanya paling mirip dengan 'Kejujuran membangun kepercayaan'?,Kejujuran merusak hubungan|Orang jujur cenderung dipercaya|Kepercayaan tidak penting|Kebohongan selalu berhasil|Kejujuran hanya diperlukan di kantor,60
+42,manual,Tarik satu garis lurus yang menghubungkan dua nomor pada batas bentuk agar terbagi menjadi dua bagian yang sama luas. Tuliskan dua nomor yang dihubungkan.,,60
+43,choice,"Dalam kelompok angka berikut, mana yang paling kecil?","0,8|0,08|0,18|0,9|0,11",60
+44,choice,Pernyataan: 'Semua dokumen resmi diberi nomor. Dokumen X tidak diberi nomor.' Kesimpulan yang benar:,X pasti resmi|X bukan dokumen resmi|X pasti palsu|Semua dokumen tanpa nomor palsu|Tidak dapat disimpulkan apa pun,60
+45,choice,Harga awal sebuah barang Rp120.000. Harga naik 10%. Berapa harga baru?,Rp126.000|Rp130.000|Rp132.000|Rp134.000|Rp140.000,60
+46,choice,"Dalam rangkaian kata, mana yang berbeda?",mawar|melati|anggrek|kaktus|apel,60
+47,choice,"Jika semua supervisor hadir, dan Rudi adalah supervisor, maka:",Rudi hadir|Rudi tidak hadir|Rudi mungkin hadir|Tidak ada hubungan|Rudi bukan supervisor,60
+48,choice,"Tiga orang membagi keuntungan sesuai investasi. X Rp4.000.000, Y Rp3.000.000, Z Rp1.000.000. Jika keuntungan Rp1.600.000, bagian X adalah:",Rp400.000|Rp600.000|Rp800.000|Rp1.000.000|Rp1.200.000,60
+49,choice,Empat dari lima bentuk berikut dapat digabungkan untuk membentuk satu segitiga. Pilih bentuk yang tidak diperlukan.,1|2|3|4|5,60
+50,choice,"Sebuah laporan 24.000 kata akan dicetak. Ukuran besar memuat 2.000 kata per halaman dan ukuran kecil 1.200 kata per halaman. Jika seluruh laporan dicetak dengan ukuran kecil, berapa halaman yang dibutuhkan?",12|16|18|20|24,60

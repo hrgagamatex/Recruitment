@@ -1,5 +1,5 @@
 // Keys are fetched only after HR authentication; no answer keys are bundled here.
-export const names={test1:'PAPI Kostic',test2:'DISC',tiu5:'TIU 5',tiu6:'TIU 6'};
+export const names={test1:'PAPI Kostic',test2:'DISC',tiu5:'TIU 5',tiu6:'TIU 6',mbti:'MBTI',wpt:'WPT'};
 export const escapeHtml=(v='')=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function scorePapi(values,cfg){
   const raw=Object.fromEntries(Object.entries(cfg.rules).map(([k,terms])=>[k,terms.filter(([q,v])=>values[q-1]===v).length]));
@@ -17,6 +17,14 @@ export function scoreDisc(values,cfg){
     profiles[line]=cfg.profiles.find(p=>p.conditions.every(([a,op,b])=>{const x=refs[a],y=b.startsWith('B')?refs[b.slice(0,2)]:Number(b);return ({'>':x>y,'<':x<y,'>=':x>=y,'<=':x<=y,'=':x===y})[op];}))||null;
   }
   return {raw,scaled,profiles,answered};
+}
+export function scoreWpt(values,cfg){
+ const norm=v=>String(v??'').trim().toLowerCase().replace(/\s+/g,' ');
+ let correct=0,answered=0;
+ const details=cfg.keys.map((key,i)=>{const v=values[i];const ok=v!==null&&v!==undefined&&norm(v)!=='';if(ok)answered++;const good=ok&&norm(v)===norm(key);if(good)correct++;return {number:i+1,value:v,correct:good,key};});
+ const points=correct===0?0:Number(cfg.conversion?.[correct-1]??correct);
+ const category=cfg.categories?.find(x=>points>=x.min&&points<=x.max)||null;
+ return {correct,answered,blank:cfg.keys.length-answered,wrong:answered-correct,points,category,details};
 }
 export function scoreTiu(values,cfg){
  const correct=cfg.keys.filter((k,i)=>values[i]===k).length,answered=values.filter(v=>v!==null&&v!==undefined).length;
