@@ -38,3 +38,14 @@ Paket belum diterbitkan otomatis. Migrasi PostgreSQL dan alur login/database lan
 
 ### Catatan WPT
 Kunci WPT yang dimasukkan ke konfigurasi adalah kunci untuk 50 soal WPT baru yang dipasang pada paket ini. Tabel konversi jumlah benar menjadi point disimpan sebagai parameter dan tidak dihitung dengan formula hard-code.
+
+
+## Update 08 – Perbaikan final
+- Dashboard kartu statistik dibuat lebih ringkas/minimalis agar tidak memenuhi area utama.
+- WPT sekarang tersedia jelas di Bank Soal dan halaman bank memeriksa apakah 50 soal WPT benar-benar sudah terdaftar di database.
+- Ditambahkan tautan WPT pada navigasi Bank Soal TIU 5/TIU 6.
+- Ditambahkan `update-08-test-code-whitelist.sql` untuk memperluas validasi RPC yang masih membatasi kode tes lama, sehingga MBTI/WPT dapat dimulai dan disimpan.
+
+
+### MBTI Bank Soal (wajib jika MBTI belum muncul)
+Jalankan `update-09-mbti-bank.sql` setelah migration sebelumnya. File ini memastikan constraint menerima `mbti`, memasang 70 soal MBTI, dan membuat entry MBTI di `test_settings`.
