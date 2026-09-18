@@ -1,1 +1,639 @@
-export const WPT_QUESTIONS=[{"number":1,"prompt":"Awal minggu lalu adalah hari Senin. Hari apa yang jatuh tiga hari setelah hari Kamis?","options":["Senin","Selasa","Jumat","Sabtu","Minggu"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":2,"prompt":"PASIF adalah lawan kata dari:","options":["aktif","tenang","cepat","hati-hati","tertib"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":3,"prompt":"Manakah yang berbeda dari kelompok berikut?","options":["April","Juni","September","November","Februari"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":4,"prompt":"Tuliskan YA atau TIDAK. Apakah singkatan 'dst.' berarti 'dan seterusnya'?","options":[],"duration_seconds":60,"response_type":"manual","visual":""},{"number":5,"prompt":"Dalam kelompok kata berikut, mana yang berbeda makna dari yang lain?","options":["regu","tim","kelompok","pasukan","individu"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":6,"prompt":"STABIL adalah lawan kata dari:","options":["tetap","labil","kuat","aman","mantap"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":7,"prompt":"Pilih gambar yang berbeda pola internalnya dari empat gambar lainnya.","options":["1","2","3","4","5"],"duration_seconds":60,"response_type":"choice","visual":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1500 330\" role=\"img\" aria-label=\"Gambar WPT nomor 7\"><rect width=\"1500\" height=\"330\" fill=\"#fff\"/><g fill=\"none\" stroke=\"#111\" stroke-width=\"5\" stroke-linejoin=\"round\" stroke-linecap=\"round\"><path d=\"M70 175 L175 125 L285 175 L165 215 Z\"/><path d=\"M70 175 L285 175\"/><path d=\"M355 110 L485 35 L555 175 L425 250 Z\"/><path d=\"M390 170 L515 100\"/><path d=\"M650 175 L755 70 L875 175 L755 280 Z\"/><path d=\"M650 175 L875 175\"/><path d=\"M940 175 L1060 140 L1180 175 L1060 215 Z\"/><path d=\"M940 175 L1180 175\"/><path d=\"M1240 65 L1305 120 L1410 235 L1305 285 L1240 225 Z\"/><path d=\"M1240 65 L1240 225\"/></g><g font-family=\"Arial, sans-serif\" font-size=\"34\" fill=\"#111\" text-anchor=\"middle\"><text x=\"175\" y=\"58\">1</text><text x=\"455\" y=\"30\">2</text><text x=\"755\" y=\"55\">3</text><text x=\"1060\" y=\"92\">4</text><text x=\"1300\" y=\"45\">5</text></g></svg>"},{"number":8,"prompt":"Perhatikan urutan: 16, 8, 4, 2, 1, ... Angka berikutnya adalah:","options":["1/2","1/3","1/4","2","4"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":9,"prompt":"Kata 'hemat' dan 'boros' memiliki arti:","options":["sama","berlawanan","tidak berkaitan","sama dalam konteks tertentu","tidak dapat dibandingkan"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":10,"prompt":"Manakah yang paling berhubungan dengan aroma?","options":["hidung","telinga","kulit","mata","tangan"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":11,"prompt":"MUSIM SEMI paling tepat dipasangkan dengan:","options":["salju","mekarnya bunga","daun berguguran","malam panjang","panen musim dingin"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":12,"prompt":"Sebuah mesin menghasilkan 240 unit dalam 6 jam. Dengan kecepatan sama, berapa unit dihasilkan dalam 10 jam?","options":["300","360","400","420","480"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":13,"prompt":"Jika semua A adalah B, dan sebagian B adalah C, apakah pasti sebagian A adalah C?","options":["Ya","Tidak","Tidak dapat ditentukan","Selalu benar","Selalu salah"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":14,"prompt":"DEKAT adalah lawan kata dari:","options":["jauh","rapat","samping","sempit","cepat"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":15,"prompt":"Sebuah barang berharga Rp48.000 mendapat potongan harga 25%. Berapa harga setelah diskon? Tuliskan angka rupiahnya.","options":[],"duration_seconds":60,"response_type":"manual","visual":""},{"number":16,"prompt":"Pasangan angka mana yang mengikuti pola yang sama? 12→24, 15→30, 18→?","options":["24","30","32","36","40"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":17,"prompt":"Susun kata berikut menjadi kalimat yang benar: 'setiap / pagi / membaca / Rina / koran'. Tuliskan kata terakhir.","options":[],"duration_seconds":60,"response_type":"manual","visual":""},{"number":18,"prompt":"Umur Dika 10 tahun. Kakaknya 4 tahun lebih tua. Berapa umur kakaknya?","options":["12","13","14","15","16"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":19,"prompt":"'CERDAS' dan 'PANDAI' adalah kata yang:","options":["berarti sama","berlawanan","tidak berkaitan","selalu berlawanan","tidak dapat dibandingkan"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":20,"prompt":"Andi lebih tinggi daripada Budi. Budi lebih tinggi daripada Citra. Siapa yang paling pendek?","options":["Andi","Budi","Citra","Andi dan Citra","Tidak dapat ditentukan"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":21,"prompt":"Harga satu buku Rp18.000. Dengan Rp90.000, berapa buku yang dapat dibeli?","options":["4","5","6","7","8"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":22,"prompt":"Susun kata berikut menjadi kalimat lengkap: 'semua / karyawan / mengikuti / pelatihan'. Tuliskan kata kedua.","options":[],"duration_seconds":60,"response_type":"manual","visual":""},{"number":23,"prompt":"Dua pernyataan berikut paling dekat maknanya. Mana yang setara? 1) 'Ia datang tepat waktu.' 2) 'Ia tiba sebelum batas waktu.'","options":["Ya","Tidak","Hanya kadang","Berlawanan","Tidak berkaitan"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":24,"prompt":"Sebuah jam terlambat 45 detik setiap hari. Dalam 8 hari, berapa detik total keterlambatannya?","options":["240","300","360","420","480"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":25,"prompt":"'MENYUSUT' paling dekat artinya dengan:","options":["bertambah","berkurang","berputar","berpindah","berubah"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":26,"prompt":"Jika 3 pekerja menyelesaikan pekerjaan dalam 12 hari dengan kemampuan sama, secara teori 6 pekerja memerlukan:","options":["3 hari","4 hari","6 hari","12 hari","24 hari"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":27,"prompt":"Dalam 20 hari, seseorang menabung total Rp500.000 dengan jumlah sama setiap hari. Berapa rupiah tabungan per hari?","options":[],"duration_seconds":60,"response_type":"manual","visual":""},{"number":28,"prompt":"Manakah pasangan kata yang memiliki arti berlawanan?","options":["naik-turun","cepat-lincah","besar-luas","diam-tenang","pandai-cerdas"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":29,"prompt":"Sebuah toko menjual 48 barang. Barang A terjual 3 kali lebih banyak daripada barang B. Jika hanya A dan B yang terjual, berapa barang B?","options":["8","10","12","16","18"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":30,"prompt":"Sebuah kotak berisi 600 kubus. Jika panjang 10 kubus dan lebar 10 kubus, berapa kubus kedalamannya?","options":["4","5","6","8","10"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":31,"prompt":"Pilih angka yang berbeda pola: 1/2, 1/4, 1/8, 1/16, 1/20.","options":["1/2","1/4","1/8","1/16","1/20"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":32,"prompt":"Tuliskan YA atau TIDAK. Apakah 'P.M.' dapat berarti 'post meridiem'?","options":[],"duration_seconds":60,"response_type":"manual","visual":""},{"number":33,"prompt":"'DAPAT DIPERCAYA' dan 'TERPERCAYA' memiliki arti:","options":["sama","berlawanan","tidak sama maupun berlawanan","selalu berlawanan","tidak dapat ditentukan"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":34,"prompt":"Satu rak membutuhkan 2 meter papan. Dari 36 meter papan, berapa rak utuh yang dapat dibuat?","options":["16","18","20","22","24"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":35,"prompt":"Sebuah kendaraan berjalan 60 km/jam. Berapa kilometer ditempuh dalam 45 menit?","options":["30","40","45","50","60"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":36,"prompt":"Sebuah tim kalah 6 kali, dan itu merupakan 1/4 dari seluruh pertandingan. Berapa total pertandingan?","options":["18","20","24","28","30"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":37,"prompt":"Angka berikut: 2, 4, 8, 16, ... Angka selanjutnya adalah:","options":["20","24","30","32","36"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":38,"prompt":"Tarik satu garis lurus yang menghubungkan dua angka pada batas bentuk sehingga bentuk terbagi menjadi dua bagian yang sama luas. Tuliskan dua nomor titik yang dihubungkan, misalnya '2-8'.","options":[],"duration_seconds":60,"response_type":"manual","visual":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1100 900\" role=\"img\" aria-label=\"Gambar WPT nomor 38\"><rect width=\"1100\" height=\"900\" fill=\"#fff\"/><path d=\"M205 355 L430 115 L700 135 L900 315 L770 675 L535 825 L250 625 Z\" fill=\"none\" stroke=\"#111\" stroke-width=\"6\" stroke-linejoin=\"round\"/><g font-family=\"Arial, sans-serif\" font-size=\"36\" fill=\"#111\" text-anchor=\"middle\"><text x=\"160\" y=\"375\">1</text><text x=\"415\" y=\"90\">2</text><text x=\"715\" y=\"105\">3</text><text x=\"935\" y=\"310\">4</text><text x=\"820\" y=\"365\">5</text><text x=\"795\" y=\"735\">6</text><text x=\"575\" y=\"865\">7</text><text x=\"485\" y=\"760\">8</text><text x=\"930\" y=\"455\">9</text><text x=\"925\" y=\"570\">10</text><text x=\"900\" y=\"690\">11</text><text x=\"785\" y=\"835\">12</text><text x=\"545\" y=\"845\">13</text><text x=\"285\" y=\"690\">14</text></g></svg>"},{"number":39,"prompt":"Kalimat: 'Karyawan baru bekerja dengan teliti. Pekerjaan yang selesai dengan teliti jarang memerlukan perbaikan.' Kesimpulan yang paling tepat:","options":["Karyawan baru selalu sempurna","Pekerjaan teliti cenderung mengurangi perbaikan","Semua pekerjaan perlu diperbaiki","Karyawan lama tidak teliti","Tidak ada hubungan"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":40,"prompt":"Berapa banyak duplikasi yang tepat pada pasangan nama berikut? 'Raka, Raka; Sinta, Sinta; Bima, Dimas; Nia, Nia'","options":["1","2","3","4","0"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":41,"prompt":"Manakah pernyataan yang maknanya paling mirip dengan 'Kejujuran membangun kepercayaan'?","options":["Kejujuran merusak hubungan","Orang jujur cenderung dipercaya","Kepercayaan tidak penting","Kebohongan selalu berhasil","Kejujuran hanya diperlukan di kantor"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":42,"prompt":"Tarik satu garis lurus yang menghubungkan dua nomor pada batas bentuk agar terbagi menjadi dua bagian yang sama luas. Tuliskan dua nomor yang dihubungkan.","options":[],"duration_seconds":60,"response_type":"manual","visual":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1200 1050\" role=\"img\" aria-label=\"Gambar WPT nomor 42\"><rect width=\"1200\" height=\"1050\" fill=\"#fff\"/><g fill=\"none\" stroke=\"#111\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M120 575 L260 430 L390 310 L520 420 L625 335 L545 215 L650 105 L825 235 L1025 455 L900 610 L735 720 L600 575 L455 485 L320 610 L215 550 Z\"/><defs><marker id=\"a42\" markerWidth=\"12\" markerHeight=\"12\" refX=\"9\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L10 4 L0 8 Z\" fill=\"#111\"/></marker></defs><path d=\"M120 575 L260 430 L390 310 L520 420 L625 335\" marker-mid=\"url(#a42)\"/><path d=\"M545 215 L650 105 L825 235 L1025 455\" marker-mid=\"url(#a42)\"/><path d=\"M1025 455 L900 610 L735 720 L600 575 L455 485\" marker-mid=\"url(#a42)\"/><path d=\"M455 485 L320 610 L215 550 L120 575\" marker-mid=\"url(#a42)\"/></g><g font-family=\"Arial, sans-serif\" font-size=\"30\" fill=\"#111\" text-anchor=\"middle\"><text x=\"80\" y=\"610\">1</text><text x=\"250\" y=\"405\">2</text><text x=\"375\" y=\"285\">3</text><text x=\"510\" y=\"395\">4</text><text x=\"510\" y=\"195\">5</text><text x=\"600\" y=\"345\">6</text><text x=\"565\" y=\"470\">7</text><text x=\"645\" y=\"315\">8</text><text x=\"555\" y=\"250\">9</text><text x=\"625\" y=\"95\">10</text><text x=\"650\" y=\"45\">11</text><text x=\"825\" y=\"205\">12</text><text x=\"860\" y=\"270\">13</text><text x=\"1035\" y=\"435\">14</text><text x=\"1040\" y=\"500\">15</text><text x=\"940\" y=\"585\">16</text><text x=\"875\" y=\"650\">17</text><text x=\"755\" y=\"755\">18</text><text x=\"700\" y=\"820\">19</text><text x=\"585\" y=\"610\">20</text><text x=\"435\" y=\"520\">21</text><text x=\"450\" y=\"455\">22</text><text x=\"300\" y=\"575\">23</text><text x=\"175\" y=\"660\">24</text></g></svg>"},{"number":43,"prompt":"Dalam kelompok angka berikut, mana yang paling kecil?","options":["0,8","0,08","0,18","0,9","0,11"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":44,"prompt":"Pernyataan: 'Semua dokumen resmi diberi nomor. Dokumen X tidak diberi nomor.' Kesimpulan yang benar:","options":["X pasti resmi","X bukan dokumen resmi","X pasti palsu","Semua dokumen tanpa nomor palsu","Tidak dapat disimpulkan apa pun"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":45,"prompt":"Harga awal sebuah barang Rp120.000. Harga naik 10%. Berapa harga baru?","options":["Rp126.000","Rp130.000","Rp132.000","Rp134.000","Rp140.000"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":46,"prompt":"Dalam rangkaian kata, mana yang berbeda?","options":["mawar","melati","anggrek","kaktus","apel"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":47,"prompt":"Jika semua supervisor hadir, dan Rudi adalah supervisor, maka:","options":["Rudi hadir","Rudi tidak hadir","Rudi mungkin hadir","Tidak ada hubungan","Rudi bukan supervisor"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":48,"prompt":"Tiga orang membagi keuntungan sesuai investasi. X Rp4.000.000, Y Rp3.000.000, Z Rp1.000.000. Jika keuntungan Rp1.600.000, bagian X adalah:","options":["Rp400.000","Rp600.000","Rp800.000","Rp1.000.000","Rp1.200.000"],"duration_seconds":60,"response_type":"choice","visual":""},{"number":49,"prompt":"Empat dari lima bentuk berikut dapat digabungkan untuk membentuk satu segitiga. Pilih bentuk yang tidak diperlukan.","options":["1","2","3","4","5"],"duration_seconds":60,"response_type":"multi_choice","visual":"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1550 360\" role=\"img\" aria-label=\"Gambar pilihan WPT nomor 49\"><rect width=\"1550\" height=\"360\" fill=\"#fff\"/><g fill=\"none\" stroke=\"#111\" stroke-width=\"5\" stroke-linejoin=\"round\"><path d=\"M45 300 L235 35 L235 300 Z\"/><path d=\"M365 300 L365 160 L505 160 L505 55 L590 55 L590 300 Z\"/><rect x=\"725\" y=\"45\" width=\"240\" height=\"255\"/><path d=\"M1065 55 L1065 300 L1305 300 Z\"/><rect x=\"1400\" y=\"125\" width=\"105\" height=\"105\"/></g><g font-family=\"Arial, sans-serif\" font-size=\"34\" fill=\"#111\" text-anchor=\"middle\"><text x=\"140\" y=\"330\">1</text><text x=\"480\" y=\"330\">2</text><text x=\"845\" y=\"330\">3</text><text x=\"1185\" y=\"330\">4</text><text x=\"1452\" y=\"270\">5</text></g></svg>"},{"number":50,"prompt":"Sebuah laporan 24.000 kata akan dicetak. Ukuran besar memuat 2.000 kata per halaman dan ukuran kecil 1.200 kata per halaman. Jika seluruh laporan dicetak dengan ukuran kecil, berapa halaman yang dibutuhkan?","options":["12","16","18","20","24"],"duration_seconds":60,"response_type":"choice","visual":""}];
+export const WPT_SOURCE_VERSION="google-form-2026-09-18";
+export const WPT_QUESTIONS=[
+  {
+    "number": 1,
+    "prompt": "1. Bulan lalu pada awal tahun ini adalah",
+    "options": [
+      "Januari",
+      "Maret",
+      "Juli",
+      "Desember",
+      "Oktober"
+    ],
+    "duration_seconds": 60,
+    "response_type": "choice",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 519304858,
+    "visual": ""
+  },
+  {
+    "number": 2,
+    "prompt": "2. Menangkap adalah lawan kata dari",
+    "options": [
+      "Meletakkan",
+      "Membebaskan",
+      "Beresiko",
+      "Berusaha",
+      "Turun tingkat"
+    ],
+    "duration_seconds": 60,
+    "response_type": "choice",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 409735293,
+    "visual": ""
+  },
+  {
+    "number": 3,
+    "prompt": "3. Sebagian besar hal di bawah ini serupa satu sama lain. Manakah salah satu diantaranya yang kurang serupa dengan yang lain",
+    "options": [
+      "Januari",
+      "Agustus",
+      "Rabu",
+      "Oktober",
+      "Desember"
+    ],
+    "duration_seconds": 60,
+    "response_type": "choice",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1882318378,
+    "visual": ""
+  },
+  {
+    "number": 4,
+    "prompt": "4. Jawablah dengan menuliskan YA atau TIDAK. Apakah RSVP berarti 'jawablah yang tidak perlu'",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": true,
+    "required_in_source": true,
+    "source_entry_id": 2065773825,
+    "visual": ""
+  },
+  {
+    "number": 5,
+    "prompt": "5.  Dalam kelompok kata berikut, manakah kata yang berbeda dari kata yang lain",
+    "options": [
+      "Pasukan",
+      "Liga",
+      "Berpartisipasi",
+      "Pak",
+      "Kelompok"
+    ],
+    "duration_seconds": 60,
+    "response_type": "choice",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1461950470,
+    "visual": ""
+  },
+  {
+    "number": 6,
+    "prompt": "6. BIASA adalah lawan kata dari",
+    "options": [
+      "Jarang",
+      "Terbiasa",
+      "Tetap",
+      "Berhenti",
+      "Selalu"
+    ],
+    "duration_seconds": 60,
+    "response_type": "choice",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 728916739,
+    "visual": ""
+  },
+  {
+    "number": 7,
+    "prompt": "7.  Gambar manakah yang terbuat dari dua gambar didalam tanda kurung ",
+    "options": [
+      "Gambar 1",
+      "Gambar 2",
+      "Gambar 3",
+      "Gambar 4",
+      "Gambar 5"
+    ],
+    "duration_seconds": 60,
+    "response_type": "choice",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 461259483,
+    "visual": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1078 155\" role=\"img\" aria-labelledby=\"wpt-figure-7\"><title id=\"wpt-figure-7\">WPT — Soal 7</title><g fill=\"none\" stroke=\"#111\" stroke-width=\"2.1\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"><path d=\"M36 97 L78 79 L145 101 L72 119 Z M36 97 L145 101 M185 86 L247 50 L278 99 L216 137 Z M200 113 L263 74 M322 90 L363 44 L414 90 L374 135 Z M322 90 H414 M490 104 L578 81 L665 104 L578 125 Z M490 104 H665 M697 61 L741 16 L822 95 L777 139 Z M741 16 V105 M893 83 L946 34 L942 134 Z M970 108 L1006 53 L1023 141 Z\"/><path stroke-width=\"3.5\" d=\"M889 30 C879 31 879 36 879 46 V71 Q879 84 865 85 Q879 86 879 98 V125 Q879 138 889 140 M1037 30 C1047 31 1047 36 1047 46 V71 Q1047 84 1060 85 Q1047 86 1047 98 V125 Q1047 138 1037 140\"/><g stroke=\"none\" fill=\"#111\" font-family=\"Times New Roman, Liberation Serif, serif\" font-size=\"20\"><text x=\"18\" y=\"85\">1</text><text x=\"168\" y=\"94\">2</text><text x=\"301\" y=\"85\">3</text><text x=\"470\" y=\"85\">4</text><text x=\"681\" y=\"85\">5</text></g></g></svg>"
+  },
+  {
+    "number": 8,
+    "prompt": "8.  Perhatikan urutan angka berikut. Angka berapa yang selanjutnya muncul? 8 4 2 1 ½ 1/4",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1395725404,
+    "visual": ""
+  },
+  {
+    "number": 9,
+    "prompt": "9.  Klien dan Pelanggan. Apakah kata kata ini ",
+    "options": [
+      "Memiliki arti yang sama",
+      "Memiliki arti yang berlawanan",
+      "Tidak memiliki arti sama atau berlainan"
+    ],
+    "duration_seconds": 60,
+    "response_type": "choice",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1864746454,
+    "visual": ""
+  },
+  {
+    "number": 10,
+    "prompt": "10.  Manakah kata berikut yang berhubungan dengan aroma saat gigi mengunyah",
+    "options": [
+      "Manis",
+      "Bau tidak sedap",
+      "Bau wangi",
+      "Hidung",
+      "Bersih"
+    ],
+    "duration_seconds": 60,
+    "response_type": "choice",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1548481289,
+    "visual": ""
+  },
+  {
+    "number": 11,
+    "prompt": "11.  Musim gugur adalah lawan dari",
+    "options": [
+      "Liburan",
+      "Musim panas",
+      "Musim semi",
+      "Musim dingin",
+      "Musim gugur"
+    ],
+    "duration_seconds": 60,
+    "response_type": "choice",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 902572109,
+    "visual": ""
+  },
+  {
+    "number": 12,
+    "prompt": "12. Sebuah pesawat terbang 3000 kaki dalam ½ detik. Pada kecepatan yang sama berapa kaki ia\nterbang dalam 10 detik?",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 676696051,
+    "visual": ""
+  },
+  {
+    "number": 13,
+    "prompt": "13. Anggaplah dua pernyataan pertama adalah benar. Apakah yang terakhir:\n1. Benar\n2. Salah\n3. Tidak tahu\nAnak anak lelaki ini Adalah anak yang normal. \nSemua anak normal sifatnya aktif. \nAnak-anak lelaki ini aktif.",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 453783767,
+    "visual": ""
+  },
+  {
+    "number": 14,
+    "prompt": "14. JAUH adalah lawan kata dari",
+    "options": [
+      "Terpencil",
+      "Dekat",
+      "Jauh",
+      "Terburu-buru",
+      "Pasti"
+    ],
+    "duration_seconds": 60,
+    "response_type": "choice",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 2026099250,
+    "visual": ""
+  },
+  {
+    "number": 15,
+    "prompt": "15.  3 permen lemon seharga 10 rupiah. Berapa harga ½ lusin?",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 911493042,
+    "visual": ""
+  },
+  {
+    "number": 16,
+    "prompt": "16.  Berapa banyak duplikasi yang sama dari lima pasangan angka dibawah ini:\n84721            84721\n9210651       9210561\n14201201     14210210\n96101101     96101161\n88884444     88884444",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1878257841,
+    "visual": ""
+  },
+  {
+    "number": 17,
+    "prompt": "17. Misalkan Anda menyusun kata-kata berikut sehingga menjadi pernyataan yang benar. Lalu\ntuliskan huruf terakhir dari kata terakhir sebagai jawaban. \nSelalu sebuah kata kerja kalimat suatu memiliki...",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1268662130,
+    "visual": ""
+  },
+  {
+    "number": 18,
+    "prompt": "18. Anak lelaki berumur 5 tahun dan saudara Perempuannya 2 kali lebih tua. Ketika anak lelaki itu\nberumur 8 tahun. Berapa umur saudara perempuannya?",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 835962354,
+    "visual": ""
+  },
+  {
+    "number": 19,
+    "prompt": "19.  It’s its apakah kata ini?",
+    "options": [
+      "Memiliki arti yang sama",
+      "Memiliki arti yang berlawan",
+      "Tidak memiliki arti yang sama atau berlainan"
+    ],
+    "duration_seconds": 60,
+    "response_type": "choice",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1705926893,
+    "visual": ""
+  },
+  {
+    "number": 20,
+    "prompt": "20. Anggaplah dua pernyataan pertama adalah benar. Apakah pernyataan terakhir:\n1. Benar\n2. Salah\n3. Tidak tahu \nJohn seusia dengan Sally. \nSally lebih mudah dari Bill.\nJohn lebih mudah dari Bill.",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 535571605,
+    "visual": ""
+  },
+  {
+    "number": 21,
+    "prompt": "21. Seorang dealer membeli barrel seharga 4.000 rupiah. Ia menjual dengan harga 5000 rupiah.\nMendapat keuntungan 50 rupiah setiap barrel. Berapa banyak barel yang di jual?",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 2139637675,
+    "visual": ""
+  },
+  {
+    "number": 22,
+    "prompt": "22. Misalkan Anda menyusun kata-kata berikut sehingga menjadi kalimat lengkap.\nJika kalimat itu benar tulislah B jika salah tulislah S.\nTelur menghasilkan semua ayam…",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 12358506,
+    "visual": ""
+  },
+  {
+    "number": 23,
+    "prompt": "23.  Dua dari peribahasa berikut ini memiliki arti yang sama manakah itu:\n1. Semakin banyak memiliki sapi, akan memiliki satu sapi anak yang buruk.\n2. Anak seperti Ayahnya.\n3. Bila tertinggal sama jauhnya dengan satu mil.\n4. Seorang dikenal dari persahabatan yang dijalin.\n5. Mereka adalah benih dari mangkuk yang sama.",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 351695846,
+    "visual": ""
+  },
+  {
+    "number": 24,
+    "prompt": "24.  Sebuah jam terlambat 1 menit 18 detik dalam 39 hari. Berapa detik ia terlambat dalam sehari?",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 102205860,
+    "visual": ""
+  },
+  {
+    "number": 25,
+    "prompt": "25.  CANVASS CANVAS apakah kata kata ini:",
+    "options": [
+      "Memiliki arti yang sama",
+      "Memiliki arti yang berlawanan",
+      "Tidak memiliki arti sama atau berlawanan"
+    ],
+    "duration_seconds": 60,
+    "response_type": "choice",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 921075184,
+    "visual": ""
+  },
+  {
+    "number": 26,
+    "prompt": "26. Anggaplah dua pernyataan pertama adalah benar. Pernyataan terakhir:\n1. Benar\n2. Salah \n3. Tidak tahu\nSemua siswa mengikuti ujian.\nBeberapa orang di ruangan ini adalah siswa.\nBeberapa orang di ruangan ini mengikuti ujian.",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1648978356,
+    "visual": ""
+  },
+  {
+    "number": 27,
+    "prompt": "27.  Dalam 30 hari seorang menambung 1 dolar. Berapa rata-rata tabungan setiap hari?",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1295904148,
+    "visual": ""
+  },
+  {
+    "number": 28,
+    "prompt": "28.  INGENIUS INGENUOUS apakah kata kata ini:",
+    "options": [
+      "Memiliki arti sama",
+      "Memiliki arti berlawanan",
+      "Tidak memiliki arti sama atau berlawanan"
+    ],
+    "duration_seconds": 60,
+    "response_type": "choice",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 2003900704,
+    "visual": ""
+  },
+  {
+    "number": 29,
+    "prompt": "29. Dua orang menangkap 36 ikan. X menangkap 5 kali lebih banyak dari Y. Berapa ikan yang\nditangkap Y?",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 897054136,
+    "visual": ""
+  },
+  {
+    "number": 30,
+    "prompt": "30. Sebuah kotak segi empat, yang terisi penuh, memuat 800 kubik kaki gandum.\nJika satu kotak lebarnya 8 kaki dan panjangnya 10 kaki.\nBerapa kedalaman kota itu?",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1333151200,
+    "visual": ""
+  },
+  {
+    "number": 31,
+    "prompt": "31. Satu angka dari rangkaian berikut tidak cocok dengan pola angka yang lainya. Angka berapakah\nitu? ½ ¼ 1/6 1/8 1/9 1/12 …",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1496095927,
+    "visual": ""
+  },
+  {
+    "number": 32,
+    "prompt": "32.  Jawablah pernyataan ini dengan menulis YA atau TIDAK. Apakah P.M berarti Post Merediem?",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 313546324,
+    "visual": ""
+  },
+  {
+    "number": 33,
+    "prompt": "33. DAPAT DIPERCAYA GAMPANG DIPERCAYA apakah kata-kata ini:",
+    "options": [
+      "Memiliki arti sama",
+      "Memiliki arti berlawanan",
+      "Tidak memiliki arti sama atau berlawanan"
+    ],
+    "duration_seconds": 60,
+    "response_type": "choice",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1804974725,
+    "visual": ""
+  },
+  {
+    "number": 34,
+    "prompt": "34. Sebuah rok membutuhkan 2 ¼ meter kain. Berapa banyak potong yang dihasilkan dari 45 meter\nkain?",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 177895125,
+    "visual": ""
+  },
+  {
+    "number": 35,
+    "prompt": "35. Sebuah jam menunjuk tepat pada pukul 12 siang hari pada hari Senin.\nPada pukul 2 siang hari Rabu, jam itu terlambat 26 detik.\nPada rata rata yang sama, berapa banyak jam itu terlambat dalam ½ jam?",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 545069321,
+    "visual": ""
+  },
+  {
+    "number": 36,
+    "prompt": "36. Tim bisbol kami kalah 9 permainan dalam musim ini. \nIni merupakan 3/8 bagian dari semua pertandingan mereka.\nBerapa banyak pertandingan yang mereka mainkan dalam musim kompetisi saaat ini?",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1987184205,
+    "visual": ""
+  },
+  {
+    "number": 37,
+    "prompt": "37.  Apakah angka selanjutnya dari seri ini?\n1   5   25   125   ..........",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1101596482,
+    "visual": ""
+  },
+  {
+    "number": 38,
+    "prompt": "38. Bentuk geometris ini dapat dibagi suatu garis lurus menjadi dua bagian yang dapat disatukan\ndengan suatu cara hingga membentuk bujur sangkar yang sempurna. Gambarlah garis yang \nmenghubungkan dua dari angka angka yang ada. Lalu tuliskan angka tersebut sebagai jawaban",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 246024832,
+    "visual": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 250 200\" role=\"img\" aria-labelledby=\"wpt-figure-38\"><title id=\"wpt-figure-38\">WPT — Soal 38</title><g fill=\"none\" stroke=\"#111\" stroke-width=\"2.1\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"><path d=\"M34 102 L80 32 L108 58 L128 27 L159 58 L178 25 L212 57 L142 172 Z\"/><g stroke=\"none\" fill=\"#111\" font-family=\"Times New Roman, Liberation Serif, serif\" font-size=\"20\"><text x=\"13\" y=\"100\">1</text><text x=\"22\" y=\"76\">2</text><text x=\"55\" y=\"28\">3</text><text x=\"91\" y=\"76\">4</text><text x=\"112\" y=\"28\">5</text><text x=\"138\" y=\"76\">6</text><text x=\"159\" y=\"28\">7</text><text x=\"224\" y=\"52\">8</text><text x=\"220\" y=\"76\">9</text><text x=\"200\" y=\"123\">10</text><text x=\"179\" y=\"147\">11</text><text x=\"167\" y=\"194\">12</text><text x=\"112\" y=\"147\">13</text><text x=\"76\" y=\"123\">14</text></g></g></svg>"
+  },
+  {
+    "number": 39,
+    "prompt": "39. Apakah arti dari kalimat berikut :\n1. Sama\n2. Berlawanan\n3. Tidak sama atau berlawanan\nSebuah sapu yang baru menyapu dengan bersih.\nSepatu yang sudah lama sifatnya makin lunak.",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1260692342,
+    "visual": ""
+  },
+  {
+    "number": 40,
+    "prompt": "40. Berapa duplikasi dari pasangan kata berikut ini:\nRexford, J.D.            Rockford, J.D\nSingleton, M.O.        Simbleten, M.O.\nRichards, W.E.          Richad, W.E\nSiegel, A.B.               Siegel, A.B.\nWood, A.O.                Wood, A.O.",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1254845929,
+    "visual": ""
+  },
+  {
+    "number": 41,
+    "prompt": "41. Dua dari peribahasa ini memiliki makna yang serupa. Manakah itu?\n1. Anda tidak dapat membuat dompet sutra dari kuping babi betina.\n2. Orang yang mencuri telur akan mencuri sapi.\n3. Batu yang berguling tidak akan mengumpulkan lumut.\n4. Anda tidak mungkin menghancurkan kapal yang sudah rusak.\n5. Ini ketidakmungkinan yang terjadi.",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1759431349,
+    "visual": ""
+  },
+  {
+    "number": 42,
+    "prompt": "42. Gambar geometris ini dapat dibagi dengan garis lurus menjadi dua bagian yang dapat disatukan untuk membuat sebuah bujur sangkar yang sempurna.\nGambarlah suatu garis dengan menghubungkan dua angka. Lalu tulislah angka itu sebagai jawaban!",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 579765822,
+    "visual": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 284 200\" role=\"img\" aria-labelledby=\"wpt-figure-42\"><title id=\"wpt-figure-42\">WPT — Soal 42</title><g fill=\"none\" stroke=\"#111\" stroke-width=\"2.1\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"><path d=\"M30 135 L103 68 L138 103 L160 82 L123 47 L145 27 L236 106 L153 191 L93 124 L56 162 Z\"/><g fill=\"#111\" stroke=\"none\"><polygon points=\"28,130 39,134 30,143\"/><polygon points=\"48,109 59,113 48,122\"/><polygon points=\"67,92 78,96 69,104\"/><polygon points=\"85,79 96,83 86,93\"/><polygon points=\"100,65 112,70 103,79\"/><polygon points=\"109,80 120,87 113,94\"/><polygon points=\"133,97 144,103 134,111\"/><polygon points=\"157,76 167,87 153,84\"/><polygon points=\"137,57 145,69 132,65\"/><polygon points=\"121,40 129,50 117,48\"/><polygon points=\"145,22 152,34 138,31\"/><polygon points=\"165,34 172,48 159,44\"/><polygon points=\"188,54 195,65 183,62\"/><polygon points=\"205,77 214,90 201,87\"/><polygon points=\"233,97 241,108 229,106\"/><polygon points=\"219,114 230,118 220,129\"/><polygon points=\"198,137 210,142 199,150\"/><polygon points=\"183,154 195,160 185,168\"/><polygon points=\"164,169 176,172 166,182\"/><polygon points=\"143,167 153,176 141,178\"/><polygon points=\"119,147 130,151 119,159\"/><polygon points=\"92,119 103,124 92,132\"/><polygon points=\"72,138 82,142 72,150\"/><polygon points=\"51,156 64,161 54,169\"/></g><g stroke=\"none\" fill=\"#111\" font-family=\"Times New Roman, Liberation Serif, serif\" font-size=\"20\"><text x=\"6\" y=\"142\">1</text><text x=\"31\" y=\"118\">2</text><text x=\"72\" y=\"118\">3</text><text x=\"69\" y=\"94\">4</text><text x=\"88\" y=\"70\">5</text><text x=\"100\" y=\"95\">6</text><text x=\"144\" y=\"118\">7</text><text x=\"165\" y=\"94\">8</text><text x=\"152\" y=\"72\">9</text><text x=\"89\" y=\"47\">10</text><text x=\"128\" y=\"23\">11</text><text x=\"164\" y=\"47\">12</text><text x=\"198\" y=\"71\">13</text><text x=\"229\" y=\"94\">14</text><text x=\"236\" y=\"119\">15</text><text x=\"229\" y=\"142\">16</text><text x=\"207\" y=\"166\">17</text><text x=\"198\" y=\"190\">18</text><text x=\"161\" y=\"190\">19</text><text x=\"117\" y=\"190\">20</text><text x=\"88\" y=\"166\">21</text><text x=\"98\" y=\"142\">22</text><text x=\"51\" y=\"142\">23</text><text x=\"24\" y=\"166\">24</text></g></g></svg>"
+  },
+  {
+    "number": 43,
+    "prompt": "43.  Dalam kelompok angka berikut, manakah yang terkecil: 10   1  999   33   11 …",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 565297323,
+    "visual": ""
+  },
+  {
+    "number": 44,
+    "prompt": "44.  Apakah makna dari kalimat berikut :\n1. Sama\n2. Berlawanan\n3. Tidak sama atau berlawanan\nTidak ada orang jujur meminta maaf atas kejujurannya.\nKejujuran dihormati dan lapar pujian.",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 921877275,
+    "visual": ""
+  },
+  {
+    "number": 45,
+    "prompt": "45. Dengan harga 1.80 dolar, seorang grosir membeli satu kardus buah yang berisi 12 lusin. Ia tahu dua lusin akan busuk sebelum dia menjualnya. Dengan harga berapa perlusin dia harus menjual jeril itu untuk mendapat 1/3 hari harga seluruhnya…",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1840608795,
+    "visual": ""
+  },
+  {
+    "number": 46,
+    "prompt": "46. Dalam rangkaian kata berikut ini, manakah yang berbeda dari yang lainya?",
+    "options": [
+      "Koloni",
+      "Perkawanan",
+      "Kawanan",
+      "Kru",
+      "Konstelasi"
+    ],
+    "duration_seconds": 60,
+    "response_type": "choice",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1140995990,
+    "visual": ""
+  },
+  {
+    "number": 47,
+    "prompt": "47.  Anggaplah dua pernyataan ini benar. Apakah pertanyaan terakhir:\n1. Benar\n2. Salah\n3. Tidak tahu\nOrang besar dibodohi.\nSaya dibodohi.\nSaya adalah orang besar.",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1154123117,
+    "visual": ""
+  },
+  {
+    "number": 48,
+    "prompt": "48. Tiga orang membentuk kemitraan dan setuju membagi keuntungan secara rata.\nX menginvestasi 4.500 dolar. Y sebesar 3.500 dolar dan Z sebesar 2.000 dolar.\nJika keuntungan mencapai 1.500 dolar, lebih kurang berapa yang diperoleh X dibanding jika keuntungan dibagi berdasarkan besarnya investasi… ",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 79723692,
+    "visual": ""
+  },
+  {
+    "number": 49,
+    "prompt": "49. Empat dari 5 bagian ini dapat digabungkan untuk membuat segi tiga, manakah keempat gambar ini… ",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "duration_seconds": 60,
+    "response_type": "multi_choice",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 1653135747,
+    "visual": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 843 111\" role=\"img\" aria-labelledby=\"wpt-figure-49\"><title id=\"wpt-figure-49\">WPT — Soal 49</title><g fill=\"none\" stroke=\"#111\" stroke-width=\"2.1\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"><path d=\"M39 70 L122 8 L122 70 Z M227 92 V44 H265 V15 H291 V92 Z M365 15 H449 V102 H365 Z M569 12 L646 97 H569 Z M769 56 H812 V92 H769 Z\"/><g stroke=\"none\" fill=\"#111\" font-family=\"Times New Roman, Liberation Serif, serif\" font-size=\"24\"><text x=\"97\" y=\"53\">1</text><text x=\"262\" y=\"79\">2</text><text x=\"382\" y=\"83\">3</text><text x=\"590\" y=\"87\">4</text><text x=\"785\" y=\"84\">5</text></g></g></svg>"
+  },
+  {
+    "number": 50,
+    "prompt": "50. Untuk mencetak sebuah artikel berisi 30.000 kata, sebuah percetakan memutuskan untuk memakai dua ukuran jenis.\nDengan menggunakan tipe yang lebih besarm sebuah halaman tercetak akan memuat 1.200 kata. Dengan tipe yang lebih kecil, sebuah halaman memuat 1.500 kata.\nArtikel ini masuk dalam 22 halaman di majalah. Berapa banyak halaman yang dibutuhkan untuk tipe yang lebih kecil..",
+    "options": [],
+    "duration_seconds": 60,
+    "response_type": "manual",
+    "multiline": false,
+    "required_in_source": true,
+    "source_entry_id": 450679257,
+    "visual": ""
+  }
+];

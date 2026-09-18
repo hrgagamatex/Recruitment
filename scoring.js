@@ -20,12 +20,29 @@ export function scoreDisc(values,cfg){
 }
 export function scoreWpt(values,cfg){
  const norm=v=>String(v??'').trim().toLowerCase().replace(/\s+/g,' ');
+ const list=v=>{const a=Array.isArray(v)?v:typeof v==='string'?v.trim().split(/[\s,;\-/]+/):[];return a.length&&a.every(x=>/^[1-5]$/.test(String(x)))?[...new Set(a.map(Number))].sort((a,b)=>a-b):null;};
  let correct=0,answered=0;
- const details=cfg.keys.map((key,i)=>{const v=values[i];const ok=v!==null&&v!==undefined&&norm(v)!=='';if(ok)answered++;const good=ok&&norm(v)===norm(key);if(good)correct++;return {number:i+1,value:v,correct:good,key};});
+ const keys=Array.isArray(cfg.keys)?cfg.keys:[];
+ const details=Array.from({length:50},(_,i)=>{
+  const v=values[i],multi=Array.isArray(v?.choices)?v.choices:Array.isArray(v)?v:null;
+  const display=multi?multi.join(', '):v&&typeof v==='object'?v.text??v.choice??'':v;
+  const ok=multi?multi.length>0:v!==null&&v!==undefined&&norm(display)!=='';
+  if(ok)answered++;
+  const key=keys[i];let good=false;
+  if(ok&&key!==undefined&&key!==null){
+   if(multi){const a=list(multi),b=list(key);good=!!a&&!!b&&JSON.stringify(a)===JSON.stringify(b);}
+   else if(v&&typeof v==='object')good=norm(v.text)===norm(key)||(Number.isInteger(v.choice)&&norm(v.choice)===norm(key));
+   else good=norm(v)===norm(key);
+  }
+  if(good)correct++;
+  return {number:i+1,value:ok?display:null,correct:good,key};
+ });
+ const ready=keys.length===50&&keys.every(k=>k!==null&&k!==undefined&&norm(k)!=='');
  const points=correct===0?0:Number(cfg.conversion?.[correct-1]??correct);
  const category=cfg.categories?.find(x=>points>=x.min&&points<=x.max)||null;
- return {correct,answered,blank:cfg.keys.length-answered,wrong:answered-correct,points,category,details};
+ return {correct,answered,blank:50-answered,wrong:answered-correct,points,category,details,ready};
 }
+
 export function scoreTiu(values,cfg){
  const correct=cfg.keys.filter((k,i)=>values[i]===k).length,answered=values.filter(v=>v!==null&&v!==undefined).length;
  return {correct,answered,blank:cfg.keys.length-answered,wrong:answered-correct,categories:cfg.ranges.filter(r=>correct>=r.min&&correct<=r.max).map(r=>r.label)};
@@ -46,3 +63,4 @@ export function mapPersonality(code,attempt,rows,config){
  }
  return {values,issues};
 }
+
