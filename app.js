@@ -38,7 +38,16 @@ function escapeHtml(value = '') {
 }
 
 function setHeader(text = '') { headerStatus.textContent = text; }
-function route(path) { location.hash = `#${path}`; }
+let routeInProgress=false;
+function route(path) {
+  const destination=`#${path}`;
+  if(location.hash===destination||routeInProgress)return;
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduced){location.hash=destination;return;}
+  routeInProgress=true;
+  document.body.classList.add('page-is-leaving');
+  setTimeout(()=>{location.hash=destination;document.body.classList.remove('page-is-leaving');routeInProgress=false;},260);
+}
 function clearTimer() { if (timerId) clearInterval(timerId); timerId = null; }
 
 async function loadTemporaryTiuCsv() {
@@ -101,8 +110,27 @@ async function getTestSequence(){
 
 async function participantTitle(code){const sequence=await getTestSequence();const i=sequence.indexOf(code);return i>=0?`Urutan Tes ${i+1}`:'Sesi Tes';}
 
+function startTypewriters(root=app){
+  root.querySelectorAll('[data-typewriter]').forEach(el=>{
+    const text=el.dataset.typewriter||'';
+    el.setAttribute('aria-label',text);
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=text;el.classList.add('typing-complete');return;}
+    el.textContent='';el.classList.add('typing-active');
+    let index=0;
+    const tick=()=>{el.textContent=text.slice(0,++index);if(index<text.length)setTimeout(tick,text[index-1]===','||text[index-1]==='.'?72:22);else el.classList.replace('typing-active','typing-complete');};
+    setTimeout(tick,180);
+  });
+}
+
+function instructionText(text,className='muted'){
+  return `<p class="${className} typed-copy" data-typewriter="${escapeHtml(text)}"></p>`;
+}
+
 function layout(content, compact = false) {
-  app.innerHTML = `<section class="card ${compact ? '' : 'page-card'}">${content}</section>`;
+  const participant=!location.hash.startsWith('#/admin');
+  app.innerHTML = `<section class="card ${compact ? '' : 'page-card'} ${participant?'participant-window':''}">${participant?'<div class="window-bar" aria-hidden="true"><span class="window-dots"><i></i><i></i><i></i></span><small>RECRUITMENT · GAMATEX</small><b>INDEX</b></div><div class="window-body">':''}${content}${participant?'</div>':''}</section>`;
+  app.classList.remove('page-enter');void app.offsetWidth;app.classList.add('page-enter');
+  startTypewriters(app);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -194,14 +222,14 @@ async function instructionsPage(testCode) {
     const state=await rpc('tiu5_session',{p_session_token:session.token,p_start:false});
     const seconds=state.status==='in_progress'?(state.deadline_at?(Date.parse(state.deadline_at)-Date.parse(state.started_at))/1000:null):state.duration_seconds;
     const duration=seconds?`${seconds/60} menit`:'Tanpa batas waktu';
-    layout(`<span class="eyebrow">Sesi Tes</span><h2 style="margin-top:12px">Petunjuk ${meta.name}</h2><p class="muted">${meta.description}</p>
+    layout(`<span class="eyebrow">Sesi Tes</span><h2 style="margin-top:12px">Petunjuk ${meta.name}</h2>${instructionText(meta.description)}
       <div class="steps"><div class="step"><small>Jumlah</small><strong>30 soal</strong></div><div class="step"><small>Waktu total</small><strong>${duration}</strong></div><div class="step"><small>Tampilan</small><strong>Semua soal sekaligus</strong></div></div>
       ${tiuInstructionsHtml()}
       <div class="notice">Setelah tombol mulai ditekan, seluruh soal 1–30 akan tampil dan waktu pengerjaan ${duration} langsung berjalan. Jawaban yang belum dipilih akan disimpan kosong.</div>
       <div class="actions"><button id="startTest" class="btn btn-primary">Saya Mengerti · Mulai ${meta.name}</button></div>`);
   }else layout(`<span class="eyebrow">Sesi Tes</span>
     <h2 style="margin-top:12px">Petunjuk ${meta.name}</h2>
-    <p class="muted">${meta.description}</p>
+    ${instructionText(meta.description)}
     <div class="steps"><div class="step"><small>Jumlah</small><strong>${meta.total} ${meta.unit}</strong></div><div class="step"><small>Waktu</small><strong>${testCode==='wpt'?'60 detik / soal':`${meta.seconds} detik / soal`}</strong></div></div>
     <div class="notice">Timer dimulai setelah tombol di bawah ditekan. Jika waktu habis, soal akan otomatis dilanjutkan.</div>
     <div class="actions"><button id="startTest" class="btn btn-primary">Mulai ${meta.name}</button></div>`);
@@ -306,7 +334,7 @@ async function finishTest(testCode){
 
 function completePage(){
   setHeader('Tes selesai');
-  layout(`<div class="center"><div class="success-icon">✓</div><span class="eyebrow">Berhasil dikirim</span><h2 style="margin-top:14px">Terima kasih, ${escapeHtml(session.name||'Peserta')}.</h2><p class="muted">Formulir dan seluruh jawaban tes Anda telah tersimpan. Tim HR akan menghubungi Anda untuk proses berikutnya.</p><div class="actions" style="justify-content:center"><button id="logout" class="btn btn-secondary">Selesai dan keluar</button></div></div>`);
+  layout(`<div class="completion-screen center"><div class="completion-tab"><span>SELEKSI KARYAWAN</span><b>SELESAI</b></div><div class="success-icon">✓</div><span class="eyebrow">Semua jawaban tersimpan</span><h2 style="margin-top:14px">Terima kasih, ${escapeHtml(session.name||'Peserta')}.</h2><p class="completion-message">Terima kasih telah menyelesaikan tes.<br>Mohon menunggu proses seleksi.</p><p class="muted">Tim HR PT. Gamatex akan menghubungi Anda apabila proses berikutnya telah tersedia.</p><div class="actions" style="justify-content:center"><button id="logout" class="btn btn-secondary">Selesai dan keluar</button></div></div>`);
   document.querySelector('#logout').onclick=()=>{session.clear();route('/');};
 }
 
@@ -436,7 +464,7 @@ async function tiu6Instructions(){
     const state=await rpc('tiu6_session',{p_session_token:session.token,p_start:false});
     const complete=state.status==='completed',started=state.status==='in_progress';
     const seconds=started?(state.deadline_at?Math.round((Date.parse(state.deadline_at)-Date.parse(state.started_at))/1000):null):state.duration_seconds;
-    layout(`<span class="eyebrow">Sesi Tes</span><h2>Petunjuk ${title}</h2><p>${testMeta.tiu6.description}</p><div class="steps"><div class="step"><small>Jumlah</small><strong>8 kelompok · 40 gambar</strong></div><div class="step"><small>Waktu total</small><strong>${seconds?`${seconds/60} menit`:'Tanpa batas waktu'}</strong></div></div><div class="notice">Perhatikan bangun acuan di sebelah kiri. Nilai setiap gambar secara terpisah: B jika bisa membentuk bangun acuan, S jika tidak. Jumlah B pada setiap kelompok dapat berbeda. Klik bulatan untuk memilih jawaban. Anda boleh mengubah pilihan sebelum selesai. Isian kosong tetap kosong.</div><p>Jawaban disimpan otomatis. ${seconds?'Saat waktu habis, hanya jawaban yang sudah diterima server sebelum batas waktu yang digunakan.':'Pastikan keterangan “Jawaban tersimpan” muncul sebelum meninggalkan halaman.'}</p>${complete?'<p>Tes sudah selesai dan tersimpan.</p>':''}<button id="tiu6Start" class="btn btn-primary" ${state.active===false?'disabled':''}>${complete?'Lanjut ke sesi berikutnya':started?'Lanjutkan tes':'Saya mengerti · Mulai tes'}</button>`);
+    layout(`<span class="eyebrow">Sesi Tes</span><h2>Petunjuk ${title}</h2>${instructionText(testMeta.tiu6.description,'')}<div class="steps"><div class="step"><small>Jumlah</small><strong>8 kelompok · 40 gambar</strong></div><div class="step"><small>Waktu total</small><strong>${seconds?`${seconds/60} menit`:'Tanpa batas waktu'}</strong></div></div><div class="notice">Perhatikan bangun acuan di sebelah kiri. Nilai setiap gambar secara terpisah: B jika bisa membentuk bangun acuan, S jika tidak. Jumlah B pada setiap kelompok dapat berbeda. Klik bulatan untuk memilih jawaban. Anda boleh mengubah pilihan sebelum selesai. Isian kosong tetap kosong.</div><p>Jawaban disimpan otomatis. ${seconds?'Saat waktu habis, hanya jawaban yang sudah diterima server sebelum batas waktu yang digunakan.':'Pastikan keterangan “Jawaban tersimpan” muncul sebelum meninggalkan halaman.'}</p>${complete?'<p>Tes sudah selesai dan tersimpan.</p>':''}<button id="tiu6Start" class="btn btn-primary" ${state.active===false?'disabled':''}>${complete?'Lanjut ke sesi berikutnya':started?'Lanjutkan tes':'Saya mengerti · Mulai tes'}</button>`);
     document.querySelector('#tiu6Start').onclick=async e=>{if(complete)return advanceTiu6();e.currentTarget.disabled=true;try{await rpc('tiu6_session',{p_session_token:session.token,p_start:true});localStorage.setItem('rtg_test_state',JSON.stringify({testCode:'tiu6',index:'all'}));route('/quiz/tiu6/all');}catch(error){toast(error.message);document.querySelector('#tiu6Start').disabled=false;}};
   }catch(error){layout(`<h2>Tes belum tersedia</h2><p>${escapeHtml(error.message)}</p><p>Hubungi HR untuk memastikan sesi tes sudah tersedia.</p>`);}
 }
@@ -523,4 +551,3 @@ const navigate=()=>router().catch(error=>layout(`<h2>Halaman belum dapat dibuka<
 window.addEventListener('hashchange',navigate);
 window.addEventListener('beforeunload',e=>{if(location.hash.includes('/quiz/')){e.preventDefault();e.returnValue='';}});
 navigate();
-
