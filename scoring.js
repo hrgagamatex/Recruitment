@@ -20,29 +20,47 @@ export function scoreDisc(values,cfg){
 }
 export function scoreWpt(values,cfg){
  const norm=v=>String(v??'').trim().toLowerCase().replace(/\s+/g,' ');
- const list=v=>{const a=Array.isArray(v)?v:typeof v==='string'?v.trim().split(/[\s,;\-/]+/):[];return a.length&&a.every(x=>/^[1-5]$/.test(String(x)))?[...new Set(a.map(Number))].sort((a,b)=>a-b):null;};
+ const numberSet=v=>{
+  const source=Array.isArray(v)?v:String(v??'').match(/\d+/g)||[];
+  const numbers=[...new Set(source.map(Number).filter(Number.isFinite))].sort((a,b)=>a-b);
+  return numbers.length?numbers:null;
+ };
+ const sameSet=(left,right)=>{
+  const a=numberSet(left),b=numberSet(right);
+  return !!a&&!!b&&a.length===b.length&&a.every((value,index)=>value===b[index]);
+ };
+ const keyReady=key=>{
+  if(key===undefined||key===null)return false;
+  if(typeof key==='object'&&!Array.isArray(key))return Array.isArray(key.values)&&key.values.length>0;
+  return norm(key)!=='';
+ };
+ const matches=(display,multi,key,raw)=>{
+  const candidates=[display];
+  if(raw&&typeof raw==='object'&&Number.isInteger(raw.choice))candidates.push(raw.choice);
+  if(typeof key==='object'&&key!==null&&!Array.isArray(key)){
+   if(key.mode==='any')return key.values.some(value=>candidates.some(candidate=>norm(candidate)===norm(value)));
+   if(key.mode==='set')return sameSet(multi??display,key.values);
+  }
+  if(multi)return sameSet(multi,key);
+  return candidates.some(candidate=>norm(candidate)===norm(key));
+ };
  let correct=0,answered=0;
  const keys=Array.isArray(cfg.keys)?cfg.keys:[];
  const details=Array.from({length:50},(_,i)=>{
-  const v=values[i],multi=Array.isArray(v?.choices)?v.choices:Array.isArray(v)?v:null;
-  const display=multi?multi.join(', '):v&&typeof v==='object'?v.text??v.choice??'':v;
-  const ok=multi?multi.length>0:v!==null&&v!==undefined&&norm(display)!=='';
-  if(ok)answered++;
-  const key=keys[i];let good=false;
-  if(ok&&key!==undefined&&key!==null){
-   if(multi){const a=list(multi),b=list(key);good=!!a&&!!b&&JSON.stringify(a)===JSON.stringify(b);}
-   else if(v&&typeof v==='object')good=norm(v.text)===norm(key)||(Number.isInteger(v.choice)&&norm(v.choice)===norm(key));
-   else good=norm(v)===norm(key);
-  }
+  const value=values[i],multi=Array.isArray(value?.choices)?value.choices:Array.isArray(value)?value:null;
+  const display=multi?multi.join(', '):value&&typeof value==='object'?value.text??value.choice??'':value;
+  const filled=multi?multi.length>0:value!==null&&value!==undefined&&norm(display)!=='';
+  if(filled)answered++;
+  const key=keys[i];
+  const good=filled&&keyReady(key)&&matches(display,multi,key,value);
   if(good)correct++;
-  return {number:i+1,value:ok?display:null,correct:good,key};
+  return {number:i+1,value:filled?display:null,correct:good,key};
  });
- const ready=keys.length===50&&keys.every(k=>k!==null&&k!==undefined&&norm(k)!=='');
+ const ready=keys.length===50&&keys.every(keyReady);
  const points=correct===0?0:Number(cfg.conversion?.[correct-1]??correct);
  const category=cfg.categories?.find(x=>points>=x.min&&points<=x.max)||null;
  return {correct,answered,blank:50-answered,wrong:answered-correct,points,category,details,ready};
 }
-
 export function scoreTiu(values,cfg){
  const correct=cfg.keys.filter((k,i)=>values[i]===k).length,answered=values.filter(v=>v!==null&&v!==undefined).length;
  return {correct,answered,blank:cfg.keys.length-answered,wrong:answered-correct,categories:cfg.ranges.filter(r=>correct>=r.min&&correct<=r.max).map(r=>r.label)};
@@ -63,4 +81,3 @@ export function mapPersonality(code,attempt,rows,config){
  }
  return {values,issues};
 }
-

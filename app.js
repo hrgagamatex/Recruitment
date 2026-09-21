@@ -38,15 +38,9 @@ function escapeHtml(value = '') {
 }
 
 function setHeader(text = '') { headerStatus.textContent = text; }
-let routeInProgress=false;
 function route(path) {
   const destination=`#${path}`;
-  if(location.hash===destination||routeInProgress)return;
-  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduced){location.hash=destination;return;}
-  routeInProgress=true;
-  document.body.classList.add('page-is-leaving');
-  setTimeout(()=>{location.hash=destination;document.body.classList.remove('page-is-leaving');routeInProgress=false;},260);
+  if(location.hash!==destination)location.hash=destination;
 }
 function clearTimer() { if (timerId) clearInterval(timerId); timerId = null; }
 
@@ -110,7 +104,7 @@ async function getTestSequence(){
 
 async function participantTitle(code){const sequence=await getTestSequence();const i=sequence.indexOf(code);return i>=0?`Urutan Tes ${i+1}`:'Sesi Tes';}
 
-function startTypewriters(root=app){
+function startTypewriters(root=app,delay=180){
   root.querySelectorAll('[data-typewriter]').forEach(el=>{
     const text=el.dataset.typewriter||'';
     el.setAttribute('aria-label',text);
@@ -118,7 +112,7 @@ function startTypewriters(root=app){
     el.textContent='';el.classList.add('typing-active');
     let index=0;
     const tick=()=>{el.textContent=text.slice(0,++index);if(index<text.length)setTimeout(tick,text[index-1]===','||text[index-1]==='.'?72:22);else el.classList.replace('typing-active','typing-complete');};
-    setTimeout(tick,180);
+    setTimeout(tick,delay);
   });
 }
 
@@ -126,12 +120,35 @@ function instructionText(text,className='muted'){
   return `<p class="${className} typed-copy" data-typewriter="${escapeHtml(text)}"></p>`;
 }
 
+function panelLabelForRoute(){
+  const path=(location.hash.slice(1)||'/').split('/').filter(Boolean);
+  if(!path.length)return 'Seleksi Karyawan';
+  if(path[0]==='application')return 'Formulir Karyawan';
+  if(path[0]==='notice')return 'Pemberitahuan';
+  if(path[0]==='instructions'||path[0]==='quiz')return 'Sesi Tes';
+  if(path[0]==='complete')return 'Tes Selesai';
+  return 'Recruitment';
+}
+
+function shouldGlitchPanel(){
+  const path=(location.hash.slice(1)||'/').split('/').filter(Boolean);
+  return path.length===0||path[0]==='instructions';
+}
+
 function layout(content, compact = false) {
   const participant=!location.hash.startsWith('#/admin');
-  app.innerHTML = `<section class="card ${compact ? '' : 'page-card'} ${participant?'participant-window':''}">${participant?'<div class="window-bar" aria-hidden="true"><span class="window-dots"><i></i><i></i><i></i></span><small>RECRUITMENT · GAMATEX</small><b>INDEX</b></div><div class="window-body">':''}${content}${participant?'</div>':''}</section>`;
-  app.classList.remove('page-enter');void app.offsetWidth;app.classList.add('page-enter');
-  startTypewriters(app);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const glitch=participant&&shouldGlitchPanel();
+  const label=escapeHtml(panelLabelForRoute());
+  app.innerHTML = `<section class="card ${compact ? '' : 'page-card'} ${participant?'participant-window':''} ${glitch?'panel-glitch-pending':''}">${participant?`<div class="window-bar" aria-hidden="true"><span class="window-dots"><i></i><i></i><i></i></span><small>RECRUITMENT · GAMATEX</small><b>${label}</b></div><div class="window-body">`:''}${content}${participant?'</div>':''}</section>`;
+  const panel=app.querySelector('.participant-window');
+  if(glitch&&panel){
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      panel.classList.remove('panel-glitch-pending');
+      panel.classList.add('panel-glitch-in');
+    }));
+  }
+  startTypewriters(app,glitch?560:180);
+  window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
 async function rpc(name, params = {}) {
@@ -196,7 +213,7 @@ function applicationPage() {
   setHeader(escapeHtml(session.name));
   layout(`<div class="section-title"><div><h2 style="margin-top:10px">Formulir Aplikasi</h2><p class="muted">Lengkapi data diri sebelum memulai tes.</p></div></div>
     <form id="applicationForm" class="form-grid">${applicationFields.map(fieldHtml).join('')}
-      <div class="field full"><div class="notice">Pastikan data benar. Setelah disimpan, Anda akan melihat petunjuk Tes 1.</div></div>
+      <div class="field full"><div class="notice">Pastikan data benar. Setelah disimpan, Anda akan melihat pemberitahuan pelaksanaan sebelum petunjuk Tes 1.</div></div>
       <div class="field full"><button class="btn btn-primary" type="submit">Simpan dan lanjutkan</button></div>
     </form>`);
   document.querySelector('#applicationForm').addEventListener('submit', async e => {
@@ -208,9 +225,35 @@ function applicationPage() {
       values.birth_place_date=`${values.birth_place}, ${formatted}`;
     }
     delete values.birth_place; delete values.birth_date;
-    try { await rpc('save_candidate_application',{p_session_token:session.token,p_application:values}); const sequence=await getTestSequence(); route(sequence.length?`/instructions/${sequence[0]}`:'/complete'); }
+    try { await rpc('save_candidate_application',{p_session_token:session.token,p_application:values}); route('/notice'); }
     catch(error){toast(error.message||'Data belum dapat disimpan.');button.disabled=false;button.textContent='Simpan dan lanjutkan';}
   });
+}
+
+function preTestNoticePage(){
+  if(!session.token)return route('/');
+  setHeader(`${session.name} · Pemberitahuan`);
+  layout(`<span class="eyebrow">Sebelum Memulai</span>
+    <h2 style="margin-top:12px">Pemberitahuan Pelaksanaan Psikotes Online</h2>
+    <div class="pretest-notice">
+      <p>Halo, sebelum memulai proses Psikotes Online, mohon diperhatikan beberapa hal berikut:</p>
+      <ol>
+        <li>Psikotes terdiri dari beberapa jenis/tahapan tes, dan setiap tes memiliki waktu pengerjaan yang berbeda-beda. Pastikan membaca instruksi pada setiap tahap dengan teliti sebelum memulai.</li>
+        <li>Pastikan Anda berada dalam kondisi senggang/free dan dapat berkonsentrasi penuh selama proses pengerjaan. Jangan mengerjakan psikotes sambil melakukan pekerjaan atau aktivitas lainnya, karena dapat memengaruhi hasil tes dan berisiko menyebabkan Anda tidak dapat menyelesaikan atau dinyatakan gagal dalam proses tes.</li>
+        <li>Pastikan koneksi internet dalam kondisi stabil dan perangkat yang digunakan (laptop/komputer) siap digunakan hingga seluruh tahapan selesai.</li>
+        <li>Ikuti setiap tahapan sesuai urutan dan petunjuk yang diberikan. Jangan melewati atau menutup halaman tes sebelum memastikan tahap tersebut telah selesai.</li>
+        <li>Perhatikan waktu pengerjaan pada setiap tes. Setelah waktu habis, sistem dapat secara otomatis mengakhiri atau melanjutkan ke tahap berikutnya.</li>
+      </ol>
+      <p>Sebelum memulai, pastikan Anda telah mempersiapkan segala sesuatu yang diperlukan dan berada di tempat yang tenang, nyaman, serta minim gangguan.</p>
+      <p>Mohon pastikan Anda benar-benar siap dan memiliki waktu yang cukup sebelum menekan tombol “Mulai Tes”. Setelah tes dimulai, ikuti seluruh proses sampai selesai dan kerjakan dengan fokus serta sesuai dengan kondisi Anda yang sebenarnya.</p>
+      <p><strong>Selamat mengerjakan dan semoga berhasil! 😊</strong></p>
+    </div>
+    <div class="actions"><button id="continueToInstructions" class="btn btn-primary">Saya Mengerti · Lanjut ke Petunjuk Tes</button></div>`);
+  document.querySelector('#continueToInstructions').onclick=async e=>{
+    e.currentTarget.disabled=true;
+    const sequence=await getTestSequence();
+    route(sequence.length?`/instructions/${sequence[0]}`:'/complete');
+  };
 }
 
 async function instructionsPage(testCode) {
@@ -531,6 +574,7 @@ async function router(){
   if(disposeTiu6){disposeTiu6();disposeTiu6=null;}
   clearTimer(); const path=(location.hash.slice(1)||'/').split('/').filter(Boolean);
   if(path[0]==='application') return applicationPage();
+  if(path[0]==='notice') return preTestNoticePage();
   if(path[0]==='instructions') return instructionsPage(path[1]||'test1');
   if(path[0]==='quiz'&&path[1]==='tiu5') return tiu5AllPage();
   if(path[0]==='quiz'&&path[1]==='wpt') return wptQuizPage(Number(path[2]||0));
