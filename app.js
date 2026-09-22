@@ -3,7 +3,7 @@ import { renderTiuSvgQuestion } from './tiu5-svg-temp.js';
 import { mountTiu6, questionMarkup, answersCsv } from './tiu6.js';
 import { MBTI_QUESTIONS, scoreMbti } from './mbti.js';
 import { WPT_QUESTIONS } from './wpt.js';
-import {resolveWpt,wptAnswerMarkup,wptPayload} from './wpt-ui.js';
+import {resolveWpt,wptAnswerMarkup,wptPayload} from './wpt-ui.js?v=20260922-compact-editor';
 window.__mbtiModule={scoreMbti};
 
 const { supabaseUrl, supabasePublishableKey } = window.APP_CONFIG;
@@ -44,6 +44,42 @@ function toast(message) {
 
 function escapeHtml(value = '') {
   return String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+}
+
+const richTagNames={B:'strong',STRONG:'strong',I:'em',EM:'em',U:'u',S:'s',STRIKE:'s',BR:'br',DIV:'div',P:'p'};
+function sanitizeRichText(value=''){
+  const source=document.createElement('template');
+  source.innerHTML=String(value??'');
+  const output=document.createElement('div');
+  const copy=(node,parent)=>{
+    if(node.nodeType===Node.TEXT_NODE){parent.append(document.createTextNode(node.nodeValue||''));return;}
+    if(node.nodeType!==Node.ELEMENT_NODE)return;
+    const tag=richTagNames[node.tagName];
+    if(!tag){[...node.childNodes].forEach(child=>copy(child,parent));return;}
+    const clean=document.createElement(tag);
+    [...node.childNodes].forEach(child=>copy(child,clean));
+    parent.append(clean);
+  };
+  [...source.content.childNodes].forEach(node=>copy(node,output));
+  return output.innerHTML.trim();
+}
+function renderRichText(value=''){return sanitizeRichText(value);}
+function richTextPlain(value=''){
+  const holder=document.createElement('div');holder.innerHTML=sanitizeRichText(value);
+  return (holder.textContent||'').replace(/\s+/g,' ').trim();
+}
+function richEditorField(name,label,value=''){
+  return `<div class="field full rich-field"><label>${escapeHtml(label)}</label><div class="rich-toolbar" role="toolbar" aria-label="Format ${escapeHtml(label)}"><button type="button" data-command="bold" title="Bold"><b>B</b></button><button type="button" data-command="italic" title="Italic"><i>I</i></button><button type="button" data-command="underline" title="Underline"><u>U</u></button><button type="button" data-command="strikeThrough" title="Strikethrough"><s>S</s></button></div><div class="rich-editor" contenteditable="true" role="textbox" aria-label="${escapeHtml(label)}" data-rich-name="${escapeHtml(name)}">${renderRichText(value)}</div></div>`;
+}
+function initRichEditors(root=document){
+  root.querySelectorAll('.rich-toolbar').forEach(toolbar=>toolbar.querySelectorAll('button').forEach(button=>{
+    button.addEventListener('mousedown',event=>event.preventDefault());
+    button.addEventListener('click',()=>{const editor=toolbar.nextElementSibling;editor?.focus();document.execCommand(button.dataset.command,false,null);});
+  }));
+}
+function readRichEditor(form,name){
+  const editor=form.querySelector(`[data-rich-name="${name}"]`);
+  return sanitizeRichText(editor?.innerHTML||'');
 }
 
 function setHeader(text = '') { headerStatus.textContent = text; }
@@ -126,7 +162,12 @@ function startTypewriters(root=app,delay=180){
   root.querySelectorAll('[data-typewriter-rich]').forEach(el=>{
     const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);
     const nodes=[];
-    while(walker.nextNode())if(walker.currentNode.nodeValue)nodes.push({node:walker.currentNode,text:walker.currentNode.nodeValue});
+    while(walker.nextNode()){
+      const node=walker.currentNode;
+      if(!node.nodeValue.trim()){node.nodeValue='';continue;}
+      const segment=node.parentElement?.closest('.notice-segment,p,li')||null;
+      nodes.push({node,text:node.nodeValue,segment:segment&&el.contains(segment)?segment:null});
+    }
     const fullText=nodes.map(item=>item.text).join(' ').replace(/\s+/g,' ').trim();
     el.setAttribute('aria-label',fullText);
     if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){el.classList.add('typing-complete');el.closest('.window-body')?.querySelector('.typewriter-followup')?.classList.add('is-visible');return;}
@@ -141,6 +182,10 @@ function startTypewriters(root=app,delay=180){
       if(nodeIndex>=nodes.length)return finish();
       const item=nodes[nodeIndex];
       if(charIndex>=item.text.length){nodeIndex++;charIndex=0;return setTimeout(tick,0);}
+      if(item.segment&&!item.segment.classList.contains('is-revealed')){
+        item.segment.classList.add('is-revealed');
+        if(item.segment.tagName==='LI')item.segment.parentElement?.classList.add('is-revealed');
+      }
       const character=item.text[charIndex++];
       item.node.nodeValue+=character;
       setTimeout(tick,/[.,!?;:]/.test(character)?30:8);
@@ -277,21 +322,21 @@ function applicationPage() {
 function preTestNoticePage(){
   if(!session.token)return route('/');
   setHeader(`${session.name} · Pemberitahuan`);
-  layout(`<h2>Pemberitahuan Pelaksanaan Psikotes Online</h2>
+  layout(`<div class="notice-compact"><h2 class="notice-title">Pemberitahuan Pelaksanaan Psikotes Online</h2>
     <div class="pretest-notice typed-copy typed-copy-rich" data-typewriter-rich>
-      <p>Halo, sebelum memulai proses Psikotes Online, mohon diperhatikan beberapa hal berikut:</p>
-      <ol>
-        <li>Psikotes terdiri dari beberapa jenis/tahapan tes, dan setiap tes memiliki waktu pengerjaan yang berbeda-beda. Pastikan membaca instruksi pada setiap tahap dengan teliti sebelum memulai.</li>
-        <li>Pastikan Anda berada dalam kondisi senggang/free dan dapat berkonsentrasi penuh selama proses pengerjaan. Jangan mengerjakan psikotes sambil melakukan pekerjaan atau aktivitas lainnya, karena dapat memengaruhi hasil tes dan berisiko menyebabkan Anda tidak dapat menyelesaikan atau dinyatakan gagal dalam proses tes.</li>
-        <li>Pastikan koneksi internet dalam kondisi stabil dan perangkat yang digunakan (laptop/komputer) siap digunakan hingga seluruh tahapan selesai.</li>
-        <li>Ikuti setiap tahapan sesuai urutan dan petunjuk yang diberikan. Jangan melewati atau menutup halaman tes sebelum memastikan tahap tersebut telah selesai.</li>
-        <li>Perhatikan waktu pengerjaan pada setiap tes. Setelah waktu habis, sistem dapat secara otomatis mengakhiri atau melanjutkan ke tahap berikutnya.</li>
-      </ol>
-      <p>Sebelum memulai, pastikan Anda telah mempersiapkan segala sesuatu yang diperlukan dan berada di tempat yang tenang, nyaman, serta minim gangguan.</p>
-      <p>Mohon pastikan Anda benar-benar siap dan memiliki waktu yang cukup sebelum menekan tombol “Mulai Tes”. Setelah tes dimulai, ikuti seluruh proses sampai selesai dan kerjakan dengan fokus serta sesuai dengan kondisi Anda yang sebenarnya.</p>
-      <p><strong>Selamat mengerjakan dan semoga berhasil! 😊</strong></p>
+      <div class="notice-segment notice-intro">Halo, sebelum memulai proses Psikotes Online, mohon diperhatikan beberapa hal berikut:</div>
+      <div class="notice-points">
+        <div class="notice-segment notice-point"><span>Psikotes terdiri dari beberapa jenis/tahapan tes, dan setiap tes memiliki waktu pengerjaan yang berbeda-beda. Pastikan membaca instruksi pada setiap tahap dengan teliti sebelum memulai.</span></div>
+        <div class="notice-segment notice-point"><span>Pastikan Anda berada dalam kondisi senggang/free dan dapat berkonsentrasi penuh selama proses pengerjaan. Jangan mengerjakan psikotes sambil melakukan pekerjaan atau aktivitas lainnya, karena dapat memengaruhi hasil tes dan berisiko menyebabkan Anda tidak dapat menyelesaikan atau dinyatakan gagal dalam proses tes.</span></div>
+        <div class="notice-segment notice-point"><span>Pastikan koneksi internet dalam kondisi stabil dan perangkat yang digunakan (laptop/komputer) siap digunakan hingga seluruh tahapan selesai.</span></div>
+        <div class="notice-segment notice-point"><span>Ikuti setiap tahapan sesuai urutan dan petunjuk yang diberikan. Jangan melewati atau menutup halaman tes sebelum memastikan tahap tersebut telah selesai.</span></div>
+        <div class="notice-segment notice-point"><span>Perhatikan waktu pengerjaan pada setiap tes. Setelah waktu habis, sistem dapat secara otomatis mengakhiri atau melanjutkan ke tahap berikutnya.</span></div>
+      </div>
+      <div class="notice-segment">Pastikan Anda telah mempersiapkan segala sesuatu yang diperlukan dan berada di tempat yang tenang, nyaman, serta minim gangguan.</div>
+      <div class="notice-segment">Mohon pastikan Anda benar-benar siap dan memiliki waktu yang cukup sebelum menekan tombol “Mulai Tes”. Setelah tes dimulai, ikuti seluruh proses sampai selesai dan kerjakan dengan fokus serta sesuai dengan kondisi Anda yang sebenarnya.</div>
+      <div class="notice-segment notice-closing"><strong>Selamat mengerjakan dan semoga berhasil! 😊</strong></div>
     </div>
-    <div class="actions typewriter-followup"><button id="continueToInstructions" class="btn btn-primary">Saya Mengerti · Lanjut ke Petunjuk Tes</button></div>`);
+    <div class="actions typewriter-followup"><button id="continueToInstructions" class="btn btn-primary">Saya Mengerti · Lanjut ke Petunjuk Tes</button></div></div>`);
   document.querySelector('#continueToInstructions').onclick=async e=>{
     e.currentTarget.disabled=true;
     const sequence=await getTestSequence();
@@ -347,7 +392,7 @@ async function wptQuizPage(index) {
   const meta={...testMeta.wpt,name:await participantTitle('wpt')};
   let remaining=duration,selection=null,saving=false;
   setHeader(`${meta.name} · ${index+1}/${questions.length}`);
-  layout(`<div class="test-head"><div><span class="eyebrow">${meta.name}</span><h2 style="margin-top:10px">Soal ${q.number}</h2></div><div id="timer" class="timer">${remaining}</div></div><div class="progress"><span style="width:${((index+1)/questions.length)*100}%"></span></div><div class="question wpt-question-text">${escapeHtml(q.prompt)}</div>${wptAnswerMarkup(q)}<div class="actions"><button id="nextQuestion" class="btn btn-primary" disabled>Jawab & Lanjutkan</button></div>`);
+  layout(`<div class="test-head"><div><span class="eyebrow">${meta.name}</span><h2 style="margin-top:10px">Soal ${q.number}</h2></div><div id="timer" class="timer">${remaining}</div></div><div class="progress"><span style="width:${((index+1)/questions.length)*100}%"></span></div><div class="question wpt-question-text rich-text">${renderRichText(q.prompt)}</div>${wptAnswerMarkup(q)}<div class="actions"><button id="nextQuestion" class="btn btn-primary" disabled>Jawab & Lanjutkan</button></div>`);
   const next=document.querySelector('#nextQuestion');
   const update=()=>{next.disabled=!wptPayload(q,selection);};
   document.querySelectorAll('[name=wptAnswer]').forEach(x=>x.onchange=()=>{
@@ -390,13 +435,13 @@ async function quizPage(testCode, index) {
   const meta={...(testMeta[testCode]||testMeta.test1),name:await participantTitle(testCode)};
   setHeader(`${meta.name} · ${index+1}/${questions.length}`);
   const options=q.type==='paired_choice'
-    ? `<div class="options">${q.options.map((option,i)=>`<label class="option"><input type="radio" name="answer" value="${i}"><span>${escapeHtml(option)}</span></label>`).join('')}</div>`
+    ? `<div class="options">${q.options.map((option,i)=>`<label class="option"><input type="radio" name="answer" value="${i}"><span class="rich-text">${renderRichText(option)}</span></label>`).join('')}</div>`
     : q.type==='image_choice'
       ? imageChoiceHtml(q)
-      : `<div class="most-least"><div class="ml-row" style="border:0;padding-top:0"><span></span><span class="ml-head">Paling</span><span class="ml-head">Kurang</span></div>${q.options.map((option,i)=>`<div class="ml-row"><span>${escapeHtml(option)}</span><label class="ml-choice"><input type="radio" name="most" value="${i}" aria-label="Paling"></label><label class="ml-choice"><input type="radio" name="least" value="${i}" aria-label="Kurang"></label></div>`).join('')}</div>`;
+      : `<div class="most-least"><div class="ml-row" style="border:0;padding-top:0"><span></span><span class="ml-head">Paling</span><span class="ml-head">Kurang</span></div>${q.options.map((option,i)=>`<div class="ml-row"><span class="rich-text">${renderRichText(option)}</span><label class="ml-choice"><input type="radio" name="most" value="${i}" aria-label="Paling"></label><label class="ml-choice"><input type="radio" name="least" value="${i}" aria-label="Kurang"></label></div>`).join('')}</div>`;
   layout(`<div class="test-head"><div><span class="eyebrow">${meta.name}</span><h2 style="margin-top:10px">Soal ${index+1}</h2></div><div id="timer" class="timer">${remaining}</div></div>
     <div class="progress"><span style="width:${((index+1)/questions.length)*100}%"></span></div>
-    <div class="question">${escapeHtml(q.prompt)}</div>${options}
+    <div class="question rich-text">${renderRichText(q.prompt)}</div>${options}
     <div class="actions"><button id="nextQuestion" class="btn btn-primary" disabled>Jawab & Lanjutkan</button></div>`);
   const next=document.querySelector('#nextQuestion');
   if(q.type==='paired_choice'||q.type==='image_choice') document.querySelectorAll('[name=answer]').forEach(input=>input.onchange=()=>{answer={choice:Number(input.value)};next.disabled=false;document.querySelectorAll('.option,.image-option').forEach(x=>x.classList.toggle('selected',x.contains(input)));});
@@ -524,7 +569,7 @@ async function adminQuestions(){
   const {data,error}=await db.from('question_bank').select('*').eq('test_code',testCode).order('question_number');
   if(error)return adminShell('questions',`<h2>Bank Soal belum aktif</h2><p class="muted">Jalankan migrasi bank soal yang diperlukan.</p>`);
   const isTiu5=testCode==='tiu5', isMbti=testCode==='mbti';
-  adminShell('questions',`<div class="section-title"><div><h2>Bank Soal ${escapeHtml(testCode==='test1'?'PAPI Kostic':testCode==='test2'?'DISC':testCode.toUpperCase())}</h2><p class="muted">Edit isi, durasi, urutan, dan status soal.</p></div><button id="addQuestion" class="btn btn-primary">+ Tambah Soal</button></div><div class="segmented"><a class="${testCode==='test1'?'active':''}" href="#/admin/questions?test=test1">PAPI Kostic</a><a class="${testCode==='test2'?'active':''}" href="#/admin/questions?test=test2">DISC</a><a class="${isTiu5?'active':''}" href="#/admin/questions?test=tiu5">TIU 5</a><a class="${testCode==='tiu6'?'active':''}" href="#/admin/questions?test=tiu6">TIU 6</a><a class="${isMbti?'active':''}" href="#/admin/questions?test=mbti">MBTI</a><a href="#/admin/questions?test=wpt">WPT</a></div>${isTiu5?'<div class="notice">TIU 5 menggunakan SVG. Preview di bawah mengikuti soal SVG yang digunakan peserta. Anda dapat mengubah teks, durasi, nomor, dan status tanpa mengubah gambar yang sudah disetujui.</div>':''}${isMbti?'<div class="notice">MBTI menggunakan dua pilihan dengan pemetaan scoring tetap berdasarkan nomor soal. Edit teks diperbolehkan; jangan menukar urutan pilihan A/B karena akan mengubah pemetaan dimensi.</div>':''}<div class="question-list">${data.map(q=>{const shapes=isTiu5?renderTiuSvgQuestion(Number(q.question_number)):null;return `<div class="question-item ${q.active?'':'inactive'} ${isTiu5?'question-item-visual':''}"><div class="question-main"><small>Soal ${q.question_number} · ${q.duration_seconds||20} detik · ${q.active?'Aktif':'Nonaktif'}</small><strong>${escapeHtml(isTiu5?'Pola SVG TIU 5':q.options?.join(' / ')||q.prompt||'')}</strong>${shapes?`<div class="bank-svg-preview"><div class="tiu-abc-row">${shapes.prompt.map((shape,i)=>`<div class="tiu-shape"><b>${'ABC'[i]}</b>${shape}</div>`).join('')}</div><div class="tiu-choice-row">${shapes.options.map((shape,i)=>`<div class="tiu-shape"><b>${i+1}</b>${shape}</div>`).join('')}</div></div>`:''}</div><div class="question-actions"><button class="btn btn-secondary edit-question" data-id="${q.id}">Edit</button><button class="btn btn-secondary toggle-question" data-id="${q.id}" data-active="${q.active}">${q.active?'Nonaktifkan':'Aktifkan'}</button></div></div>`;}).join('')||'<p class="muted">Belum ada soal.</p>'}</div><div id="questionEditor"></div>`);
+  adminShell('questions',`<div class="section-title"><div><h2>Bank Soal ${escapeHtml(testCode==='test1'?'PAPI Kostic':testCode==='test2'?'DISC':testCode.toUpperCase())}</h2><p class="muted">Edit isi, format teks, durasi, urutan, dan status soal.</p></div><button id="addQuestion" class="btn btn-primary">+ Tambah Soal</button></div><div class="segmented"><a class="${testCode==='test1'?'active':''}" href="#/admin/questions?test=test1">PAPI Kostic</a><a class="${testCode==='test2'?'active':''}" href="#/admin/questions?test=test2">DISC</a><a class="${isTiu5?'active':''}" href="#/admin/questions?test=tiu5">TIU 5</a><a class="${testCode==='tiu6'?'active':''}" href="#/admin/questions?test=tiu6">TIU 6</a><a class="${isMbti?'active':''}" href="#/admin/questions?test=mbti">MBTI</a><a href="#/admin/questions?test=wpt">WPT</a></div>${isTiu5?'<div class="notice">TIU 5 menggunakan SVG. Preview di bawah mengikuti soal SVG yang digunakan peserta. Anda dapat mengubah teks, durasi, nomor, dan status tanpa mengubah gambar yang sudah disetujui.</div>':''}${isMbti?'<div class="notice">MBTI menggunakan dua pilihan dengan pemetaan scoring tetap berdasarkan nomor soal. Edit teks diperbolehkan; jangan menukar urutan pilihan A/B karena akan mengubah pemetaan dimensi.</div>':''}<div class="question-list">${data.map(q=>{const shapes=isTiu5?renderTiuSvgQuestion(Number(q.question_number)):null;const preview=isTiu5?'Pola SVG TIU 5':q.options?.length?q.options.map(renderRichText).join(' / '):renderRichText(q.prompt||'');return `<div class="question-item ${q.active?'':'inactive'} ${isTiu5?'question-item-visual':''}"><div class="question-main"><small>Soal ${q.question_number} · ${q.duration_seconds||20} detik · ${q.active?'Aktif':'Nonaktif'}</small><strong class="rich-text">${preview}</strong>${shapes?`<div class="bank-svg-preview"><div class="tiu-abc-row">${shapes.prompt.map((shape,i)=>`<div class="tiu-shape"><b>${'ABC'[i]}</b>${shape}</div>`).join('')}</div><div class="tiu-choice-row">${shapes.options.map((shape,i)=>`<div class="tiu-shape"><b>${i+1}</b>${shape}</div>`).join('')}</div></div>`:''}</div><div class="question-actions"><button class="btn btn-secondary edit-question" data-id="${q.id}">Edit</button><button class="btn btn-secondary toggle-question" data-id="${q.id}" data-active="${q.active}">${q.active?'Nonaktifkan':'Aktifkan'}</button></div></div>`;}).join('')||'<p class="muted">Belum ada soal.</p>'}</div><div id="questionEditor"></div>`);
   document.querySelector('#addQuestion').onclick=()=>renderQuestionEditor(null,testCode,(data.at(-1)?.question_number||0)+1);
   document.querySelectorAll('.edit-question').forEach(b=>b.onclick=()=>renderQuestionEditor(data.find(q=>q.id===b.dataset.id),testCode));
   document.querySelectorAll('.toggle-question').forEach(b=>b.onclick=async()=>{const {error}=await db.from('question_bank').update({active:b.dataset.active!=='true'}).eq('id',b.dataset.id);if(error)toast(error.message);else adminQuestions();});
@@ -533,9 +578,10 @@ async function adminQuestions(){
 function renderQuestionEditor(q,testCode,number){
   const isImage=testCode==='tiu5', isMbti=testCode==='mbti', count=testCode==='test1'||isMbti?2:4, options=q?.options||Array(count).fill('');
   const svg= isImage && q ? renderTiuSvgQuestion(Number(q.question_number)) : null;
-  document.querySelector('#questionEditor').innerHTML=`<div class="editor-panel"><h3>${q?'Edit':'Tambah'} Soal</h3>${svg?`<div class="bank-svg-editor-preview"><div class="tiu-abc-row">${svg.prompt.map((shape,i)=>`<div class="tiu-shape"><b>${'ABC'[i]}</b>${shape}</div>`).join('')}</div><div class="tiu-choice-row">${svg.options.map((shape,i)=>`<div class="tiu-shape"><b>${i+1}</b>${shape}</div>`).join('')}</div></div>`:''}<form id="questionForm" class="form-grid"><div class="field"><label>Nomor urut</label><input name="question_number" type="number" value="${q?.question_number||number}" required></div><div class="field"><label>Durasi (detik)</label><input name="duration_seconds" type="number" min="5" max="600" value="${q?.duration_seconds||(isImage?45:isMbti?20:testCode==='test1'?15:30)}" required></div>${isImage?`<div class="field full"><div class="notice">Gambar SVG ditentukan oleh nomor soal. Untuk menjaga kesesuaian dengan bank yang disetujui, editor tidak mengubah artwork SVG.</div></div>`:options.map((x,i)=>`<div class="field full"><label>Pernyataan ${i===0?'A':i===1?'B':i+1}</label><textarea name="option_${i}" required>${escapeHtml(x)}</textarea></div>`).join('')}<div class="field full"><label><input name="active" type="checkbox" ${q?.active===false?'':'checked'}> Soal aktif</label></div><div class="field full actions"><button class="btn btn-primary">Simpan Soal</button><button type="button" id="cancelEdit" class="btn btn-secondary">Batal</button></div></form></div>`;
+  document.querySelector('#questionEditor').innerHTML=`<div class="editor-panel"><h3>${q?'Edit':'Tambah'} Soal</h3><p class="muted rich-editor-help">Blok tulisan lalu pilih B, I, U, atau S. Format akan tersimpan bersama teks soal.</p>${svg?`<div class="bank-svg-editor-preview"><div class="tiu-abc-row">${svg.prompt.map((shape,i)=>`<div class="tiu-shape"><b>${'ABC'[i]}</b>${shape}</div>`).join('')}</div><div class="tiu-choice-row">${svg.options.map((shape,i)=>`<div class="tiu-shape"><b>${i+1}</b>${shape}</div>`).join('')}</div></div>`:''}<form id="questionForm" class="form-grid"><div class="field"><label>Nomor urut</label><input name="question_number" type="number" value="${q?.question_number||number}" required></div><div class="field"><label>Durasi (detik)</label><input name="duration_seconds" type="number" min="5" max="600" value="${q?.duration_seconds||(isImage?45:isMbti?20:testCode==='test1'?15:30)}" required></div>${isImage?`<div class="field full"><div class="notice">Gambar SVG ditentukan oleh nomor soal. Untuk menjaga kesesuaian dengan bank yang disetujui, editor tidak mengubah artwork SVG.</div></div>`:options.map((x,i)=>richEditorField(`option_${i}`,`Pernyataan ${i===0?'A':i===1?'B':i+1}`,x)).join('')}<div class="field full"><label><input name="active" type="checkbox" ${q?.active===false?'':'checked'}> Soal aktif</label></div><div class="field full actions"><button class="btn btn-primary">Simpan Soal</button><button type="button" id="cancelEdit" class="btn btn-secondary">Batal</button></div></form></div>`;
+  initRichEditors(document.querySelector('#questionEditor'));
   document.querySelector('#questionEditor').scrollIntoView({behavior:'smooth'});document.querySelector('#cancelEdit').onclick=()=>document.querySelector('#questionEditor').innerHTML='';
-  document.querySelector('#questionForm').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget),payload={test_code:testCode,question_number:Number(f.get('question_number')),duration_seconds:Number(f.get('duration_seconds')),active:f.get('active')==='on',question_type:isImage?'image_choice':(testCode==='test1'||isMbti)?'paired_choice':'most_least',prompt:isImage?'Pilih jawaban gambar yang tepat.':isMbti?'Pilih pernyataan yang paling sesuai dengan diri Anda.':testCode==='test1'?'Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.':'Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.',options:isImage?[1,2,3,4,5]:options.map((_,i)=>f.get(`option_${i}`).trim()),image_url:isImage?null:null};const query=q?db.from('question_bank').update(payload).eq('id',q.id):db.from('question_bank').insert(payload);const {error}=await query;if(error)toast(error.message);else{toast('Soal berhasil disimpan.');adminQuestions();}};
+  document.querySelector('#questionForm').onsubmit=async e=>{e.preventDefault();const form=e.currentTarget,f=new FormData(form),formattedOptions=isImage?[1,2,3,4,5]:options.map((_,i)=>readRichEditor(form,`option_${i}`));if(!isImage&&formattedOptions.some(x=>!richTextPlain(x)))return toast('Semua pernyataan harus diisi.');const payload={test_code:testCode,question_number:Number(f.get('question_number')),duration_seconds:Number(f.get('duration_seconds')),active:f.get('active')==='on',question_type:isImage?'image_choice':(testCode==='test1'||isMbti)?'paired_choice':'most_least',prompt:isImage?'Pilih jawaban gambar yang tepat.':isMbti?'Pilih pernyataan yang paling sesuai dengan diri Anda.':testCode==='test1'?'Pilihlah satu pernyataan yang paling sesuai dengan diri Anda.':'Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.',options:formattedOptions,image_url:null};const query=q?db.from('question_bank').update(payload).eq('id',q.id):db.from('question_bank').insert(payload);const {error}=await query;if(error)toast(error.message);else{toast('Soal dan format teks berhasil disimpan.');adminQuestions();}};
 }
 
 async function advanceTiu6(){
@@ -560,7 +606,7 @@ async function adminWptBank(){
   const dbCount=(data||[]).length;
   const byNo=Object.fromEntries((data||[]).map(q=>[q.question_number,q]));
   const sourceNote=error?'<div class="notice">Bank WPT belum dapat dibaca dari database. Jalankan update-07-wpt.sql terlebih dahulu.</div>':`<div class="notice">${dbCount}/50 soal WPT terdaftar di database. Teks, pilihan, durasi, dan status soal dapat diedit. Soal No. 49 mendukung pilihan lebih dari satu. SVG No. 7, 38, 42, dan 49 menggunakan artwork SVG yang disimpan di aplikasi.</div>`;
-  adminShell('questions',`<div class="section-title"><div><h2>Bank Soal WPT</h2><p class="muted">50 soal · pilihan dan isian manual. Edit untuk memperbaiki pengetikan, durasi, atau status soal.</p></div></div><div class="segmented"><a href="#/admin/questions?test=test1">PAPI Kostic</a><a href="#/admin/questions?test=test2">DISC</a><a href="#/admin/questions?test=tiu5">TIU 5</a><a href="#/admin/questions?test=tiu6">TIU 6</a><a href="#/admin/questions?test=mbti">MBTI</a><a class="active" href="#/admin/questions?test=wpt">WPT</a></div>${sourceNote}<div class="question-list">${WPT_QUESTIONS.map(q=>{const dbq=byNo[q.number], prompt=dbq?.prompt??q.prompt, options=dbq?.options??q.options, duration=dbq?.duration_seconds??q.duration_seconds, active=dbq?.active!==false, type=q.response_type==='manual'?'Isian manual':q.response_type==='multi_choice'?'Pilihan lebih dari satu':'Pilihan tunggal';return `<div class="question-item question-item-visual ${active?'':'inactive'}"><div class="question-main"><small>Soal ${q.number} · ${type} · ${duration} detik · ${active?'Aktif':'Nonaktif'}</small><strong class="wpt-question-text">${escapeHtml(prompt)}</strong>${q.visual?`<div class="bank-svg-preview wpt-bank-visual">${q.visual}</div>`:''}${options?.length?`<small>Pilihan: ${options.map(escapeHtml).join(' · ')}</small>`:''}</div><div class="question-actions"><button class="btn btn-secondary edit-wpt-question" data-id="${dbq?.id||''}" data-number="${q.number}">Edit</button><button class="btn btn-secondary toggle-wpt-question" data-id="${dbq?.id||''}" data-active="${active}">${active?'Nonaktifkan':'Aktifkan'}</button></div></div>`;}).join('')}</div><div id="wptQuestionEditor"></div>`);
+  adminShell('questions',`<div class="section-title"><div><h2>Bank Soal WPT</h2><p class="muted">50 soal · pilihan dan isian manual. Edit teks, format, durasi, atau status soal.</p></div></div><div class="segmented"><a href="#/admin/questions?test=test1">PAPI Kostic</a><a href="#/admin/questions?test=test2">DISC</a><a href="#/admin/questions?test=tiu5">TIU 5</a><a href="#/admin/questions?test=tiu6">TIU 6</a><a href="#/admin/questions?test=mbti">MBTI</a><a class="active" href="#/admin/questions?test=wpt">WPT</a></div>${sourceNote}<div class="question-list">${WPT_QUESTIONS.map(q=>{const dbq=byNo[q.number], prompt=dbq?.prompt??q.prompt, options=dbq?.options??q.options, duration=dbq?.duration_seconds??q.duration_seconds, active=dbq?.active!==false, type=q.response_type==='manual'?'Isian manual':q.response_type==='multi_choice'?'Pilihan lebih dari satu':'Pilihan tunggal';return `<div class="question-item question-item-visual ${active?'':'inactive'}"><div class="question-main"><small>Soal ${q.number} · ${type} · ${duration} detik · ${active?'Aktif':'Nonaktif'}</small><strong class="wpt-question-text rich-text">${renderRichText(prompt)}</strong>${q.visual?`<div class="bank-svg-preview wpt-bank-visual">${q.visual}</div>`:''}${options?.length?`<small class="rich-text">Pilihan: ${options.map(renderRichText).join(' · ')}</small>`:''}</div><div class="question-actions"><button class="btn btn-secondary edit-wpt-question" data-id="${dbq?.id||''}" data-number="${q.number}">Edit</button><button class="btn btn-secondary toggle-wpt-question" data-id="${dbq?.id||''}" data-active="${active}">${active?'Nonaktifkan':'Aktifkan'}</button></div></div>`;}).join('')}</div><div id="wptQuestionEditor"></div>`);
   document.querySelectorAll('.edit-wpt-question').forEach(b=>b.onclick=()=>renderWptQuestionEditor(byNo[Number(b.dataset.number)],WPT_QUESTIONS.find(q=>q.number===Number(b.dataset.number))));
   document.querySelectorAll('.toggle-wpt-question').forEach(b=>b.onclick=async()=>{if(!b.dataset.id){toast('Soal WPT belum terdaftar di database.');return;}const {error}=await db.from('question_bank').update({active:b.dataset.active!=='true'}).eq('id',b.dataset.id);if(error)toast(error.message);else adminWptBank();});
 }
@@ -569,10 +615,11 @@ function renderWptQuestionEditor(dbq,source){
   if(!dbq)return toast('Soal WPT belum terdaftar di database.');
   const manual=source?.response_type==='manual';
   const options=dbq.options||source?.options||[];
-  document.querySelector('#wptQuestionEditor').innerHTML=`<div class="editor-panel"><h3>Edit Soal WPT No. ${dbq.question_number}</h3>${source?.visual?`<div class="bank-svg-editor-preview"><div class="notice">Artwork SVG tidak diubah oleh editor ini.</div><div class="wpt-bank-visual">${source.visual}</div></div>`:''}<form id="wptQuestionForm" class="form-grid"><div class="field full"><label>Pertanyaan</label><textarea name="prompt" rows="4" required>${escapeHtml(dbq.prompt||source?.prompt||'')}</textarea></div><div class="field"><label>Durasi (detik)</label><input name="duration_seconds" type="number" min="5" max="600" value="${dbq.duration_seconds||source?.duration_seconds||60}" required></div>${manual?'':options.map((x,i)=>`<div class="field full"><label>Pilihan ${i+1}</label><textarea name="option_${i}" required>${escapeHtml(x)}</textarea></div>`).join('')}<div class="field full"><label><input name="active" type="checkbox" ${dbq.active===false?'':'checked'}> Soal aktif</label></div><div class="field full actions"><button class="btn btn-primary">Simpan Perubahan</button><button type="button" id="cancelWptEdit" class="btn btn-secondary">Batal</button></div></form></div>`;
+  document.querySelector('#wptQuestionEditor').innerHTML=`<div class="editor-panel"><h3>Edit Soal WPT No. ${dbq.question_number}</h3><p class="muted rich-editor-help">Blok tulisan lalu pilih B, I, U, atau S. Hanya format aman tersebut yang akan disimpan.</p>${source?.visual?`<div class="bank-svg-editor-preview"><div class="notice">Artwork SVG tidak diubah oleh editor ini.</div><div class="wpt-bank-visual">${source.visual}</div></div>`:''}<form id="wptQuestionForm" class="form-grid">${richEditorField('prompt','Pertanyaan',dbq.prompt||source?.prompt||'')}<div class="field"><label>Durasi (detik)</label><input name="duration_seconds" type="number" min="5" max="600" value="${dbq.duration_seconds||source?.duration_seconds||60}" required></div>${manual?'':options.map((x,i)=>richEditorField(`option_${i}`,`Pilihan ${i+1}`,x)).join('')}<div class="field full"><label><input name="active" type="checkbox" ${dbq.active===false?'':'checked'}> Soal aktif</label></div><div class="field full actions"><button class="btn btn-primary">Simpan Perubahan</button><button type="button" id="cancelWptEdit" class="btn btn-secondary">Batal</button></div></form></div>`;
+  initRichEditors(document.querySelector('#wptQuestionEditor'));
   document.querySelector('#wptQuestionEditor').scrollIntoView({behavior:'smooth'});
   document.querySelector('#cancelWptEdit').onclick=()=>document.querySelector('#wptQuestionEditor').innerHTML='';
-  document.querySelector('#wptQuestionForm').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.currentTarget);const payload={prompt:String(f.get('prompt')),duration_seconds:Number(f.get('duration_seconds')),active:f.get('active')==='on',updated_at:new Date().toISOString()};if(!manual)payload.options=options.map((_,i)=>String(f.get(`option_${i}`)||''));const {error}=await db.from('question_bank').update(payload).eq('id',dbq.id);if(error)toast(error.message);else{toast('Soal WPT berhasil diperbarui.');adminWptBank();}};
+  document.querySelector('#wptQuestionForm').onsubmit=async e=>{e.preventDefault();const form=e.currentTarget,f=new FormData(form),prompt=readRichEditor(form,'prompt'),formattedOptions=manual?null:options.map((_,i)=>readRichEditor(form,`option_${i}`));if(!richTextPlain(prompt))return toast('Pertanyaan harus diisi.');if(formattedOptions?.some(x=>!richTextPlain(x)))return toast('Semua pilihan harus diisi.');const payload={prompt,duration_seconds:Number(f.get('duration_seconds')),active:f.get('active')==='on',updated_at:new Date().toISOString()};if(formattedOptions)payload.options=formattedOptions;const {error}=await db.from('question_bank').update(payload).eq('id',dbq.id);if(error)toast(error.message);else{toast('Soal WPT dan format teks berhasil disimpan.');adminWptBank();}};
 }
 
 async function adminTiu5Bank(){
