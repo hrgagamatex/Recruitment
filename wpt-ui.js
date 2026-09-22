@@ -1,14 +1,20 @@
 import {WPT_QUESTIONS} from './wpt.js';
-import {WPT_LEGACY_QUESTIONS} from './wpt-legacy.js';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const matches=(a,b)=>a?.prompt===b?.prompt&&JSON.stringify(a?.options||[])===JSON.stringify(b?.options||[]);
 export function resolveWpt(snapshot){
  return snapshot.map(q=>{
-  const number=Number(q.number),current=WPT_QUESTIONS.find(x=>x.number===number),old=WPT_LEGACY_QUESTIONS.find(x=>x.number===number);
+  const number=Number(q.number??q.question_number),current=WPT_QUESTIONS.find(x=>x.number===number);
   if(!current)throw new Error(`Nomor WPT ${number} belum memiliki acuan.`);
-  const source=matches(q,current)?current:matches(q,old)?old:null;
-  if(!source&&current.visual)throw new Error(`Isi soal ${number} berbeda dari acuan gambar. Hubungi HR untuk memeriksa bank soal.`);
-  return {...q,number,duration_seconds:q.duration_seconds||q.duration||60,response_type:source?.response_type||((q.options||[]).length?'choice':'manual'),multiline:source?.multiline||false,visual:(source?.visual||'').replace(/\\"/g,'"'),source_version:source===current?'google-form-2026-09-18':'legacy'};
+  return {
+   ...q,
+   number,
+   prompt:current.prompt,
+   options:[...(current.options||[])],
+   duration_seconds:q.duration_seconds||q.duration||current.duration_seconds||60,
+   response_type:current.response_type,
+   multiline:current.multiline||false,
+   visual:(current.visual||'').replace(/\\"/g,'"'),
+   source_version:'google-form-2026-09-18'
+  };
  });
 }
 function crop(svg,box,label){

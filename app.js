@@ -14,6 +14,15 @@ let questionBank;
 let timerId;
 let disposeTiu6;
 
+function initAmbientGrid(){
+  if(document.querySelector('.ambient-grid'))return;
+  const grid=document.createElement('div');
+  grid.className='ambient-grid';
+  grid.setAttribute('aria-hidden','true');
+  grid.innerHTML=Array.from({length:72},(_,index)=>`<span style="--tile-order:${index%24};--tile-drift:${index%2?'8px':'-8px'}"></span>`).join('');
+  document.body.prepend(grid);
+}
+
 const session = {
   get token() { return localStorage.getItem('rtg_session_token'); },
   get name() { return localStorage.getItem('rtg_candidate_name'); },
@@ -114,6 +123,30 @@ function startTypewriters(root=app,delay=180){
     const tick=()=>{el.textContent=text.slice(0,++index);if(index<text.length)setTimeout(tick,text[index-1]===','||text[index-1]==='.'?72:22);else el.classList.replace('typing-active','typing-complete');};
     setTimeout(tick,delay);
   });
+  root.querySelectorAll('[data-typewriter-rich]').forEach(el=>{
+    const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);
+    const nodes=[];
+    while(walker.nextNode())if(walker.currentNode.nodeValue)nodes.push({node:walker.currentNode,text:walker.currentNode.nodeValue});
+    const fullText=nodes.map(item=>item.text).join(' ').replace(/\s+/g,' ').trim();
+    el.setAttribute('aria-label',fullText);
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){el.classList.add('typing-complete');el.closest('.window-body')?.querySelector('.typewriter-followup')?.classList.add('is-visible');return;}
+    nodes.forEach(item=>{item.node.nodeValue='';});
+    el.classList.add('typing-active');
+    let nodeIndex=0,charIndex=0;
+    const finish=()=>{
+      el.classList.replace('typing-active','typing-complete');
+      el.closest('.window-body')?.querySelector('.typewriter-followup')?.classList.add('is-visible');
+    };
+    const tick=()=>{
+      if(nodeIndex>=nodes.length)return finish();
+      const item=nodes[nodeIndex];
+      if(charIndex>=item.text.length){nodeIndex++;charIndex=0;return setTimeout(tick,0);}
+      const character=item.text[charIndex++];
+      item.node.nodeValue+=character;
+      setTimeout(tick,/[.,!?;:]/.test(character)?30:8);
+    };
+    setTimeout(tick,delay);
+  });
 }
 
 function instructionText(text,className='muted'){
@@ -132,19 +165,30 @@ function panelLabelForRoute(){
 
 function shouldGlitchPanel(){
   const path=(location.hash.slice(1)||'/').split('/').filter(Boolean);
-  return path.length===0||path[0]==='instructions';
+  return path[0]==='instructions';
+}
+
+function shouldZoomFirstPanel(){
+  const path=(location.hash.slice(1)||'/').split('/').filter(Boolean);
+  return path.length===0;
 }
 
 function layout(content, compact = false) {
   const participant=!location.hash.startsWith('#/admin');
   const glitch=participant&&shouldGlitchPanel();
+  const zoom=participant&&shouldZoomFirstPanel();
   const label=escapeHtml(panelLabelForRoute());
-  app.innerHTML = `<section class="card ${compact ? '' : 'page-card'} ${participant?'participant-window':''} ${glitch?'panel-glitch-pending':''}">${participant?`<div class="window-bar" aria-hidden="true"><span class="window-dots"><i></i><i></i><i></i></span><small>RECRUITMENT · GAMATEX</small><b>${label}</b></div><div class="window-body">`:''}${content}${participant?'</div>':''}</section>`;
+  app.innerHTML = `<section class="card ${compact ? '' : 'page-card'} ${participant?'participant-window':''} ${glitch?'panel-glitch-pending':''} ${zoom?'panel-zoom-pending':''}">${participant?`<div class="window-bar" aria-hidden="true"><span class="window-dots"><i></i><i></i><i></i></span><small>RECRUITMENT · GAMATEX</small><b>${label}</b></div><div class="window-body">`:''}${content}${participant?'</div>':''}</section>`;
   const panel=app.querySelector('.participant-window');
   if(glitch&&panel){
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
       panel.classList.remove('panel-glitch-pending');
       panel.classList.add('panel-glitch-in');
+    }));
+  }else if(zoom&&panel){
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      panel.classList.remove('panel-zoom-pending');
+      panel.classList.add('panel-zoom-in');
     }));
   }
   startTypewriters(app,glitch?560:180);
@@ -233,9 +277,8 @@ function applicationPage() {
 function preTestNoticePage(){
   if(!session.token)return route('/');
   setHeader(`${session.name} · Pemberitahuan`);
-  layout(`<span class="eyebrow">Sebelum Memulai</span>
-    <h2 style="margin-top:12px">Pemberitahuan Pelaksanaan Psikotes Online</h2>
-    <div class="pretest-notice">
+  layout(`<h2>Pemberitahuan Pelaksanaan Psikotes Online</h2>
+    <div class="pretest-notice typed-copy typed-copy-rich" data-typewriter-rich>
       <p>Halo, sebelum memulai proses Psikotes Online, mohon diperhatikan beberapa hal berikut:</p>
       <ol>
         <li>Psikotes terdiri dari beberapa jenis/tahapan tes, dan setiap tes memiliki waktu pengerjaan yang berbeda-beda. Pastikan membaca instruksi pada setiap tahap dengan teliti sebelum memulai.</li>
@@ -248,7 +291,7 @@ function preTestNoticePage(){
       <p>Mohon pastikan Anda benar-benar siap dan memiliki waktu yang cukup sebelum menekan tombol “Mulai Tes”. Setelah tes dimulai, ikuti seluruh proses sampai selesai dan kerjakan dengan fokus serta sesuai dengan kondisi Anda yang sebenarnya.</p>
       <p><strong>Selamat mengerjakan dan semoga berhasil! 😊</strong></p>
     </div>
-    <div class="actions"><button id="continueToInstructions" class="btn btn-primary">Saya Mengerti · Lanjut ke Petunjuk Tes</button></div>`);
+    <div class="actions typewriter-followup"><button id="continueToInstructions" class="btn btn-primary">Saya Mengerti · Lanjut ke Petunjuk Tes</button></div>`);
   document.querySelector('#continueToInstructions').onclick=async e=>{
     e.currentTarget.disabled=true;
     const sequence=await getTestSequence();
@@ -377,7 +420,7 @@ async function finishTest(testCode){
 
 function completePage(){
   setHeader('Tes selesai');
-  layout(`<div class="completion-screen center"><div class="completion-tab"><span>SELEKSI KARYAWAN</span><b>SELESAI</b></div><div class="success-icon">✓</div><span class="eyebrow">Semua jawaban tersimpan</span><h2 style="margin-top:14px">Terima kasih, ${escapeHtml(session.name||'Peserta')}.</h2><p class="completion-message">Terima kasih telah menyelesaikan tes.<br>Mohon menunggu proses seleksi.</p><p class="muted">Tim HR PT. Gamatex akan menghubungi Anda apabila proses berikutnya telah tersedia.</p><div class="actions" style="justify-content:center"><button id="logout" class="btn btn-secondary">Selesai dan keluar</button></div></div>`);
+  layout(`<div class="completion-screen center"><div class="completion-tab"><span>SELEKSI KARYAWAN</span><b>SELESAI</b></div><div class="completion-brand" aria-label="The Reliable Denim Company Gamatex"><span class="completion-brand-line completion-company" data-brand="The Reliable Denim Company">The Reliable Denim Company</span><strong class="completion-brand-line completion-gamatex" data-brand="GAMATEX">GAMATEX</strong></div><div class="success-icon">✓</div><span class="eyebrow">Semua jawaban tersimpan</span><h2 style="margin-top:14px">Terima kasih, ${escapeHtml(session.name||'Peserta')}.</h2><p class="completion-message">Terima kasih telah menyelesaikan tes.<br>Mohon menunggu proses seleksi.</p><p class="muted">Tim HR PT. Gamatex akan menghubungi Anda apabila proses berikutnya telah tersedia.</p><div class="actions" style="justify-content:center"><button id="logout" class="btn btn-secondary">Selesai dan keluar</button></div></div>`);
   document.querySelector('#logout').onclick=()=>{session.clear();route('/');};
 }
 
@@ -594,4 +637,5 @@ async function router(){
 const navigate=()=>router().catch(error=>layout(`<h2>Halaman belum dapat dibuka</h2><p>${escapeHtml(error.message)}</p>`));
 window.addEventListener('hashchange',navigate);
 window.addEventListener('beforeunload',e=>{if(location.hash.includes('/quiz/')){e.preventDefault();e.returnValue='';}});
+initAmbientGrid();
 navigate();
