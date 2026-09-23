@@ -14,7 +14,8 @@ export function scoreDisc(values,cfg){
   for(const line of Object.keys(raw)){
     scaled[line]=[...'DISC'].map((k,i)=>cfg.scales[line].filter(row=>row[0]<=raw[line][k]).at(-1)?.[i+1]??null);
     const refs=Object.fromEntries(['BB','BC','BD','BE'].map((k,i)=>[k,scaled[line][i]]));
-    profiles[line]=cfg.profiles.find(p=>p.conditions.every(([a,op,b])=>{const x=refs[a],y=b.startsWith('B')?refs[b.slice(0,2)]:Number(b);return ({'>':x>y,'<':x<y,'>=':x>=y,'<=':x<=y,'=':x===y})[op];}))||null;
+    const profileIndex=cfg.profiles.findIndex(p=>p.conditions.every(([a,op,b])=>{const x=refs[a],y=b.startsWith('B')?refs[b.slice(0,2)]:Number(b);return ({'>':x>y,'<':x<y,'>=':x>=y,'<=':x<=y,'=':x===y})[op];}));
+    profiles[line]=profileIndex>=0?{...cfg.profiles[profileIndex],index:profileIndex+1}:null;
   }
   return {raw,scaled,profiles,answered};
 }

@@ -1,4 +1,4 @@
-import { mountResults, renderResult } from './results.js';
+import { mountResults, renderResult } from './results.js?v=20260923-disc-job-match';
 import { renderTiuSvgQuestion } from './tiu5-svg-temp.js';
 import { mountTiu6, questionMarkup, answersCsv } from './tiu6.js';
 import { MBTI_QUESTIONS, scoreMbti } from './mbti.js';
