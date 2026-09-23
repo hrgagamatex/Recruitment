@@ -397,7 +397,7 @@ function preTestNoticePage(){
         <div class="notice-segment notice-point"><span>Perhatikan waktu pengerjaan pada setiap tes. Setelah waktu habis, sistem dapat secara otomatis mengakhiri atau melanjutkan ke tahap berikutnya.</span></div>
       </div>
       <div class="notice-segment">Pastikan Anda telah mempersiapkan segala sesuatu yang diperlukan dan berada di tempat yang tenang, nyaman, serta minim gangguan.</div>
-      <div class="notice-segment">Mohon pastikan Anda benar-benar siap dan memiliki waktu yang cukup sebelum menekan tombol “Mulai Tes”. Setelah tes dimulai, ikuti seluruh proses sampai selesai dan kerjakan dengan fokus serta sesuai dengan kondisi Anda yang sebenarnya.</div>
+      <div class="notice-segment">Mohon pastikan Anda benar-benar siap dan memiliki waktu yang cukup sebelum menekan tombol <strong>“Mulai Tes”</strong>. Setelah tes dimulai, ikuti seluruh proses sampai selesai dan kerjakan dengan fokus serta sesuai dengan kondisi Anda yang sebenarnya.</div>
       <div class="notice-segment notice-closing"><strong>Selamat mengerjakan dan semoga berhasil! 😊</strong></div>
     </div>
     <div class="actions typewriter-followup"><button id="continueToInstructions" class="btn btn-primary">Saya Mengerti · Lanjut ke Petunjuk Tes</button></div></div>`);
