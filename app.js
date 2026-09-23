@@ -348,7 +348,7 @@ const applicationFields = [
   ['religion','Agama','text',false],['ktp_address','Alamat sesuai KTP','textarea',false],['current_address','Alamat tempat tinggal','textarea',true],
   ['email','Alamat email','email',true],['social_media','Akun media sosial','text',false],['height','Tinggi badan (cm)','number',false],
   ['weight','Berat badan (kg)','number',false],['glasses','Apakah Anda berkacamata?','select',false,['Ya','Tidak']],
-  ['education','Riwayat pendidikan: sekolah dan tahun kelulusan','textarea',true],['training','Pelatihan yang pernah diikuti','textarea',false],
+  ['education','Riwayat pendidikan: sekolah, Jurusan dan tahun kelulusan','textarea',true],['training','Pelatihan yang pernah diikuti','textarea',false],
   ['experience','Pengalaman kerja, jabatan, lama bekerja, dan alasan berhenti','textarea',false],['special_skills','Keahlian khusus','textarea',false],
   ['strengths','Kelebihan Anda','textarea',true],['weaknesses','Kekurangan Anda','textarea',true]
 ];
@@ -392,7 +392,7 @@ function preTestNoticePage(){
       <div class="notice-points">
         <div class="notice-segment notice-point"><span>Psikotes terdiri dari beberapa jenis/tahapan tes, dan setiap tes memiliki waktu pengerjaan yang berbeda-beda. Pastikan membaca instruksi pada setiap tahap dengan teliti sebelum memulai.</span></div>
         <div class="notice-segment notice-point"><span>Pastikan Anda berada dalam kondisi senggang/free dan dapat berkonsentrasi penuh selama proses pengerjaan. Jangan mengerjakan psikotes sambil melakukan pekerjaan atau aktivitas lainnya, karena dapat memengaruhi hasil tes dan berisiko menyebabkan Anda tidak dapat menyelesaikan atau dinyatakan gagal dalam proses tes.</span></div>
-        <div class="notice-segment notice-point"><span>Pastikan koneksi internet dalam kondisi stabil dan perangkat yang digunakan (laptop/komputer) siap digunakan hingga seluruh tahapan selesai.</span></div>
+        <div class="notice-segment notice-point"><span>Pastikan koneksi internet dalam kondisi stabil dan perangkat yang digunakan (laptop/komputer/handphone) siap digunakan hingga seluruh tahapan selesai.</span></div>
         <div class="notice-segment notice-point"><span>Ikuti setiap tahapan sesuai urutan dan petunjuk yang diberikan. Jangan melewati atau menutup halaman tes sebelum memastikan tahap tersebut telah selesai.</span></div>
         <div class="notice-segment notice-point"><span>Perhatikan waktu pengerjaan pada setiap tes. Setelah waktu habis, sistem dapat secara otomatis mengakhiri atau melanjutkan ke tahap berikutnya.</span></div>
       </div>
