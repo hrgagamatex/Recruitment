@@ -125,6 +125,38 @@ const testMeta={
   wpt:{name:'WPT',total:50,seconds:60,unit:'soal',description:'Kerjakan setiap soal sesuai petunjuk. Beberapa soal berupa pilihan jawaban dan beberapa memerlukan isian manual.'}
 };
 
+const testInstructions={
+  test1:`
+    <p class="instruction-segment">Pilihlah pernyataan di bawah ini sesuai dengan apa yang biasa Anda lakukan. Setiap soal memuat 4 (empat) kalimat pendek. Baca dengan teliti setiap kalimat dalam soal tersebut.</p>
+    <p class="instruction-segment">Kemudian pilihlah satu respon <strong>PALING (P)</strong> dari kebiasaan yang paling tepat yang mencerminkan diri Anda, dan pilihlah respon <strong>KURANG (K)</strong> dari kebiasaan yang kurang tepat mencerminkan diri Anda.</p>
+    <p class="instruction-segment"><strong>Kerjakanlah dengan cepat dan jangan banyak pertimbangan!</strong></p>`,
+  test2:`
+    <p class="instruction-segment">Pilihlah pernyataan di bawah ini sesuai dengan apa yang biasa Anda lakukan. Setiap soal memuat 4 (empat) kalimat pendek. Baca dengan teliti setiap kalimat dalam soal tersebut.</p>
+    <p class="instruction-segment">Kemudian pilihlah satu respon <strong>PALING (P)</strong> dari kebiasaan yang paling tepat yang mencerminkan diri Anda, dan pilihlah respon <strong>KURANG (K)</strong> dari kebiasaan yang kurang tepat mencerminkan diri Anda.</p>
+    <p class="instruction-segment"><strong>Kerjakanlah dengan cepat dan jangan banyak pertimbangan!</strong></p>`,
+  mbti:`
+    <p class="instruction-segment">Bacalah pertanyaan dan pernyataan di bawah ini dan jawablah sesuai dengan pengalaman hidup harian Anda setiap hari.</p>
+    <p class="instruction-segment">Pilihlah salah satu jawaban yang menunjukkan diri Anda.</p>
+    <p class="instruction-segment"><strong>Selamat mengerjakan!</strong></p>`,
+  wpt:`
+    <p class="instruction-segment">Ini merupakan tes untuk kemampuan memecahkan masalah. Tes ini berisi 50 pertanyaan yang secara bertahap menjadi semakin sulit. Anda tidak mungkin dapat menyelesaikan semua pertanyaan, tetapi selesaikan semampu Anda.</p>
+    <p class="instruction-segment">Jawab yang benar sebanyak mungkin. Kerjakan dengan teliti, namun jangan menghabiskan waktu terlalu lama pada setiap pertanyaan. Jika belum menemukan jawabannya, lewati pertanyaan tersebut.</p>
+    <div class="instruction-segment instruction-example">
+      <strong>Perhatikan contoh pertanyaan yang terisi dengan benar:</strong>
+      <p>MENUAI adalah lawan kata dari . . . . . .</p>
+      <div class="instruction-choices"><span>1. Mendapatkan</span><span>2. Bersorak</span><span>3. Melanjutkan</span><span>4. Berada</span><span>5. Menabur</span></div>
+      <p><em>Jawaban yang benar adalah “Menabur”. Maka, pilih angka 5.</em></p>
+    </div>
+    <div class="instruction-segment instruction-example">
+      <p>Harga setiap kotak “paper clip” adalah 23 rupiah. Berapa harga 4 kotak?</p>
+      <p><em>Jawabannya adalah Rp92. Tulis angka 92 dalam kotak jawaban.</em></p>
+    </div>`,
+  tiu6:`
+    <p class="instruction-segment">Di sebelah kiri terdapat sebuah benda. Di sampingnya terdapat 5 buah guntingan karton. Beberapa di antaranya telah digunting dengan <strong>benar</strong>, sehingga dapat dibentuk seperti yang tergambar pada sisi kiri. Beberapa lainnya digunting <strong>salah</strong>, sehingga selalu ada sebuah sisi yang tetap terbuka. Bagian yang diarsir merupakan bidang yang terletak sebagai alas.</p>
+    <p class="instruction-segment"><strong>Ingatlah: Semua sisi harus tertutup.</strong></p>
+    <p class="instruction-segment">Pilihlah gambar yang betul dengan memilih <strong>B</strong>, dan gambar yang salah dengan memilih <strong>S</strong>.</p>`
+};
+
 function tiuDemoSvg(body) {
   return `<svg class="tiu-symbol" viewBox="0 0 100 80" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${body}</g></svg>`;
 }
@@ -140,6 +172,33 @@ function tiuInstructionsHtml() {
   const bottomT=tiuDemoSvg('<line x1="50" y1="18" x2="50" y2="60"/><line x1="37" y1="60" x2="63" y2="60"/>');
   const example=(number,prompt,choices,correct)=>`<section class="tiu-example"><h3>Contoh ${number}</h3><div class="tiu-example-row"><div class="tiu-example-abc">${prompt.map((x,i)=>`<div><b>${'ABC'[i]}</b>${x}</div>`).join('')}</div><div class="tiu-example-choices">${choices.map((x,i)=>`<div class="${i+1===correct?'correct':''}"><b>${i+1}</b>${x}${i+1===correct?'<span>Jawaban benar</span>':''}</div>`).join('')}</div></div></section>`;
   return `<div class="tiu-instruction-examples">${example(1,[circleLarge,circleSmall,squareLarge],[circleLarge,squareSmall,squareLarge,circleSmall,tiuDemoSvg('<circle cx="50" cy="40" r="30"/>')],2)}${example(2,[arrowUp,arrowDown,topT],[topT,tiuDemoSvg('<line x1="50" y1="18" x2="50" y2="62"/>'),arrowDown,bottomT,arrowUp],4)}</div>`;
+}
+
+function tiu6InstructionExampleHtml(){
+  return `<figure class="tiu6-instruction-example" aria-labelledby="tiu6-example-caption">
+    <figcaption id="tiu6-example-caption"><strong>Contoh pengisian</strong><span>Bulatan pada setiap gambar telah diisi dengan B atau S.</span></figcaption>
+    <div class="tiu6-example-scroll">
+      <svg class="tiu6-example-svg" viewBox="0 0 1180 440" role="img" aria-labelledby="tiu6-example-title tiu6-example-desc">
+        <title id="tiu6-example-title">Contoh jawaban TIU 6</title>
+        <desc id="tiu6-example-desc">Dua bentuk acuan, masing-masing diikuti lima guntingan karton dengan bulatan jawaban B atau S yang telah terisi.</desc>
+        <defs><pattern id="tiu6-example-hatch" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M-2 2 L2 -2 M0 7 L7 0 M5 9 L9 5"/></pattern></defs>
+        <g class="tiu6-example-line">
+          <path class="tiu6-example-dashed" d="M44 118 L68 105 L68 166 L44 178 M68 166 L122 166"/><path d="M44 118 L68 105 L122 105 L122 166 L98 178 L44 178 Z M44 118 L98 118 L122 105 M98 118 L98 178"/><path d="M168 35 V197"/>
+          <g transform="translate(210 36)"><text class="tiu6-example-number" x="70" y="0">1</text><path d="M20 72 H70 V22 H110 V72 H160 V112 H110 V162 H70 V112 H20 Z"/><rect class="tiu6-example-hatch" x="70" y="72" width="40" height="40"/><circle class="tiu6-example-answer" cx="148" cy="151" r="23"/><text class="tiu6-example-letter" x="148" y="160">B</text></g>
+          <g transform="translate(390 36)"><text class="tiu6-example-number" x="70" y="0">2</text><path d="M20 72 H60 V22 H100 V72 H140 V112 H100 V152 H60 V112 H20 Z M20 112 V152 H60"/><rect class="tiu6-example-hatch" x="60" y="72" width="40" height="40"/><circle class="tiu6-example-answer" cx="148" cy="151" r="23"/><text class="tiu6-example-letter" x="148" y="160">S</text></g>
+          <g transform="translate(570 36)"><text class="tiu6-example-number" x="70" y="0">3</text><path d="M5 72 H45 V22 H85 V72 H165 V112 H85 V152 H45 V112 H5 Z"/><rect class="tiu6-example-hatch" x="5" y="72" width="40" height="40"/><circle class="tiu6-example-answer" cx="148" cy="151" r="23"/><text class="tiu6-example-letter" x="148" y="160">B</text></g>
+          <g transform="translate(750 36)"><text class="tiu6-example-number" x="70" y="0">4</text><path d="M0 72 H160 V112 H120 V152 H80 V112 H40 V152 H0 Z M120 72 V32 H160 V72"/><rect class="tiu6-example-hatch" x="40" y="72" width="40" height="40"/><circle class="tiu6-example-answer" cx="148" cy="151" r="23"/><text class="tiu6-example-letter" x="148" y="160">S</text></g>
+          <g transform="translate(930 36)"><text class="tiu6-example-number" x="70" y="0">5</text><path d="M25 22 H105 V62 H145 V102 H105 V142 H65 V102 H25 V62 H65 V22 M105 62 V102"/><rect class="tiu6-example-hatch" x="65" y="62" width="40" height="40"/><circle class="tiu6-example-answer" cx="148" cy="151" r="23"/><text class="tiu6-example-letter" x="148" y="160">B</text></g>
+          <path class="tiu6-example-dashed" d="M42 348 L68 335 L98 276 M68 335 L124 335"/><path d="M42 348 L82 266 L124 335 L105 350 Z M82 266 L105 350 M42 348 L105 350"/><path d="M168 235 V415"/>
+          <g transform="translate(210 246)"><text class="tiu6-example-number" x="70" y="0">1</text><polygon points="65,60 105,60 85,25"/><polygon class="tiu6-example-hatch" points="65,60 105,60 85,100"/><polygon points="65,60 85,100 25,91"/><polygon points="105,60 145,91 85,100"/><circle class="tiu6-example-answer" cx="148" cy="151" r="23"/><text class="tiu6-example-letter" x="148" y="160">B</text></g>
+          <g transform="translate(390 246)"><text class="tiu6-example-number" x="70" y="0">2</text><polygon points="55,58 95,58 75,22"/><polygon points="75,22 115,22 95,58"/><polygon class="tiu6-example-hatch" points="55,58 95,58 75,98"/><polygon points="75,98 115,98 95,58"/><circle class="tiu6-example-answer" cx="148" cy="151" r="23"/><text class="tiu6-example-letter" x="148" y="160">S</text></g>
+          <g transform="translate(570 246)"><text class="tiu6-example-number" x="70" y="0">3</text><polygon points="65,60 105,60 85,24"/><polygon points="85,24 135,56 105,60"/><polygon class="tiu6-example-hatch" points="65,60 105,60 85,100"/><polygon points="85,100 130,116 105,60"/><circle class="tiu6-example-answer" cx="148" cy="151" r="23"/><text class="tiu6-example-letter" x="148" y="160">S</text></g>
+          <g transform="translate(750 246)"><text class="tiu6-example-number" x="70" y="0">4</text><polygon class="tiu6-example-hatch" points="25,82 65,62 65,102"/><polygon points="65,62 105,42 125,82 65,102"/><path d="M65 62 L125 82 L105 122 L65 102 M105 42 L125 82"/><circle class="tiu6-example-answer" cx="148" cy="151" r="23"/><text class="tiu6-example-letter" x="148" y="160">B</text></g>
+          <g transform="translate(930 246)"><text class="tiu6-example-number" x="70" y="0">5</text><polygon points="45,58 85,22 125,22 105,58"/><polygon points="85,22 105,58 145,58 125,22"/><polygon class="tiu6-example-hatch" points="45,58 105,58 85,98"/><polygon points="85,98 125,98 105,58"/><circle class="tiu6-example-answer" cx="148" cy="151" r="23"/><text class="tiu6-example-letter" x="148" y="160">S</text></g>
+        </g>
+      </svg>
+    </div>
+  </figure>`;
 }
 
 async function getTestSequence(){
@@ -165,7 +224,7 @@ function startTypewriters(root=app,delay=180){
     while(walker.nextNode()){
       const node=walker.currentNode;
       if(!node.nodeValue.trim()){node.nodeValue='';continue;}
-      const segment=node.parentElement?.closest('.notice-segment,p,li')||null;
+      const segment=node.parentElement?.closest('.notice-segment,.instruction-segment')||node.parentElement?.closest('p,li')||null;
       nodes.push({node,text:node.nodeValue,segment:segment&&el.contains(segment)?segment:null});
     }
     const fullText=nodes.map(item=>item.text).join(' ').replace(/\s+/g,' ').trim();
@@ -196,6 +255,11 @@ function startTypewriters(root=app,delay=180){
 
 function instructionText(text,className='muted'){
   return `<p class="${className} typed-copy" data-typewriter="${escapeHtml(text)}"></p>`;
+}
+
+function instructionRichText(testCode,fallback){
+  const content=testInstructions[testCode];
+  return content?`<div class="session-instructions typed-copy typed-copy-rich" data-typewriter-rich>${content}</div>`:instructionText(fallback);
 }
 
 function panelLabelForRoute(){
@@ -360,7 +424,7 @@ async function instructionsPage(testCode) {
       <div class="actions"><button id="startTest" class="btn btn-primary">Saya Mengerti · Mulai ${meta.name}</button></div>`);
   }else layout(`<span class="eyebrow">Sesi Tes</span>
     <h2 style="margin-top:12px">Petunjuk ${meta.name}</h2>
-    ${instructionText(meta.description)}
+    ${instructionRichText(testCode,meta.description)}
     <div class="steps"><div class="step"><small>Jumlah</small><strong>${meta.total} ${meta.unit}</strong></div><div class="step"><small>Waktu</small><strong>${testCode==='wpt'?'60 detik / soal':`${meta.seconds} detik / soal`}</strong></div></div>
     <div class="notice">Timer dimulai setelah tombol di bawah ditekan. Jika waktu habis, soal akan otomatis dilanjutkan.</div>
     <div class="actions"><button id="startTest" class="btn btn-primary">Mulai ${meta.name}</button></div>`);
@@ -596,7 +660,7 @@ async function tiu6Instructions(){
     const state=await rpc('tiu6_session',{p_session_token:session.token,p_start:false});
     const complete=state.status==='completed',started=state.status==='in_progress';
     const seconds=started?(state.deadline_at?Math.round((Date.parse(state.deadline_at)-Date.parse(state.started_at))/1000):null):state.duration_seconds;
-    layout(`<span class="eyebrow">Sesi Tes</span><h2>Petunjuk ${title}</h2>${instructionText(testMeta.tiu6.description,'')}<div class="steps"><div class="step"><small>Jumlah</small><strong>8 kelompok · 40 gambar</strong></div><div class="step"><small>Waktu total</small><strong>${seconds?`${seconds/60} menit`:'Tanpa batas waktu'}</strong></div></div><div class="notice">Perhatikan bangun acuan di sebelah kiri. Nilai setiap gambar secara terpisah: B jika bisa membentuk bangun acuan, S jika tidak. Jumlah B pada setiap kelompok dapat berbeda. Klik bulatan untuk memilih jawaban. Anda boleh mengubah pilihan sebelum selesai. Isian kosong tetap kosong.</div><p>Jawaban disimpan otomatis. ${seconds?'Saat waktu habis, hanya jawaban yang sudah diterima server sebelum batas waktu yang digunakan.':'Pastikan keterangan “Jawaban tersimpan” muncul sebelum meninggalkan halaman.'}</p>${complete?'<p>Tes sudah selesai dan tersimpan.</p>':''}<button id="tiu6Start" class="btn btn-primary" ${state.active===false?'disabled':''}>${complete?'Lanjut ke sesi berikutnya':started?'Lanjutkan tes':'Saya mengerti · Mulai tes'}</button>`);
+    layout(`<span class="eyebrow">Sesi Tes</span><h2>Petunjuk ${title}</h2>${instructionRichText('tiu6',testMeta.tiu6.description)}${tiu6InstructionExampleHtml()}<div class="steps"><div class="step"><small>Jumlah</small><strong>8 kelompok · 40 gambar</strong></div><div class="step"><small>Waktu total</small><strong>${seconds?`${seconds/60} menit`:'Tanpa batas waktu'}</strong></div></div><p>Jawaban disimpan otomatis. ${seconds?'Saat waktu habis, hanya jawaban yang sudah diterima server sebelum batas waktu yang digunakan.':'Pastikan keterangan “Jawaban tersimpan” muncul sebelum meninggalkan halaman.'} Isian yang tidak dijawab tetap kosong.</p>${complete?'<p>Tes sudah selesai dan tersimpan.</p>':''}<button id="tiu6Start" class="btn btn-primary" ${state.active===false?'disabled':''}>${complete?'Lanjut ke sesi berikutnya':started?'Lanjutkan tes':'Saya mengerti · Mulai tes'}</button>`);
     document.querySelector('#tiu6Start').onclick=async e=>{if(complete)return advanceTiu6();e.currentTarget.disabled=true;try{await rpc('tiu6_session',{p_session_token:session.token,p_start:true});localStorage.setItem('rtg_test_state',JSON.stringify({testCode:'tiu6',index:'all'}));route('/quiz/tiu6/all');}catch(error){toast(error.message);document.querySelector('#tiu6Start').disabled=false;}};
   }catch(error){layout(`<h2>Tes belum tersedia</h2><p>${escapeHtml(error.message)}</p><p>Hubungi HR untuk memastikan sesi tes sudah tersedia.</p>`);}
 }
