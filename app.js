@@ -1,4 +1,4 @@
-import { mountResults, renderResult, printResultReport } from './results.js?v=20260923-compact-print';
+import { mountResults, renderResult, printResultReport } from './results.js?v=20260925-application-print';
 import { renderTiuSvgQuestion } from './tiu5-svg-temp.js';
 import { mountTiu6, questionMarkup, answersCsv } from './tiu6.js';
 import { MBTI_QUESTIONS, scoreMbti } from './mbti.js';
@@ -34,6 +34,25 @@ const session = {
     ['rtg_session_token', 'rtg_candidate_name', 'rtg_test_state'].forEach(k => localStorage.removeItem(k));
   }
 };
+
+async function candidateSessionState(){
+  if(!session.token)return null;
+  try{return await rpc('get_candidate_session_state',{p_session_token:session.token});}
+  catch{return null;}
+}
+
+async function continueCandidateSession(){
+  if(!session.token)return loginPage();
+  const state=await candidateSessionState();
+  if(state?.all_tests_completed){
+    session.clear();
+    if(location.hash&&location.hash!=='#/' )history.replaceState(null,'',location.pathname+location.search+'#/');
+    return loginPage();
+  }
+  if(!state?.application_saved)return route('/application');
+  if(state?.next_test_code&&state?.has_any_attempt)return route(`/instructions/${state.next_test_code}`);
+  return route('/notice');
+}
 
 function toast(message) {
   const el = document.querySelector('#toast');
@@ -191,8 +210,8 @@ function tiu6InstructionExampleHtml(){
           <g transform="translate(930 36)"><text class="tiu6-example-number" x="70" y="0">5</text><path d="M25 22 H105 V62 H145 V102 H105 V142 H65 V102 H25 V62 H65 V22 M105 62 V102"/><rect class="tiu6-example-hatch" x="65" y="62" width="40" height="40"/><circle class="tiu6-example-answer" cx="148" cy="151" r="23"/><text class="tiu6-example-letter" x="148" y="160">B</text></g>
           <path d="M80 250 L28 345 L80 385 L132 345 Z M80 250 V385"/><path class="tiu6-example-dashed" d="M28 345 H132"/><path d="M168 235 V415"/>
           <g transform="translate(210 246)"><text class="tiu6-example-number" x="70" y="0">1</text><polygon points="65,60 105,60 85,25"/><polygon class="tiu6-example-hatch" points="65,60 105,60 85,100"/><polygon points="65,60 85,100 25,91"/><polygon points="105,60 145,91 85,100"/><circle class="tiu6-example-answer" cx="148" cy="151" r="23"/><text class="tiu6-example-letter" x="148" y="160">B</text></g>
-          <g transform="translate(390 246)"><text class="tiu6-example-number" x="70" y="0">2</text><polygon class="tiu6-example-hatch" points="50,68 96,68 76,109"/><polygon points="50,68 76,109 13,122"/><polygon points="50,68 61,14 96,68"/><polygon points="61,14 117,14 96,68"/><circle class="tiu6-example-answer" cx="148" cy="151" r="23"/><text class="tiu6-example-letter" x="148" y="160">S</text></g>
-          <g transform="translate(570 246)"><text class="tiu6-example-number" x="70" y="0">3</text><polygon class="tiu6-example-hatch" points="49,68 96,68 70,109"/><polygon points="49,68 61,14 96,68"/><polygon points="61,14 136,50 96,68"/><polygon points="96,68 134,121 70,109"/><circle class="tiu6-example-answer" cx="148" cy="151" r="23"/><text class="tiu6-example-letter" x="148" y="160">S</text></g>
+          <g transform="translate(390 246)"><text class="tiu6-example-number" x="70" y="0">2</text><polygon class="tiu6-example-hatch" points="48,72 98,68 75,113"/><polygon points="48,72 75,113 10,124"/><polygon points="48,72 61,14 98,68"/><polygon points="61,14 119,16 98,68"/><circle class="tiu6-example-answer" cx="148" cy="151" r="23"/><text class="tiu6-example-letter" x="148" y="160">S</text></g>
+          <g transform="translate(570 246)"><text class="tiu6-example-number" x="70" y="0">3</text><polygon class="tiu6-example-hatch" points="48,72 93,75 68,116"/><polygon points="48,72 58,13 93,75"/><polygon points="58,13 138,51 93,75"/><polygon points="93,75 128,124 68,116"/><circle class="tiu6-example-answer" cx="148" cy="151" r="23"/><text class="tiu6-example-letter" x="148" y="160">S</text></g>
           <g transform="translate(750 246)"><text class="tiu6-example-number" x="70" y="0">4</text><polygon class="tiu6-example-hatch" points="25,82 65,62 65,102"/><polygon points="65,62 105,42 125,82 65,102"/><path d="M65 62 L125 82 L105 122 L65 102 M105 42 L125 82"/><circle class="tiu6-example-answer" cx="148" cy="151" r="23"/><text class="tiu6-example-letter" x="148" y="160">B</text></g>
           <g transform="translate(930 246)"><text class="tiu6-example-number" x="70" y="0">5</text><polygon points="45,58 85,22 125,22 105,58"/><polygon points="85,22 105,58 145,58 125,22"/><polygon class="tiu6-example-hatch" points="45,58 105,58 85,98"/><polygon points="85,98 125,98 105,58"/><circle class="tiu6-example-answer" cx="148" cy="151" r="23"/><text class="tiu6-example-letter" x="148" y="160">S</text></g>
         </g>
@@ -287,7 +306,7 @@ function layout(content, compact = false) {
   const glitch=participant&&shouldGlitchPanel();
   const zoom=participant&&shouldZoomFirstPanel();
   const label=escapeHtml(panelLabelForRoute());
-  app.innerHTML = `<section class="card ${compact ? '' : 'page-card'} ${participant?'participant-window':''} ${glitch?'panel-glitch-pending':''} ${zoom?'panel-zoom-pending':''}">${participant?`<div class="window-bar" aria-hidden="true"><span class="window-dots"><i></i><i></i><i></i></span><small>RECRUITMENT · GAMATEX</small><b>${label}</b></div><div class="window-body">`:''}${content}${participant?'</div>':''}</section>`;
+  app.innerHTML = `<section class="card ${compact ? '' : 'page-card'} ${participant?'participant-window':''} ${glitch?'panel-glitch-pending':''} ${zoom?'panel-zoom-pending':''}">${participant?`<div class="window-bar" aria-hidden="true"><span class="window-dots"><i></i><i></i><i></i></span><small>RECRUITMENT · GARUDA MAS SEMESTA</small><b>${label}</b></div><div class="window-body">`:''}${content}${participant?'</div>':''}</section>`;
   const panel=app.querySelector('.participant-window');
   if(glitch&&panel){
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
@@ -315,14 +334,14 @@ function loginPage() {
   layout(`<div class="hero">
     <div>
       <span class="eyebrow">Seleksi Karyawan</span>
-      <h1>Mulai perjalanan Anda bersama Gamatex.</h1>
+      <h1>Mulai perjalanan Anda bersama Garuda Mas Semesta.</h1>
       <p class="muted">Masukkan nama lengkap dan NIK sesuai identitas. Pastikan Anda berada di tempat yang tenang sebelum memulai tes.</p>
       <form id="loginForm" class="form-grid" autocomplete="off">
         <div class="field full"><label>Nama Peserta</label><input name="full_name" required minlength="3" placeholder="Nama lengkap sesuai KTP"></div>
         <div class="field full"><label>NIK</label><input name="nik" required inputmode="numeric" pattern="[0-9]{16}" maxlength="16" placeholder="16 digit NIK"></div>
         <div class="field full"><button class="btn btn-primary" type="submit">Masuk dan lanjutkan</button></div>
       </form>
-      <p class="muted" style="font-size:12px">Data Anda hanya digunakan untuk proses rekrutmen PT. Gamatex.</p>
+      <p class="muted" style="font-size:12px">Data Anda hanya digunakan untuk proses rekrutmen PT. Garuda Mas Semesta.</p>
       <a href="#/admin" class="muted" style="font-size:12px">Masuk sebagai HR</a>
     </div>
     <div class="hero-art"><div class="hero-icon">📝</div></div>
@@ -334,7 +353,7 @@ function loginPage() {
     try {
       const data = await rpc('start_candidate_session', { p_full_name: form.get('full_name').trim(), p_nik: form.get('nik') });
       session.set(Array.isArray(data) ? data[0] : data);
-      route('/application');
+      await continueCandidateSession();
     } catch (error) {
       toast(error.message || 'Tidak dapat masuk. Periksa koneksi dan coba lagi.');
       button.disabled = false; button.textContent = 'Masuk dan lanjutkan';
@@ -348,7 +367,8 @@ const applicationFields = [
   ['religion','Agama','text',false],['ktp_address','Alamat sesuai KTP','textarea',false],['current_address','Alamat tempat tinggal','textarea',true],
   ['email','Alamat email','email',true],['social_media','Akun media sosial','text',false],['height','Tinggi badan (cm)','number',false],
   ['weight','Berat badan (kg)','number',false],['glasses','Apakah Anda berkacamata?','select',false,['Ya','Tidak']],
-  ['education','Riwayat pendidikan: sekolah, Jurusan dan tahun kelulusan','textarea',true],['training','Pelatihan yang pernah diikuti','textarea',false],
+  ['medical_history','Riwayat penyakit yang pernah diderita','textarea',false],
+  ['education','Riwayat pendidikan: sekolah dan tahun kelulusan','textarea',true],['training','Pelatihan yang pernah diikuti','textarea',false],
   ['experience','Pengalaman kerja, jabatan, lama bekerja, dan alasan berhenti','textarea',false],['special_skills','Keahlian khusus','textarea',false],
   ['strengths','Kelebihan Anda','textarea',true],['weaknesses','Kekurangan Anda','textarea',true]
 ];
@@ -392,12 +412,12 @@ function preTestNoticePage(){
       <div class="notice-points">
         <div class="notice-segment notice-point"><span>Psikotes terdiri dari beberapa jenis/tahapan tes, dan setiap tes memiliki waktu pengerjaan yang berbeda-beda. Pastikan membaca instruksi pada setiap tahap dengan teliti sebelum memulai.</span></div>
         <div class="notice-segment notice-point"><span>Pastikan Anda berada dalam kondisi senggang/free dan dapat berkonsentrasi penuh selama proses pengerjaan. Jangan mengerjakan psikotes sambil melakukan pekerjaan atau aktivitas lainnya, karena dapat memengaruhi hasil tes dan berisiko menyebabkan Anda tidak dapat menyelesaikan atau dinyatakan gagal dalam proses tes.</span></div>
-        <div class="notice-segment notice-point"><span>Pastikan koneksi internet dalam kondisi stabil dan perangkat yang digunakan (laptop/komputer/handphone) siap digunakan hingga seluruh tahapan selesai.</span></div>
+        <div class="notice-segment notice-point"><span>Pastikan koneksi internet dalam kondisi stabil dan perangkat yang digunakan (laptop/komputer) siap digunakan hingga seluruh tahapan selesai.</span></div>
         <div class="notice-segment notice-point"><span>Ikuti setiap tahapan sesuai urutan dan petunjuk yang diberikan. Jangan melewati atau menutup halaman tes sebelum memastikan tahap tersebut telah selesai.</span></div>
         <div class="notice-segment notice-point"><span>Perhatikan waktu pengerjaan pada setiap tes. Setelah waktu habis, sistem dapat secara otomatis mengakhiri atau melanjutkan ke tahap berikutnya.</span></div>
       </div>
       <div class="notice-segment">Pastikan Anda telah mempersiapkan segala sesuatu yang diperlukan dan berada di tempat yang tenang, nyaman, serta minim gangguan.</div>
-      <div class="notice-segment">Mohon pastikan Anda benar-benar siap dan memiliki waktu yang cukup sebelum menekan tombol <strong>“Mulai Tes”</strong>. Setelah tes dimulai, ikuti seluruh proses sampai selesai dan kerjakan dengan fokus serta sesuai dengan kondisi Anda yang sebenarnya.</div>
+      <div class="notice-segment">Mohon pastikan Anda benar-benar siap dan memiliki waktu yang cukup sebelum menekan tombol “Mulai Tes”. Setelah tes dimulai, ikuti seluruh proses sampai selesai dan kerjakan dengan fokus serta sesuai dengan kondisi Anda yang sebenarnya.</div>
       <div class="notice-segment notice-closing"><strong>Selamat mengerjakan dan semoga berhasil! 😊</strong></div>
     </div>
     <div class="actions typewriter-followup"><button id="continueToInstructions" class="btn btn-primary">Saya Mengerti · Lanjut ke Petunjuk Tes</button></div></div>`);
@@ -411,7 +431,9 @@ function preTestNoticePage(){
 async function instructionsPage(testCode) {
   if (!session.token) return route('/');
   if(testCode==='tiu6')return tiu6Instructions();
+  const runtime=await rpc('get_test_runtime_config',{p_test_code:testCode}).catch(()=>null);
   const meta={...(testMeta[testCode]||testMeta.test1),name:await participantTitle(testCode)};
+  if(runtime?.question_duration_seconds)meta.seconds=runtime.question_duration_seconds;
   setHeader(`${session.name} · ${meta.name}`);
   if(testCode==='tiu5'){
     const state=await rpc('tiu5_session',{p_session_token:session.token,p_start:false});
@@ -425,7 +447,7 @@ async function instructionsPage(testCode) {
   }else layout(`<span class="eyebrow">Sesi Tes</span>
     <h2 style="margin-top:12px">Petunjuk ${meta.name}</h2>
     ${instructionRichText(testCode,meta.description)}
-    <div class="steps"><div class="step"><small>Jumlah</small><strong>${meta.total} ${meta.unit}</strong></div><div class="step"><small>Waktu</small><strong>${testCode==='wpt'?'60 detik / soal':`${meta.seconds} detik / soal`}</strong></div></div>
+    <div class="steps"><div class="step"><small>Jumlah</small><strong>${meta.total} ${meta.unit}</strong></div><div class="step"><small>Waktu</small><strong>${meta.seconds} detik / soal</strong></div>${testCode==='wpt'?`<div class="step"><small>Urutan soal</small><strong>${runtime?.randomize_questions?'Diacak untuk setiap peserta':'Urutan tetap'}</strong></div>`:''}</div>
     <div class="notice">Timer dimulai setelah tombol di bawah ditekan. Jika waktu habis, soal akan otomatis dilanjutkan.</div>
     <div class="actions"><button id="startTest" class="btn btn-primary">Mulai ${meta.name}</button></div>`);
   document.querySelector('#startTest').onclick=async()=>{
@@ -456,7 +478,8 @@ async function wptQuizPage(index) {
   const meta={...testMeta.wpt,name:await participantTitle('wpt')};
   let remaining=duration,selection=null,saving=false;
   setHeader(`${meta.name} · ${index+1}/${questions.length}`);
-  layout(`<div class="test-head"><div><span class="eyebrow">${meta.name}</span><h2 style="margin-top:10px">Soal ${q.number}</h2></div><div id="timer" class="timer">${remaining}</div></div><div class="progress"><span style="width:${((index+1)/questions.length)*100}%"></span></div><div class="question wpt-question-text rich-text">${renderRichText(q.prompt)}</div>${wptAnswerMarkup(q)}<div class="actions"><button id="nextQuestion" class="btn btn-primary" disabled>Jawab & Lanjutkan</button></div>`);
+  const displayedPrompt=renderRichText(q.prompt).replace(/^\s*\d+\s*[.)]\s*/, '');
+  layout(`<div class="test-head"><div><span class="eyebrow">${meta.name}</span><h2 style="margin-top:10px">Soal ${index+1}</h2></div><div id="timer" class="timer">${remaining}</div></div><div class="progress"><span style="width:${((index+1)/questions.length)*100}%"></span></div><div class="question wpt-question-text rich-text">${displayedPrompt}</div>${wptAnswerMarkup(q)}<div class="actions"><button id="nextQuestion" class="btn btn-primary" disabled>Jawab & Lanjutkan</button></div>`);
   const next=document.querySelector('#nextQuestion');
   const update=()=>{next.disabled=!wptPayload(q,selection);};
   document.querySelectorAll('[name=wptAnswer]').forEach(x=>x.onchange=()=>{
@@ -529,7 +552,7 @@ async function finishTest(testCode){
 
 function completePage(){
   setHeader('Tes selesai');
-  layout(`<div class="completion-screen center"><div class="completion-tab"><span>SELEKSI KARYAWAN</span><b>SELESAI</b></div><div class="completion-brand" aria-label="The Reliable Denim Company Gamatex"><span class="completion-brand-line completion-company" data-brand="The Reliable Denim Company">The Reliable Denim Company</span><strong class="completion-brand-line completion-gamatex" data-brand="GAMATEX">GAMATEX</strong></div><div class="success-icon">✓</div><span class="eyebrow">Semua jawaban tersimpan</span><h2 style="margin-top:14px">Terima kasih, ${escapeHtml(session.name||'Peserta')}.</h2><p class="completion-message">Terima kasih telah menyelesaikan tes.<br>Mohon menunggu proses seleksi.</p><p class="muted">Tim HR PT. Gamatex akan menghubungi Anda apabila proses berikutnya telah tersedia.</p><div class="actions" style="justify-content:center"><button id="logout" class="btn btn-secondary">Selesai dan keluar</button></div></div>`);
+  layout(`<div class="completion-screen center"><div class="completion-tab"><span>SELEKSI KARYAWAN</span><b>SELESAI</b></div><div class="completion-brand" aria-label="The Reliable Denim Company Garuda Mas Semesta"><span class="completion-brand-line completion-company" data-brand="The Reliable Denim Company">The Reliable Denim Company</span><strong class="completion-brand-line completion-gamatex" data-brand="GARUDA MAS SEMESTA">GARUDA MAS SEMESTA</strong></div><div class="success-icon">✓</div><span class="eyebrow">Semua jawaban tersimpan</span><h2 style="margin-top:14px">Terima kasih, ${escapeHtml(session.name||'Peserta')}.</h2><p class="completion-message">Terima kasih telah menyelesaikan tes.<br>Mohon menunggu proses seleksi.</p><p class="muted">Tim HR PT. Garuda Mas Semesta akan menghubungi Anda apabila proses berikutnya telah tersedia.</p><div class="actions" style="justify-content:center"><button id="logout" class="btn btn-secondary">Selesai dan keluar</button></div></div>`);
   document.querySelector('#logout').onclick=()=>{session.clear();route('/');};
 }
 
@@ -599,12 +622,13 @@ async function candidateProfile(id){
   const byCode=Object.fromEntries((attempts||[]).map(a=>[a.test_code,a]));
   const names=['test1','test2','tiu5','tiu6','mbti','wpt'];
   const summary=names.map(code=>{const a=byCode[code];const rows=(answers||[]).filter(r=>r.attempt_id===a?.id);return {code,a,rows};});
-  const fieldLabels={full_name:'Nama Lengkap',nik:'NIK',position:'Posisi yang dilamar',birth_place_date:'Tempat & tanggal lahir',gender:'Jenis kelamin',marital_status:'Status perkawinan',religion:'Agama',ktp_address:'Alamat sesuai KTP',current_address:'Alamat tinggal',email:'Email',social_media:'Media sosial',height:'Tinggi badan',weight:'Berat badan',glasses:'Berkacamata',education:'Pendidikan',experience:'Pengalaman kerja',special_skills:'Keahlian khusus',strengths:'Kelebihan',weaknesses:'Kekurangan',motivation:'Motivasi'};
-  const identity=Object.entries(fieldLabels).map(([key,label])=>candidate[key]!==undefined&&candidate[key]!==null&&candidate[key]!==''?`<div class="profile-field"><small>${label}</small><strong>${escapeHtml(candidate[key])}</strong></div>`:'').join('');
+  const profile={...(candidate.application||{}),...candidate};
+  const fieldLabels={full_name:'Nama Lengkap',nik:'NIK',position:'Posisi yang dilamar',birth_place_date:'Tempat & tanggal lahir',gender:'Jenis kelamin',marital_status:'Status perkawinan',religion:'Agama',ktp_address:'Alamat sesuai KTP',current_address:'Alamat tinggal',email:'Email',social_media:'Media sosial',height:'Tinggi badan',weight:'Berat badan',glasses:'Berkacamata',medical_history:'Riwayat penyakit yang pernah diderita',education:'Pendidikan',training:'Pelatihan',experience:'Pengalaman kerja',special_skills:'Keahlian khusus',strengths:'Kelebihan',weaknesses:'Kekurangan',motivation:'Motivasi'};
+  const identity=Object.entries(fieldLabels).map(([key,label])=>profile[key]!==undefined&&profile[key]!==null&&profile[key]!==''?`<div class="profile-field"><small>${label}</small><strong>${escapeHtml(profile[key])}</strong></div>`:'').join('');
   const cards=summary.map(({code,a,rows})=>{let short='Belum dikerjakan'; if(a){if(code==='mbti'){const vals=Array.from({length:70},(_,i)=>{const v=rows.find(r=>r.question_number===i+1)?.answer?.choice;return Number.isInteger(v)?v:null});const r=scoreMbti(vals);short=a.status==='completed'&&r?`Tipe ${r.type} · ${r.answered}/70 terjawab`:`${r?.answered||0}/70 terjawab`;}else if(code==='wpt'){short=`${a.status==='completed'?'Selesai':'Dalam pengerjaan'} · ${rows.length}/50 jawaban tersimpan`;}else short=`${a.status==='completed'?'Selesai':'Dalam pengerjaan'} · ${rows.length} jawaban tersimpan`;} return `<article class="result-card"><div><span class="eyebrow">${escapeHtml(code==='test1'?'PAPI Kostic':code==='test2'?'DISC':code.toUpperCase())}</span><h3>${escapeHtml(a?'Tes tersedia':'Belum dikerjakan')}</h3><p class="muted">${escapeHtml(short)}</p></div><button class="btn btn-secondary profile-result" data-code="${code}">Lihat hasil</button></article>`;}).join('');
-  adminShell('candidates',`<div class="profile-header"><div><a class="back-link" href="#/admin/candidates">← Kembali ke Data Peserta</a><span class="eyebrow">Profil Peserta</span><h2>${escapeHtml(candidate.full_name||'Peserta')}</h2><p class="muted">${escapeHtml(candidate.position||'Posisi belum diisi')}</p></div><button id="printProfile" class="btn btn-primary">🖨 Print Hasil Tes</button></div><section class="profile-section"><h3>Identitas</h3><div class="profile-grid">${identity||'<p class="muted">Belum ada data identitas.</p>'}</div></section><section class="profile-section"><h3>Ringkasan Hasil Tes</h3><div class="result-card-grid">${cards}</div></section><div id="profileResult" class="profile-result-panel"></div>`);
+  adminShell('candidates',`<div class="profile-header"><div><a class="back-link" href="#/admin/candidates">← Kembali ke Data Peserta</a><span class="eyebrow">Profil Peserta</span><h2>${escapeHtml(candidate.full_name||'Peserta')}</h2><p class="muted">${escapeHtml(candidate.position||'Posisi belum diisi')}</p></div><button id="printProfile" class="btn btn-primary">🖨 Print Formulir & Hasil Tes</button></div><section class="profile-section"><h3>Formulir Aplikasi Peserta</h3><p class="muted">Data yang diisi peserta sebelum memulai rangkaian tes.</p><div class="profile-grid">${identity||'<p class="muted">Formulir aplikasi belum diisi.</p>'}</div></section><section class="profile-section"><h3>Ringkasan Hasil Tes</h3><div class="result-card-grid">${cards}</div></section><div id="profileResult" class="profile-result-panel"></div>`);
   document.querySelectorAll('.profile-result').forEach(btn=>btn.onclick=()=>{const item=summary.find(x=>x.code===btn.dataset.code);document.querySelector('#profileResult').innerHTML=renderResultForProfile(item,config.config);document.querySelector('#profileResult').scrollIntoView({behavior:'smooth'});});
-  document.querySelector('#printProfile').onclick=()=>printCandidateReport(candidate,summary,config.config);
+  document.querySelector('#printProfile').onclick=()=>printCandidateReport(profile,summary,config.config);
 }
 
 function renderResultForProfile(item,config){
@@ -618,7 +642,7 @@ function renderResultForProfile(item,config){
 }
 
 function printCandidateReport(candidate,summary,config){
-  if(!printResultReport(candidate,summary,config))toast('Izinkan pop-up browser untuk mencetak laporan.');
+  if(!printResultReport(candidate,summary,config,{includeApplication:true}))toast('Izinkan pop-up browser untuk mencetak laporan.');
 }
 
 async function adminQuestions(){
@@ -713,10 +737,12 @@ async function adminTiu6Results(){
 async function adminSettings(){
   const {data,error}=await db.from('test_settings').select('*').order('sort_order');
   if(error)return adminShell('settings',`<h2>Pengaturan belum aktif</h2><p class="muted">Jalankan update-02-admin-question-bank.sql.</p>`);
-  adminShell('settings',`<div class="section-title"><div><h2>Urutan Sesi Tes</h2><p class="muted">Pindahkan posisi sesi. Urutan soal di dalam setiap sesi tetap.</p></div></div><div class="settings-grid">${data.map((s,i)=>`<form class="setting-card" data-code="${s.test_code}"><div class="setting-order"><strong>${i+1}</strong><div><h3>${escapeHtml(testMeta[s.test_code]?.name||s.display_name)}</h3><small>${escapeHtml(s.test_code)}</small></div></div><label><input name="active" type="checkbox" ${s.active?'checked':''}> Sesi aktif</label><div class="question-actions"><button type="button" class="btn btn-secondary move-session" data-direction="-1" ${i===0?'disabled':''}>↑ Naik</button><button type="button" class="btn btn-secondary move-session" data-direction="1" ${i===data.length-1?'disabled':''}>↓ Turun</button><button class="btn btn-primary">Simpan</button></div></form>`).join('')}</div>`);
+  adminShell('settings',`<div class="section-title"><div><h2>Urutan Sesi Tes</h2><p class="muted">Pindahkan posisi sesi dan atur waktu. Pengacakan hanya tersedia untuk WPT; nomor asli tetap dipakai untuk penilaian.</p></div></div><div class="settings-grid">${data.map((s,i)=>`<form class="setting-card" data-code="${s.test_code}"><div class="setting-order"><strong>${i+1}</strong><div><h3>${escapeHtml(testMeta[s.test_code]?.name||s.display_name)}</h3><small>${escapeHtml(s.test_code)}</small></div></div><label><input name="active" type="checkbox" ${s.active?'checked':''}> Sesi aktif</label><div class="question-actions"><button type="button" class="btn btn-secondary move-session" data-direction="-1" ${i===0?'disabled':''}>↑ Naik</button><button type="button" class="btn btn-secondary move-session" data-direction="1" ${i===data.length-1?'disabled':''}>↓ Turun</button><button class="btn btn-primary">Simpan</button></div></form>`).join('')}</div>`);
   document.querySelectorAll('.setting-card').forEach(form=>{
     if(['tiu5','tiu6','mbti','wpt'].includes(form.dataset.code)){const s=data.find(x=>x.test_code===form.dataset.code);form.querySelector('.question-actions').insertAdjacentHTML('beforebegin',`<div class="field"><label>Waktu total ${testMeta[form.dataset.code].name} (menit)</label><input name="session_minutes" type="number" min="1" max="1440" step="1" value="${s.session_duration_seconds?s.session_duration_seconds/60:''}" placeholder="Kosong = tanpa batas waktu"><small>Berlaku untuk sesi yang baru dimulai.</small></div>`);}
-    form.onsubmit=async e=>{e.preventDefault();const f=new FormData(form),payload={active:f.get('active')==='on',updated_at:new Date().toISOString()};if(['tiu5','tiu6','mbti','wpt'].includes(form.dataset.code))payload.session_duration_seconds=f.get('session_minutes')?Number(f.get('session_minutes'))*60:null;const {error}=await db.from('test_settings').update(payload).eq('test_code',form.dataset.code);toast(error?error.message:'Pengaturan berhasil disimpan.');};
+    if(['test1','test2'].includes(form.dataset.code)){const s=data.find(x=>x.test_code===form.dataset.code);form.querySelector('.question-actions').insertAdjacentHTML('beforebegin',`<div class="field"><label>Waktu per soal (detik)</label><input name="question_seconds" type="number" min="5" max="600" step="1" value="${s.question_duration_seconds||testMeta[form.dataset.code].seconds}" required><small>Berlaku untuk attempt baru; attempt yang sudah dimulai mempertahankan waktunya.</small></div>`);}
+    if(form.dataset.code==='wpt'){const s=data.find(x=>x.test_code==='wpt');form.querySelector('.question-actions').insertAdjacentHTML('beforebegin',`<label><input name="randomize_questions" type="checkbox" ${s.randomize_questions?'checked':''}> Acak urutan soal WPT untuk setiap peserta</label><small>Kunci jawaban tetap mengikuti nomor asli soal yang tersimpan.</small>`);}
+    form.onsubmit=async e=>{e.preventDefault();const f=new FormData(form),payload={active:f.get('active')==='on',updated_at:new Date().toISOString()};if(['tiu5','tiu6','mbti','wpt'].includes(form.dataset.code))payload.session_duration_seconds=f.get('session_minutes')?Number(f.get('session_minutes'))*60:null;if(['test1','test2'].includes(form.dataset.code))payload.question_duration_seconds=Number(f.get('question_seconds'));if(form.dataset.code==='wpt')payload.randomize_questions=f.get('randomize_questions')==='on';const {error}=await db.from('test_settings').update(payload).eq('test_code',form.dataset.code);toast(error?error.message:'Pengaturan berhasil disimpan.');};
     form.querySelectorAll('.move-session').forEach(button=>button.onclick=async()=>{const index=data.findIndex(x=>x.test_code===form.dataset.code),target=index+Number(button.dataset.direction);if(target<0||target>=data.length)return;const first=data[index],second=data[target];const updates=await Promise.all([db.from('test_settings').update({sort_order:second.sort_order}).eq('test_code',first.test_code),db.from('test_settings').update({sort_order:first.sort_order}).eq('test_code',second.test_code)]);const failed=updates.find(x=>x.error);if(failed)toast(failed.error.message);else adminSettings();});});
 }
 
@@ -737,7 +763,7 @@ async function router(){
   if(path[0]==='quiz') return quizPage(path[1],Number(path[2]||0));
   if(path[0]==='complete') return completePage();
   if(path[0]==='admin') return adminPage((path[1]||'dashboard').split('?')[0]);
-  if(session.token) return route('/application');
+  if(session.token) return continueCandidateSession();
   return loginPage();
 }
 
