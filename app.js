@@ -1,5 +1,5 @@
-import {mountIshihara} from './ishihara.js';
-import { mountResults, renderResult, printResultReport } from './results.js?v=20260925-application-print';
+import {mountIshihara} from './ishihara.js?v=20261001';
+import { mountResults, renderResult, printResultReport } from './results.js?v=20261001-ishihara';
 import { renderTiuSvgQuestion } from './tiu5-svg-temp.js';
 import { mountTiu6, questionMarkup, answersCsv } from './tiu6.js';
 import { MBTI_QUESTIONS, scoreMbti } from './mbti.js';

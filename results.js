@@ -1,4 +1,4 @@
-import {renderIshiharaResult} from './ishihara.js';
+import {renderIshiharaResult} from './ishihara.js?v=20261001';
 import {names,escapeHtml as e,scorePapi,scoreDisc,scoreTiu,scoreWpt,mapPersonality} from './scoring.js?v=20260923-compact-print';
 import {papiChart,discChart,papiOrder,papiLabels} from './results-charts.js';
 import {discProfileDetail} from './disc-job-match.js?v=20260923-job-match';

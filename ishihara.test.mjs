@@ -1,0 +1,28 @@
+import assert from 'node:assert/strict';
+import {mountIshihara,renderIshiharaResult} from './ishihara.js';
+const sent=[];
+const frame={contentWindow:{postMessage:m=>sent.push(m)},style:{}};
+let listener,completed=0,calls=0;
+globalThis.location={origin:'https://example.test'};
+globalThis.document={querySelector:s=>s==='#ishiharaFrame'?frame:{textContent:''}};
+globalThis.window={addEventListener:(_,fn)=>{listener=fn;},removeEventListener:(_,fn)=>{if(listener===fn)listener=null;}};
+const state={status:'in_progress',revision:0,server_now:new Date().toISOString(),answers:Array(34).fill(null)};
+const dispose=await mountIshihara({token:'test',layout:()=>{},onComplete:()=>completed++,rpc:async(name,p)=>{
+  if(name==='ishihara_session')return state;
+  calls++;assert.equal(p.p_revision,0);
+  return {...state,revision:1,status:p.p_finish?'completed':'in_progress'};
+}});
+const event=data=>({origin:location.origin,source:frame.contentWindow,data});
+await listener({origin:'https://other.test',source:frame.contentWindow,data:{type:'ishihara-save'}});
+assert.equal(calls,0);
+await listener(event({type:'ishihara-ready'}));
+assert.equal(sent.at(-1).answers.length,34);
+await listener(event({type:'ishihara-save',id:1,answers:state.answers,finish:true}));
+assert.equal(sent.at(-1).type,'ishihara-ack');
+await listener(event({type:'ishihara-complete'}));
+await listener(event({type:'ishihara-complete'}));
+assert.equal(completed,1);
+dispose();assert.equal(listener,null);
+const html=renderIshiharaResult({status:'completed'},[{question_number:1,answer:{choice:'<script>'}}]);
+assert(!html.includes('<script>'));assert(html.includes('&lt;script&gt;'));assert(html.includes('0/22'));
+console.log('PASS: trusted frame messages, revision, finish-once, cleanup, escaped report');
