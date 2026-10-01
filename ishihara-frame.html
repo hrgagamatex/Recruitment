@@ -1,0 +1,1639 @@
+
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#edf2f8">
+  <title>Preview Tes Ishihara Angka & Line — PT. Garuda Mas Semesta</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101010;
+      --panel: #181818;
+      --button: #353535;
+      --button-edge: #252525;
+      --text: #f7f7f7;
+      --muted: #b6b6b6;
+      --green: #67cf9b;
+      --orange: #ed8442;
+    }
+    * { box-sizing: border-box; }
+    html { min-width: 320px; background: var(--bg); }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text);
+      background: var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button, a { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; }
+    .app-shell {
+      position: relative;
+      width: min(100%, 760px);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: max(18px, env(safe-area-inset-top)) clamp(18px, 5vw, 40px) max(32px, env(safe-area-inset-bottom));
+      background: var(--panel);
+      box-shadow: 0 0 70px rgba(0,0,0,.5);
+    }
+    .close-test {
+      position: absolute;
+      z-index: 10;
+      top: max(16px, env(safe-area-inset-top));
+      right: 14px;
+      width: 44px;
+      height: 44px;
+      border: 0;
+      color: white;
+      background: transparent;
+      cursor: pointer;
+    }
+    .close-test::before, .close-test::after {
+      content: "";
+      position: absolute;
+      left: 8px;
+      top: 19px;
+      width: 28px;
+      height: 5px;
+      border-radius: 4px;
+      background: currentColor;
+    }
+    .close-test::before { transform: rotate(45deg); }
+    .close-test::after { transform: rotate(-45deg); }
+    .test-brand { display: grid; justify-items: center; text-align: center; }
+    .test-brand svg { width: clamp(118px, 24vw, 165px); height: auto; }
+    .test-brand strong {
+      margin-top: -3px;
+      font-size: clamp(28px, 5.5vw, 43px);
+      font-weight: 900;
+      line-height: .95;
+      letter-spacing: -.045em;
+    }
+    .test-brand span { margin-top: 3px; font-size: clamp(13px, 2.7vw, 20px); letter-spacing: .12em; }
+    .cbtTest { display: flex; flex-direction: column; width: 100%; }
+    .cbt-progressbar {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: calc(100% - 45px);
+      height: 42px;
+      margin: 22px 0 22px 45px;
+    }
+    .cbt-progressbar::before {
+      content: attr(data-step);
+      position: absolute;
+      right: calc(100% + 4px);
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border: 4px solid var(--green);
+      border-radius: 50%;
+      color: var(--green);
+      background: #f7f7f7;
+      font-weight: 900;
+      box-shadow: 0 0 0 3px rgba(103,207,155,.14);
+    }
+    .cbt-progressbar-line, .cbt-progressbar-fill {
+      position: absolute;
+      z-index: 0;
+      left: 0;
+      top: 50%;
+      height: 2px;
+      border-radius: 99px;
+      transform: translateY(-50%);
+    }
+    .cbt-progressbar-line { width: 100%; background: #f0f0f0; }
+    .cbt-progressbar-fill { width: 0; background: var(--green); transition: width .35s ease; }
+    .cbt-step {
+      position: relative;
+      z-index: 2;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #f4f4f4;
+      transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
+    }
+    .cbt-step.cbt-done { background: var(--green); }
+    .cbt-step.cbt-active { transform: scale(1.65); box-shadow: 0 0 0 3px rgba(103,207,155,.23); }
+    .cbtImageAndButtons { display: flex; flex-direction: column; align-items: center; width: 100%; }
+    .cbtNumberImage { display: grid; width: min(100%, 520px); aspect-ratio: 1; place-items: center; }
+    .cbtNumberImage svg { display: block; width: 100%; height: 100%; overflow: visible; }
+    .cbtNumberImage circle {
+      transform-box: fill-box;
+      transform-origin: center;
+      will-change: transform, opacity;
+    }
+    .cbtNumberImage.is-hiding circle { animation: dot-hide .28s cubic-bezier(.55,0,1,.45) var(--dot-delay) both; }
+    .cbtNumberImage.is-showing circle { animation: dot-show .38s cubic-bezier(.16,.8,.28,1) var(--dot-delay) both; }
+    @keyframes dot-hide { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0); } }
+    @keyframes dot-show {
+      0% { opacity: 0; transform: scale(0); }
+      72% { opacity: 1; transform: scale(1.08); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    .cbtButtons {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: clamp(9px, 2.2vw, 15px);
+      width: 100%;
+      margin-top: clamp(12px, 2vw, 20px);
+    }
+    .cbt-answer-button {
+      min-width: 0;
+      min-height: clamp(58px, 11vw, 76px);
+      padding: 8px;
+      border: 0;
+      border-radius: 11px;
+      color: white;
+      background: var(--button);
+      box-shadow: 0 7px 0 var(--button-edge), 0 12px 18px rgba(0,0,0,.34), inset 0 -1px 0 rgba(255,255,255,.14);
+      font-size: clamp(23px, 4.8vw, 32px);
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform .12s ease, background .15s ease, box-shadow .12s ease;
+    }
+    .cbt-answer-button:hover { background: #414141; }
+    .cbt-answer-button:active, .cbt-answer-button.is-selected {
+      transform: translateY(6px);
+      background: #38594e;
+      box-shadow: 0 1px 0 var(--button-edge), 0 5px 8px rgba(0,0,0,.26), inset 0 0 0 2px var(--green);
+    }
+    .cbt-answer-button:not(.cbt-answer-button-number) {
+      grid-column: span 2;
+      width: auto;
+      margin: 14px 0 0 !important;
+      font-size: clamp(15px, 3.3vw, 23px);
+      text-transform: uppercase;
+    }
+    .cbt-answer-button[data-value="Enter"] { grid-column: 2 / span 2; }
+    .cbt-answer-button[data-value="Not sure"] { grid-column: 4 / span 2; }
+    .cbtButtons > div { display: none; }
+    .cbtTextLink {
+      grid-column: 1 / -1;
+      width: max-content;
+      margin: 24px auto 0 !important;
+      padding-bottom: 5px;
+      border-bottom: 2px solid white;
+      color: white;
+      text-decoration: none;
+    }
+    .answer-status { min-height: 19px; margin: 15px 0 0; color: var(--muted); text-align: center; font-size: 12px; }
+    .result-screen { display: none; padding: 30px 0; }
+    .result-screen.is-visible { display: block; animation: result-in .45s ease both; }
+    .cbtTest.is-hidden, .test-brand.is-hidden { display: none !important; }
+    @keyframes result-in { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: scale(1); } }
+    .result-head { max-width: 600px; margin: 0 auto 27px; text-align: center; }
+    .result-check {
+      display: grid;
+      width: 76px;
+      height: 76px;
+      margin: 0 auto 17px;
+      place-items: center;
+      border: 4px solid var(--green);
+      border-radius: 50%;
+      color: var(--green);
+      font-size: 39px;
+      font-weight: 900;
+    }
+    .result-head small { color: var(--green); font-weight: 900; letter-spacing: .1em; }
+    .result-head h1 { margin: 9px 0 10px; font-size: clamp(36px, 8vw, 58px); line-height: 1; }
+    .result-head p { margin: 0; color: var(--muted); }
+    .result-summary {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 24px;
+      align-items: center;
+      max-width: 620px;
+      margin: 0 auto 14px;
+      padding: 23px;
+      border: 1px solid #3b3b3b;
+      border-radius: 18px;
+      background: #222;
+    }
+    .score-ring {
+      --score: 0deg;
+      display: grid;
+      width: 138px;
+      height: 138px;
+      place-items: center;
+      border-radius: 50%;
+      background: conic-gradient(var(--green) var(--score), #444 0);
+    }
+    .score-ring::before { content: ""; grid-area: 1/1; width: 108px; height: 108px; border-radius: 50%; background: #222; }
+    .score-ring strong { z-index: 1; grid-area: 1/1; font-size: 29px; }
+    .result-summary small { color: var(--green); font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
+    .result-summary h2 { margin: 5px 0 8px; font-size: clamp(23px, 5vw, 34px); line-height: 1.05; }
+    .result-summary p, .result-card p { margin: 0; color: var(--muted); font-size: 14px; }
+    .result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; max-width: 620px; margin: 0 auto; }
+    .result-card { padding: 19px; border: 1px solid #383838; border-radius: 15px; background: #202020; }
+    .result-card:last-child { grid-column: 1 / -1; }
+    .result-card h3 { margin: 0 0 7px; font-size: 16px; }
+    .result-actions { display: flex; gap: 13px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+    .result-actions button { min-width: 190px; min-height: 58px; padding: 10px 18px; font-size: 17px; }
+    @media (max-width: 520px) {
+      .app-shell { padding-inline: 21px; }
+      .test-brand svg { width: 112px; }
+      .cbt-progressbar { margin-top: 17px; margin-bottom: 15px; }
+      .cbtNumberImage { width: min(96vw, 500px); margin-inline: -10px; }
+      .cbtButtons { gap: 10px; }
+      .result-summary { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+      .result-grid { grid-template-columns: 1fr; }
+      .result-card:last-child { grid-column: auto; }
+    }
+    /* Tema terang untuk rangkaian tes angka dan line. */
+    :root {
+      color-scheme: light;
+      --bg: #eaf0f8;
+      --panel: #f8fafc;
+      --button: #ffffff;
+      --button-edge: #cfd8e5;
+      --text: #182438;
+      --muted: #667085;
+      --green: #15956f;
+      --orange: #ed8442;
+      --blue: #2563eb;
+      --purple: #7c3aed;
+      --line-border: #dce3ec;
+    }
+    html, body { background: #edf2f8; }
+    body {
+      background:
+        radial-gradient(circle at 8% 0%, rgba(37,99,235,.13), transparent 34rem),
+        radial-gradient(circle at 100% 100%, rgba(124,58,237,.1), transparent 31rem),
+        #edf2f8;
+    }
+    .app-shell {
+      width: min(100%, 900px);
+      background: rgba(248,250,252,.96);
+      box-shadow: 0 20px 70px rgba(30,50,80,.16);
+    }
+    .close-test { color: #24334a; }
+    .test-brand svg > path:last-child,
+    .test-brand svg > path:nth-last-child(2) { stroke: #24334a; }
+    .cbt-answer-button {
+      color: #1f2d43;
+      background: #fff;
+      box-shadow: 0 6px 0 #cfd8e5, 0 10px 20px rgba(31,45,67,.12), inset 0 -1px 0 rgba(20,35,59,.05);
+    }
+    .cbt-answer-button:hover { background: #f3f7fb; }
+    .cbt-answer-button:active, .cbt-answer-button.is-selected {
+      color: #fff;
+      background: #287f68;
+      box-shadow: 0 1px 0 #175f4d, 0 4px 9px rgba(31,45,67,.13), inset 0 0 0 2px #65c8a3;
+    }
+    .cbtTextLink { border-color: #52627a; color: #52627a; }
+    .result-summary, .result-card { border-color: var(--line-border); background: #fff; }
+    .score-ring { background: conic-gradient(var(--green) var(--score), #dfe7ef 0); }
+    .score-ring::before { background: #fff; }
+
+    .stage-transition, .line-test, .combined-result { display: none; }
+    .stage-transition.is-visible, .line-test.is-visible, .combined-result.is-visible { display: block; animation: result-in .42s ease both; }
+    .stage-transition {
+      min-height: calc(100vh - 70px);
+      padding: clamp(48px,9vw,90px) 12px;
+      align-content: center;
+      text-align: center;
+    }
+    .stage-transition.is-visible { display: grid; }
+    .stage-transition-mark {
+      display: grid;
+      width: 82px;
+      height: 82px;
+      margin: 0 auto 20px;
+      place-items: center;
+      border-radius: 24px;
+      color: #fff;
+      background: linear-gradient(135deg,var(--blue),var(--purple));
+      font-size: 40px;
+      font-weight: 900;
+    }
+    .stage-transition h1 { margin: 0; font-size: clamp(34px,7vw,54px); letter-spacing: -.045em; }
+    .stage-transition p { max-width: 560px; margin: 13px auto 25px; color: var(--muted); line-height: 1.65; }
+    .stage-transition .cbt-answer-button { grid-column: auto; width: min(360px,100%); margin: auto !important; }
+
+    .line-test { padding-top: 5px; }
+    .line-head { display: flex; gap: 18px; align-items: center; justify-content: space-between; margin-top: 15px; }
+    .line-head h1 { margin: 0; font-size: clamp(24px,5vw,38px); letter-spacing: -.035em; }
+    .line-head p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+    .line-progress-copy { color: var(--muted); font-size: 13px; font-weight: 900; white-space: nowrap; }
+    .line-progress { height: 8px; margin: 16px 0 20px; overflow: hidden; border-radius: 99px; background: #dfe7f0; }
+    .line-progress span { display: block; width: 8.333%; height: 100%; border-radius: inherit; background: linear-gradient(90deg,var(--blue),var(--purple)); transition: width .35s ease; }
+    .line-layout { display: grid; grid-template-columns: minmax(330px,1fr) minmax(260px,.68fr); gap: clamp(24px,5vw,50px); align-items: center; }
+    .line-plate-wrap { position: relative; width: min(100%,530px); aspect-ratio: 1; margin: auto; touch-action: none; user-select: none; }
+    .line-plate-svg, .line-draw-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .line-draw-svg { z-index: 3; cursor: crosshair; }
+    .line-dots circle { transform-box: fill-box; transform-origin: center; }
+    .line-dots.is-hiding circle { animation: dot-hide .27s ease-in var(--dot-delay) both; }
+    .line-dots.is-showing circle { animation: dot-show .36s cubic-bezier(.16,.8,.28,1) var(--dot-delay) both; }
+    #lineUserHalo { fill: none; stroke: rgba(255,255,255,.82); stroke-width: 15; stroke-linecap: round; stroke-linejoin: round; }
+    #lineUserTrace { fill: none; stroke: #172033; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; }
+    .line-panel { padding: clamp(20px,4vw,31px); border: 1px solid var(--line-border); border-radius: 20px; background: #fff; box-shadow: 0 14px 36px rgba(20,35,59,.08); }
+    .line-panel h2 { margin: 0 0 10px; font-size: 24px; }
+    .line-panel > p { margin: 0; color: var(--muted); line-height: 1.6; }
+    .line-status { min-height: 46px; margin: 18px 0; padding: 12px 13px; border-radius: 11px; color: #40506a; background: #eef3fa; font-size: 13px; }
+    .line-actions { display: grid; gap: 10px; }
+    .line-actions .cbt-answer-button { grid-column: auto; width: 100%; min-height: 52px; margin: 0 !important; font-size: 14px; text-transform: uppercase; }
+    .line-action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .combined-result { padding: 32px 0; }
+    .combined-result .result-summary { grid-template-columns: 150px 1fr; }
+    .combined-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; max-width: 620px; margin: 0 auto; }
+    .combined-grid .result-card { min-height: 120px; }
+    .combined-grid strong { display: block; margin-bottom: 5px; color: var(--blue); font-size: 27px; }
+
+    @media (max-width: 720px) {
+      .line-layout { grid-template-columns: 1fr; }
+      .line-plate-wrap { width: min(94vw,510px); }
+      .line-panel { width: min(100%,530px); margin: auto; }
+    }
+    @media (max-width: 520px) {
+      .line-head { align-items: flex-start; }
+      .line-plate-wrap { width: min(101vw,490px); margin-inline: -13px; }
+      .line-action-row, .combined-grid { grid-template-columns: 1fr; }
+      .combined-result .result-summary { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+<style>
+#testBrand,#closeTest,.js-cbtRestartTest,#repeatLineOnly,#repeatAllTests{display:none!important}
+.cbtImageAndButtons{display:grid!important;grid-template-columns:minmax(0,1.2fr) minmax(260px,.8fr);gap:28px;align-items:center}
+.cbtNumberImage{width:100%;max-width:540px}.cbtButtons{width:100%}
+@media(max-width:700px){.cbtImageAndButtons{grid-template-columns:1fr}.cbtNumberImage{margin:auto}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style></head>
+<body>
+  <main class="app-shell">
+    <button type="button" class="close-test" id="closeTest" aria-label="Tutup tes"></button>
+    <header class="test-brand" id="testBrand">
+      <svg viewBox="0 0 190 75" aria-hidden="true">
+        <defs>
+          <clipPath id="leftLens"><path d="M10 18Q45 8 88 19L82 52Q72 69 46 68Q19 66 14 49Z"/></clipPath>
+          <clipPath id="rightLens"><path d="M102 19Q145 8 180 18L176 49Q171 66 144 68Q118 69 108 52Z"/></clipPath>
+        </defs>
+        <g clip-path="url(#leftLens)"><path d="M0 0h23v80H0z" fill="#f5d531"/><path d="M23 0h23v80H23z" fill="#ee7746"/><path d="M46 0h23v80H46z" fill="#73b869"/><path d="M69 0h23v80H69z" fill="#557db5"/></g>
+        <g clip-path="url(#rightLens)"><path d="M98 0h23v80H98z" fill="#76549e"/><path d="M121 0h23v80H121z" fill="#557db5"/><path d="M144 0h23v80H144z" fill="#73b869"/><path d="M167 0h23v80H167z" fill="#f5d531"/></g>
+        <path d="M10 18Q45 8 88 19L82 52Q72 69 46 68Q19 66 14 49ZM102 19Q145 8 180 18L176 49Q171 66 144 68Q118 69 108 52Z" fill="none" stroke="#fff" stroke-width="7" stroke-linejoin="round"/><path d="M85 23Q95 16 105 23" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+      </svg>
+      <strong>GAMATEX</strong>
+      <span>TES PENGLIHATAN WARNA</span>
+    </header>
+<div class="cbtTest js-cbtTest" style="display: flex;">
+      <div class="cbt-progressbar">
+        <div class="cbt-progressbar-line"></div>
+        <div class="cbt-step js-cbtStep cbt-active"></div>
+        <div class="cbt-step js-cbtStep"></div>
+        <div class="cbt-step js-cbtStep"></div>
+        <div class="cbt-step js-cbtStep"></div>
+        <div class="cbt-step js-cbtStep"></div>
+        <div class="cbt-step js-cbtStep"></div>
+        <div class="cbt-step js-cbtStep"></div>
+        <div class="cbt-step js-cbtStep"></div>
+        <div class="cbt-step js-cbtStep"></div>
+        <div class="cbt-step js-cbtStep"></div>
+        <div class="cbt-step js-cbtStep"></div>
+        <div class="cbt-step js-cbtStep"></div>
+        <div class="cbt-step js-cbtStep"></div>
+        <div class="cbt-step js-cbtStep"></div>
+        <div class="cbt-step js-cbtStep"></div>
+        <div class="cbt-step js-cbtStep"></div>
+        <div class="cbt-step js-cbtStep"></div>
+        <div class="cbt-step js-cbtStep"></div>
+        <div class="cbt-step js-cbtStep"></div>
+        <div class="cbt-step js-cbtStep"></div>
+        <div class="cbt-step js-cbtStep"></div>
+        <div class="cbt-step js-cbtStep"></div>
+      </div>
+
+      <div class="cbtImageAndButtons">
+        <div class="cbtNumberImage js-cbtNumberImage"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 666 666">
+  <circle cx="321.14094141140913" cy="318.2882363977719" r="17.24558888014854" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="433.53836644734633" cy="315.04697724382265" r="16.660205940363312" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="396.1883319671794" cy="351.028937284214" r="18.995197039998786" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="563.4320413655163" cy="361.18351937431703" r="19.733598071737646" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="96.15059096177626" cy="351.71888423823737" r="17.299391026077437" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="244.58629214511066" cy="222.6060741276578" r="15.490295492923295" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="202.53028224728345" cy="158.63767142851364" r="17.884290875590473" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="321.10271536025397" cy="429.51195036293353" r="18.266722627938876" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="171.30851536847194" cy="246.62196895733055" r="17.563986470512233" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="274.71704855443573" cy="239.17767638531217" r="16.021916554472778" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="527.1655196404823" cy="321.544362979553" r="16.051147011803916" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="226.80279035684316" cy="387.3351687918366" r="14.949769359441015" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="467.77636397404" cy="599.3506869808409" r="16.287521508532066" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="136.07195903310443" cy="161.85369156528998" r="16.970969054989173" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="368.4411153438651" cy="241.08656844633296" r="19.3199393305828" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="301.49289843825255" cy="203.7540255125635" r="18.193398077240452" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="578.0824342295307" cy="190.86842949178572" r="18.982694940030722" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="368.8757890121168" cy="409.9828802198398" r="17.655689915635165" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="321.72307171063693" cy="616.6184114763489" r="16.24267037833274" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="245.87534208813182" cy="154.71780522636953" r="15.23856618756129" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="285.47482955056864" cy="374.27904852653705" r="15.585505866469232" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="466.72173136205083" cy="400.81892990546896" r="14.944327659689609" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="66.87053038741522" cy="381.32971724713224" r="15.11534722488728" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="604.7349419259206" cy="271.4523086555598" r="18.84652896791793" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="355.85848927363185" cy="504.94148325191" r="15.304643680646683" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="298.3058156584905" cy="504.39427491845163" r="16.82548156612662" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="244.28664450575258" cy="482.5245131373959" r="16.98554610412824" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="254.7834297799082" cy="564.7657274042359" r="16.704627887099065" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="482.8183971131011" cy="271.07210201047945" r="16.983688747305642" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="400.5111008636021" cy="255.52480180899394" r="15.50895137013007" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="262.05946670750893" cy="344.9895771844559" r="17.260199343365702" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="321.09304056979886" cy="365.2436513619467" r="19.76305607509112" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="59.37463306221542" cy="420.14964358389204" r="16.45720363108607" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="458.22404059370564" cy="78.31476468073177" r="15.32378465816237" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="600.1299429197163" cy="415.9969922479434" r="13.10960544001394" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="535.6593616069963" cy="550.4013818882831" r="18.086642022718753" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="473.21604384811815" cy="317.8540203473651" r="13.684092129936573" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="537.7607278890699" cy="463.385975773629" r="17.027974970747493" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="201.19295352959364" cy="234.69723932143103" r="14.472481534323736" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="131.20254234079118" cy="259.00909832522126" r="16.38349146193704" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="245.37121367929768" cy="442.7344927160069" r="18.44286103190848" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="357.02368397755106" cy="325.21533316595816" r="15.006346978559243" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="572.3606256365911" cy="295.6627220941621" r="18.381106133035573" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="407.0020894960588" cy="462.7860259024977" r="19.75208485953185" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="620.0334610955058" cy="331.6205035741418" r="17.92207294030512" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="414.7737509612871" cy="180.92645986844187" r="17.64096046823548" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="143.53829122470475" cy="445.4022587659435" r="17.28278195451216" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="376.2844898177144" cy="60.202844974984885" r="13.96893595747191" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="255.2663000910061" cy="268.5258126161367" r="15.375340140028976" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="155.837442815191" cy="338.9927830945283" r="18.63368697854888" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="56.114074495491025" cy="336.0151967460293" r="11.995469206583097" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="162.91435922445368" cy="508.19000327663457" r="18.20083805859651" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="483.00888775797904" cy="374.9790924737089" r="11.862866173453963" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="371.00610134914587" cy="124.56076048182356" r="12.866155707740418" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="437.15648846437796" cy="377.26118005968704" r="17.805409898924374" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="315.448121088593" cy="35.21832808714146" r="10.598606320359004" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="273.09791030133425" cy="309.6128528142961" r="12.210014186894185" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="62.57470510103957" cy="234.20551854548864" r="16.513188505237647" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="339.688306203858" cy="181.41150151010729" r="11.158312704584715" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="332.6179335324329" cy="287.1084313926426" r="10.916534220877677" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="487.97864964220173" cy="572.8863034366351" r="10.589817909614023" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="110.36867177462136" cy="308.92967003144344" r="9.899022787701671" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="304.7596943601798" cy="264.2673767802556" r="13.177005787200665" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="212.96062578845806" cy="318.70266685590815" r="16.875234941863297" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="165.34684026114874" cy="199.80130119990042" r="16.416338997784965" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="399.29773555218867" cy="386.9167681635651" r="14.062637876485246" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="378.75103882167093" cy="194.8005978844777" r="16.095344642517354" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="491.0609279814149" cy="229.80124682842472" r="16.874536777113846" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="99.99534224687801" cy="200.54272698838798" r="11.416839945982694" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="373.3992954630444" cy="164.79581599787807" r="13.152031996039813" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="416.69509199609934" cy="280.2763261826136" r="11.729844433520181" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="439.20483542465394" cy="213.1965623339512" r="9.174650548750549" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="434.59669017426893" cy="262.2981700839644" r="12.895590970242878" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="481.0871969877084" cy="117.82081260198777" r="14.525368948058281" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="150.6976370655305" cy="122.4882894075514" r="15.249939411860069" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="94.21042743659251" cy="509.8645737053582" r="14.485766349881278" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="333.0326935868695" cy="147.0669257405766" r="13.249132497330612" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="100.96109481526463" cy="236.71779896691177" r="10.286286667280953" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="199.32221119880228" cy="74.65055281392193" r="11.820274652706598" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="500.9839801229855" cy="157.36404962667928" r="11.65026235668556" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="437.31968944214714" cy="507.7137598872463" r="14.112892639914927" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="283.45651062788613" cy="127.76061052733829" r="10.82750696302573" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="259.09388402290176" cy="98.29286818725924" r="14.04689917774461" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="171.40231713618087" cy="94.98420219018257" r="17.940996685417186" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="371.0334424562256" cy="294.91334414766675" r="17.188752792229373" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="571.2432673225613" cy="456.87709983241785" r="9.044426097648529" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="309.0834988923029" cy="57.164917110104966" r="8.174809654158596" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="524.9484990660615" cy="504.843121707819" r="10.729005037015042" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="520.1094749027725" cy="355.7919783436735" r="17.510054269761522" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="329.086877651637" cy="251.93626236186537" r="10.196708571892895" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="234.37265490479945" cy="614.3815871509252" r="13.81352073838993" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="205.81758604913924" cy="500.2781157878055" r="12.006120520979806" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="212.90650768405987" cy="261.48440987004676" r="7.807500335134576" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="347.1586142021731" cy="72.57371416128075" r="11.77349960944091" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="403.54302654391535" cy="297.0929609447586" r="6.624623114789839" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="356.05673118666533" cy="40.99161260906192" r="9.077508422739836" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="67.05093079272643" cy="280.5455890978158" r="13.716729884157864" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="232.46157448953628" cy="296.26564787997035" r="7.844157689934757" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="535.3609771086145" cy="411.10294313294156" r="8.46841663959864" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="353.78584398047616" cy="596.0392251492731" r="9.903849872386283" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="513.5452399668142" cy="532.5896191568519" r="5.910178434066193" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="332.26857374841" cy="223.5832608664022" r="16.62096291477059" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="191.9825324645969" cy="466.2348590837084" r="17.76211205391632" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="455.8029847203238" cy="433.704971474707" r="11.376135186825724" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="447.9714625804486" cy="551.8242678972417" r="10.619284977654168" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="181.8782104823874" cy="297.13610803651864" r="15.31370126083149" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="574.6024163651624" cy="150.9427951183264" r="13.770993823522128" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="592.7993721112396" cy="325.2284570411043" r="8.974019734309845" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="185.17839956664056" cy="411.40358209924966" r="19.302582529955437" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="288.7733668034156" cy="325.6405198270292" r="9.03982313449953" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="300.1383856128116" cy="465.4276524900929" r="8.303031241909451" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="284.1037532849985" cy="581.3949492112574" r="11.233377120763857" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="310.07504802942333" cy="139.19393040050934" r="8.904588956058928" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="204.98421225235944" cy="371.35300114518924" r="9.622965132008217" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="194.25606268205607" cy="535.9846822371261" r="9.79904513349014" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="521.9655495185241" cy="240.52102760234655" r="8.375654127431762" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="230.53255107610562" cy="57.38361592131827" r="8.25015172748778" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="406.8187330132313" cy="618.7029915922092" r="12.608314553628777" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="516.9420568368913" cy="193.86002820690453" r="12.42640631303667" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="298.19601658607496" cy="296.32675473698725" r="9.365731707318055" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="537.2533336473946" cy="215.79295495137785" r="15.680615701760734" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="167.69219199206117" cy="546.3622557714413" r="14.216794458321218" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="313.899259556255" cy="560.8245916101303" r="13.23622881053756" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="292.11535979321667" cy="75.72896717073365" r="8.44230310179474" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="527.9607127062261" cy="271.4490923859753" r="14.169889495658781" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="211.48499332960313" cy="56.24536079233883" r="5.864679540507126" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="196.46806327497663" cy="107.95410404246613" r="7.190994945155352" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="107.02430423712019" cy="144.97608832747633" r="14.936995136680748" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="393.75371134402377" cy="505.53274088084146" r="16.689363633483936" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="266.2184502833345" cy="397.7448001610172" r="13.307172693029141" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="351.56965181125304" cy="547.3106023450329" r="15.827247433899906" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="524.4764771515736" cy="387.54327692930457" r="8.467150982667656" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="139.3471148707745" cy="576.0777874371424" r="8.346349866405221" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="278.59676489762603" cy="460.87746326104866" r="8.36485673106596" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="99.35801096389403" cy="423.50371046060286" r="13.858454125627034" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="440.39503950988654" cy="40.7144570320562" r="5.085020272111191" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="265.90887487929393" cy="523.014473854543" r="19.921505284060462" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="564.9777525684739" cy="259.5594879343998" r="7.343497192718531" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="337.88125841079426" cy="340.09214343365437" r="6.037389767038556" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="358.20564215667724" cy="377.6813849198694" r="11.050209557744406" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="332.2598595443994" cy="465.0532330025749" r="18.863125067847864" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="445.6242545394308" cy="345.37892132922366" r="9.707412632976572" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="127.26121917602006" cy="511.32925887132285" r="11.505456868476347" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="127.11669456461641" cy="400.6883080697852" r="13.50418015005528" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="500.7822081982529" cy="473.6354812800688" r="9.265883791563134" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="436.6327863725292" cy="115.83576378694826" r="16.826778743354893" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="434.912968251545" cy="420.62118894255053" r="9.642485989303335" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="451.3605524260448" cy="242.37893331007183" r="8.174053065467684" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="289.15233679984766" cy="442.9603709598609" r="5.737563327321778" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="286.2759885801818" cy="422.87630649587317" r="6.222818724513037" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="130.7784759252648" cy="221.92105972790597" r="11.39055189287555" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="57.58599346532105" cy="453.23562398920654" r="13.346707222277841" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="501.57242245084507" cy="418.5581220149388" r="5.308393557107372" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="406.16642688515213" cy="118.96274595970021" r="5.1343843861986525" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="595.4858297044839" cy="231.37856968451132" r="15.480135094014846" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="146.36467890298357" cy="292.8796668721814" r="16.671968601915918" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="309.12350518344437" cy="228.71368569371586" r="5.751145414806737" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="262.4663632921078" cy="630.780287830444" r="6.4880234701357145" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="398.07972422950905" cy="157.43444222853623" r="7.520597180352944" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="241.83528349581493" cy="188.07431878837676" r="11.20035415298686" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="472.8133341775043" cy="205.67804232089622" r="6.912729223718856" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="33.00491718519601" cy="323.08410654324445" r="7.472736103784994" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="130.79575962481843" cy="361.3030187847014" r="6.756967785879332" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="331.2757515033529" cy="396.9329594686501" r="9.502500006587244" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="459.763838689523" cy="178.39617259381927" r="12.969299833364591" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="360.33078567567384" cy="437.6389996019836" r="8.45658486189729" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="473.84493829052167" cy="484.9372914190261" r="9.983918365375757" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="274.332233147036" cy="282.3686034139397" r="7.760008694211427" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="108.83435034541517" cy="473.06932899172836" r="16.61669823254854" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="462.78179155702185" cy="369.356889549511" r="6.278697032484423" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="470.1203267301231" cy="241.32181967507333" r="5.919931292334322" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="175.41336818549945" cy="372.249242610315" r="15.827947550357377" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="628.6996249533873" cy="366.9409537500225" r="11.5946925773029" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="523.2035426091461" cy="99.81672482990425" r="6.157072882596454" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="523.9320592361025" cy="173.35398751090602" r="5.188492553232603" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="181.80095467045663" cy="578.7048902385808" r="17.436307593666207" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="293.56981422141024" cy="43.318553067760774" r="8.549495537006674" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="414.2399258395418" cy="413.78399772122384" r="9.632988957943681" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="274.19635204736295" cy="174.61854791068995" r="16.83074368244466" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="220.51394652636571" cy="196.18831020041304" r="8.454289103762509" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="511.99930434669375" cy="302.63701971459136" r="7.552646324800891" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="349.9435849225898" cy="573.844014923227" r="6.745908005156105" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="310.841287332724" cy="529.2615149062663" r="8.68117032962357" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="473.0413665603927" cy="456.1658194256204" r="6.170984243455095" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="253.9386295661891" cy="70.01772720544528" r="13.176778566692152" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="215.7396097773959" cy="213.1867563245667" r="7.453113496648875" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="635.6803752047153" cy="296.22407817496173" r="8.684861286188163" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="225.20710102993468" cy="523.8885244198707" r="7.453966715916027" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="99.84451391271162" cy="275.3530334909518" r="5.39676903750549" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="594.1345000512894" cy="306.42807145521255" r="5.569244386193676" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="445.2067097667053" cy="532.5380667581393" r="8.640568143040781" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="288.6243961228512" cy="630.637645405945" r="6.188001522150591" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="486.0627794688286" cy="351.0552965146089" r="6.67967478465227" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="383.5211920869212" cy="319.6906072766197" r="6.380043352164949" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="410.3497846470948" cy="579.0282165008472" r="12.87790302805177" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="611.0687702135399" cy="307.4435524830942" r="6.894728279292787" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="554.8088808057468" cy="491.1851573280601" r="6.112248427365733" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="373.3226698344918" cy="582.517064346554" r="11.641696147186863" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="445.74017488395305" cy="596.9084236699641" r="5.137053682081008" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="222.26925712418156" cy="537.5750029491544" r="5.244186531428293" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="258.1768703283373" cy="122.44967368760231" r="5.016639451722295" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="212.63093196849252" cy="406.3481055460264" r="7.365004183164028" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="422.1543614583611" cy="65.88566427563717" r="5.890382173819829" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="43.9298385224356" cy="393.8446991131645" r="7.740207720575002" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="553.2646504335072" cy="433.9400890582007" r="10.421374869994011" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="549.1782055816088" cy="397.79237669689974" r="8.277694164584336" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="87.73255606224637" cy="256.75499391527546" r="6.262032702591536" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="433.5137975992064" cy="90.48029610115586" r="5.589916552358991" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="509.6655479774732" cy="457.6745369258692" r="8.817904634050318" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="549.4962082800993" cy="252.05399044511378" r="5.7015022920927745" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="407.1636801706884" cy="552.6680329236679" r="11.973524487425465" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="321.1495160226977" cy="117.77301610005077" r="14.059161288967644" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="180.7466339814763" cy="343.674333581644" r="5.815913414467576" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="357.3398089338633" cy="111.73264677535113" r="5.553042880186684" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="256.25297781893914" cy="292.73274573551987" r="6.950982862914371" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="155.0707593044494" cy="400.5990788014228" r="8.629122713199756" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="452.75772417373423" cy="492.35475304747956" r="5.3281553317192145" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="602.5534367867726" cy="467.5325203807435" r="12.394424482338984" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="389.59775999193033" cy="536.8147679425838" r="7.724894944640742" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="363.68345898936013" cy="468.327824380484" r="7.049385831430896" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="190.42121860362175" cy="208.78553519376783" r="7.276455912368137" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="401.10973162628153" cy="92.38574600706824" r="12.78520375712995" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="313.1778527928478" cy="79.8892591708393" r="8.287371265263527" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="253.0502129739353" cy="374.31467612300196" r="9.652480400996904" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="329.33821194694707" cy="585.0069361354882" r="7.489670054981255" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="97.25459680874567" cy="387.8528786425986" r="11.844421357555266" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="351.4129131467451" cy="623.2086034787931" r="12.406036828267602" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="261.6481137851476" cy="464.49916930187374" r="7.937442958951088" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="496.94524740360066" cy="100.34677755123047" r="5.398596840854088" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="420.65962480021454" cy="43.69158080864503" r="14.060461239336679" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="121.64340930926903" cy="339.7485176579933" r="8.918556868494361" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="449.255395833932" cy="585.3473596323172" r="6.173766551564465" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="93.83884227988639" cy="449.9586971578334" r="8.563844429352812" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="140.27163109290632" cy="557.7770022729231" r="5.514868014527615" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="244.7170296319399" cy="313.7686226986001" r="12.293968262469129" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="77.57562774288678" cy="319.76073656030934" r="14.233508699473337" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="120.3153302061192" cy="431.4259879545451" r="6.4253357217537" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="378.0182147514282" cy="525.5137613521007" r="6.897344050578171" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="298.35522556103456" cy="399.027950170096" r="5.76022868621234" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="232.62149612729422" cy="86.46839113693659" r="9.509693218358299" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="392.56899699199846" cy="134.56595817563021" r="6.987761793916317" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="111.30922777315232" cy="168.22027723441792" r="5.371046780443568" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="601.6165319923971" cy="379.5559154399229" r="5.455721000043296" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="285.5362740597878" cy="274.0716207574446" r="5.966637477658647" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="446.99316491938885" cy="469.9486310818337" r="14.483194753985128" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="476.7108437731465" cy="522.2476371621729" r="12.259108401955153" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="616.651140563749" cy="248.42487155709154" r="6.174070492664862" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="219.8520719946842" cy="250.10187763050587" r="5.097536640545703" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="619.4710186989196" cy="396.9129776864587" r="6.2416868062867525" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="303.25667033757986" cy="340.21057783014237" r="5.601916312827848" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="546.1070420142717" cy="181.89153317273326" r="5.975651089644298" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="380.7935554949642" cy="631.0727711346256" r="14.471304065909564" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="221.25543072048742" cy="276.8671736858055" r="9.109725670756177" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="247.7263728911363" cy="129.22681174826454" r="7.238260452212174" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="434.8548416312164" cy="242.02533586570183" r="6.325918159451739" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="471.81847283747084" cy="503.17466267973396" r="7.0827576812054005" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="490.23055630056615" cy="450.293301467744" r="8.563090731452865" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="428.5791227254193" cy="445.93386079031774" r="5.094355650675246" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="127.16295016376515" cy="375.17651457034356" r="6.085193750994486" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="46.154383934079306" cy="281.14293417938126" r="7.098445982450375" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="573.1198655365224" cy="523.2058973704264" r="12.09518796201925" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="454.28191527284844" cy="303.44868014967636" r="7.078597808556422" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="523.1007986812563" cy="426.3142506521133" r="9.398229250088704" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="429.0564391340032" cy="151.82498785743164" r="6.810792593696775" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="389.7034733511469" cy="220.36697597170883" r="6.299347920672103" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="367.374580028826" cy="353.5328128702036" r="6.766128072960592" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="464.69904187563463" cy="256.6751621245727" r="5.790446739987769" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="187.59578548968432" cy="57.16317106960662" r="7.733334995612738" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="405.2000835698169" cy="317.4028283729153" r="6.663433269887538" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="412.0642291757202" cy="227.29614921943931" r="11.448262400598733" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="270.99467873137843" cy="482.1869673591294" r="6.917867261207121" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="211.54305149317491" cy="603.9610456353705" r="6.72642166418215" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="209.76828808421658" cy="291.6020720023376" r="6.128841535702126" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="467.5396961520804" cy="224.01343551210888" r="5.416962165492051" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="465.06172272603783" cy="344.269744740035" r="9.608595491107987" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="345.33615551145755" cy="303.1231730341077" r="6.7669841888985705" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="414.273264531282" cy="138.69355620811476" r="6.63179911016041" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="229.0105124575154" cy="412.83923772171306" r="8.800224602412673" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="573.0864384864501" cy="415.70743726840374" r="13.73798782555725" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="297.0672732383676" cy="547.6357508692217" r="7.548372098048749" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="441.568403603739" cy="283.55614931779945" r="8.512196377208138" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="600.6931079729043" cy="367.6787533047545" r="5.088100652818277" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="507.66029112171464" cy="563.8642557437371" r="10.34706187789758" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="605.6987846388772" cy="447.35560675265805" r="6.387466306106332" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="83.63023594202213" cy="180.29244473796467" r="6.882557984815505" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="246.24831302950173" cy="48.318522456107814" r="8.421139073273803" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="310.59470866949766" cy="638.8721438855105" r="6.348153666160961" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="361.4752013803209" cy="93.7768683393883" r="9.621787169838957" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="336.14549458731244" cy="514.7674447108493" r="5.419336937706559" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="370.3244985857664" cy="602.1124341557395" r="6.905704705261382" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="212.09010882476176" cy="446.16212011426745" r="8.922551945403763" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="568.7141378450074" cy="225.3973677773916" r="11.651295439406617" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="332.28363584519" cy="52.488326635241435" r="8.04368775593221" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="348.41169454166817" cy="272.28890815673765" r="9.403910989985173" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="350.6390082995076" cy="392.9492199786776" r="5.067316800575792" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="33.62603409225369" cy="377.49908682995647" r="8.341215069055494" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="239.4498040594567" cy="104.56601255150542" r="5.315978297760276" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="426.78942666305346" cy="349.01915731602986" r="8.919353875990655" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="564.231061359746" cy="126.42387484762361" r="7.527901326318309" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="165.0480285616917" cy="149.76504457707165" r="14.060991317796198" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="397.88693969808054" cy="427.5679832017145" r="7.646663843916293" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="594.6395741882418" cy="339.65373013417474" r="5.413470802509499" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="566.1729104163683" cy="541.7486162469326" r="5.687108905538672" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="575.2064131593723" cy="337.2413372072208" r="6.1532690026776224" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="358.08315369553003" cy="150.33368254705098" r="5.964951826164549" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="101.52753342522814" cy="257.8126985348513" r="6.489963299029553" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="217.2094670906974" cy="119.3988210126877" r="10.030629770502859" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="315.50644714328894" cy="401.40507707753716" r="5.839492331417139" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="157.48083835006884" cy="584.992516274712" r="5.2546180998276455" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="108.25011181823228" cy="285.88833398314455" r="7.341984170216051" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="423.34220701014334" cy="536.2189971897817" r="8.994303078372063" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="300.5865018287978" cy="174.73218151645537" r="9.059915529002566" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="229.61249008085014" cy="508.96157878511195" r="6.194262587142049" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="378.75524418729646" cy="456.2971697179786" r="7.890394815639863" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="349.85367948544473" cy="428.57361916906325" r="5.063687996157964" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="245.20248023135665" cy="541.6902209198596" r="5.067794382205665" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="191.8028445417169" cy="611.3717153176706" r="5.459385989494569" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="323.0463289323223" cy="179.83467754199503" r="5.551456077680931" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="204.44799659966878" cy="350.9715735062632" r="6.35435806370908" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="37.71327169803942" cy="429.07417441158077" r="6.809600465543392" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="378.6455552216209" cy="267.6626332173772" r="5.493261086968028" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="382.57776930045696" cy="476.8770555904557" r="5.8164727567943855" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="457.20330400199566" cy="54.40477972868507" r="5.049461303606635" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="231.8052456124529" cy="128.35914465104145" r="5.671368717110586" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="464.58082259464203" cy="196.3560355643628" r="5.22382875974857" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="503.1957301256525" cy="289.72666784281347" r="6.420427404560031" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="492.4467153246169" cy="540.0960016941947" r="6.045298796164829" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="41.22412545251996" cy="359.0482449552062" r="7.960858526295462" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="588.606571109115" cy="391.15989244350095" r="7.701933154068598" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="464.28479763296104" cy="137.32012834086387" r="8.446124718102785" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="86.75562183234877" cy="159.95090532843503" r="5.217726841939891" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="219.34099685287333" cy="472.2438292450867" r="7.548311868753691" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="76.94013045355223" cy="490.3303188497488" r="11.211575486099957" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="249.66106231771906" cy="412.56502834903665" r="5.146963560921286" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="212.13619955588024" cy="425.43750368069124" r="9.419451322060183" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="477.50767402805576" cy="295.1237570382019" r="7.57939912506977" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="180.1843477512751" cy="223.63745424714068" r="6.76967225417345" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="449.63966226619004" cy="153.681457985801" r="6.714718783841534" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="514.2916982909442" cy="412.3057331142864" r="6.136087501046017" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="477.72333668087794" cy="156.59587701821903" r="10.09714919462408" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="391.8932805832819" cy="37.607682738495214" r="11.34314410668906" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="292.0251211188415" cy="25.895664807017056" r="8.861177717572312" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="565.3095912830519" cy="392.78655201874824" r="5.887411220065012" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="328.9890750953655" cy="534.7377288174386" r="7.211418506658188" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="141.87728616518706" cy="378.8065113630186" r="8.059468911476634" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="406.2174095261783" cy="66.21159948557857" r="7.253483972981202" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="562.0317323403274" cy="473.487909631712" r="7.4753863571144485" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="592.8053375066974" cy="499.809373487358" r="5.422954268495537" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="199.08650917453687" cy="192.79791860290828" r="8.415860176477976" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="585.3266163100013" cy="253.41093431982966" r="5.008280044830251" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="173.0585012379786" cy="450.18483837676297" r="6.1267585026424705" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="140.20760493688113" cy="97.03460743123378" r="9.985029527638805" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="542.7542909578352" cy="379.93586516509777" r="8.072958780590616" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="500.69677257246803" cy="521.6517824832516" r="7.0461403861264085" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="483.11104098398346" cy="64.58249781763988" r="11.323557924245787" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="506.09986968797057" cy="135.47425846447945" r="10.508286422198688" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="279.7657646146119" cy="562.6937846401047" r="6.753397993384712" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="83.11992207518341" cy="403.1897570142073" r="6.396124923445444" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="216.7106167508099" cy="577.162161099032" r="11.777213814238351" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="167.40617118207996" cy="173.58474198215524" r="7.501561476563728" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="502.59306192799755" cy="396.01359719780214" r="13.84853839942303" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="149.63471458502661" cy="536.0469217007243" r="5.963713827464322" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="454.49338663969405" cy="619.9608442892475" r="7.979874742075566" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="575.3586036393733" cy="483.77062660929704" r="7.143644753943822" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="348.6245464665768" cy="164.72806762489694" r="6.263938798475709" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="296.9967238147612" cy="433.8559588673104" r="6.1632403590188565" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="67.47023191882892" cy="258.88833075987134" r="7.174332030573093" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="497.52488092258557" cy="313.6875658666739" r="10.104013701244197" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="622.4874575118549" cy="418.8852194166675" r="6.8813014734683255" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="276.4146122379627" cy="606.8263381261198" r="7.1805374238569595" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="192.7702565771388" cy="262.4405862358944" r="8.780755503800147" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="291.21640491473124" cy="348.039226842124" r="7.392553994038553" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="129.30650516613557" cy="317.87430760316215" r="6.068018725572092" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="270.2117411365848" cy="424.547420971618" r="7.944199262377097" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="479.13220630073783" cy="432.9709853912333" r="10.460576389586993" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="337.2867892609908" cy="91.65491495196432" r="6.167958496420258" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="132.89239482671667" cy="541.600797026028" r="7.128888966531186" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="111.66244716456978" cy="325.3854853047095" r="5.340844359263444" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="507.4144775609607" cy="583.4826631886599" r="8.511712360145495" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="251.1077599458862" cy="595.8737921699701" r="8.385935137591677" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="288.47508872293497" cy="108.50728224327361" r="5.964202160673848" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="433.96552551323487" cy="487.03910813596167" r="6.488889733796728" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="45.38631910367127" cy="296.4912559134448" r="5.643676047143675" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="407.7717086997739" cy="533.5983868487853" r="6.103625683579573" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="265.6825942430729" cy="202.6786616480131" r="9.757751726452282" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="268.1075523194115" cy="45.223738759144226" r="10.907668990999197" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="460.61704690940985" cy="381.0830819774667" r="5.193619011838326" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="316.36844489410913" cy="592.7206129984149" r="7.486546597325411" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="494.4753346567453" cy="187.78850587565466" r="6.3873028017965305" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="303.5507958943351" cy="388.6206683098757" r="5.575006856434104" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="300.83908208107204" cy="239.1102461337722" r="5.028506768927282" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="618.9233015277073" cy="437.5092386754934" r="8.315866793386025" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="37.45142409364843" cy="238.5950605048232" r="6.919925282394872" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="135.0176221950879" cy="191.78904736290232" r="9.184331152946307" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="344.78428134447813" cy="255.4095059036664" r="5.704085580843911" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="386.3348905718655" cy="440.38856760095473" r="7.103959762861274" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="535.1106138198268" cy="118.50396989818023" r="6.5473501121226665" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="69.72969710292011" cy="172.21284643188702" r="5.061751148002575" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="555.8344508557925" cy="270.03049554813293" r="5.189334238719061" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="310.29920484625427" cy="453.43793533710493" r="5.094928924907691" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="106.68412016499869" cy="537.8645432129151" r="8.685982844307283" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="432.997166322963" cy="570.6394081357327" r="6.951939527579041" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="526.9199702681892" cy="295.33380911233996" r="6.243584546239026" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="525.3258578431833" cy="527.3635599412386" r="5.478133462644107" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="152.50299403974097" cy="481.45085562027606" r="10.297112377684488" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="268.7508940972421" cy="117.38631778549455" r="5.827747479546708" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="77.15798773459503" cy="464.551678456428" r="6.756451406768994" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="39.00021074131513" cy="261.2653008877915" r="9.13200187480939" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="191.04323498091097" cy="124.86747058583785" r="6.741910096754343" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="568.7711151369368" cy="319.55232401319904" r="5.385684365535878" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="427.73680667565327" cy="557.8758452357145" r="5.637674413186426" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="456.60357302627045" cy="358.69759114968525" r="5.303287217288256" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="292.6285448386694" cy="607.421851316427" r="7.813130124654265" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="233.4739114034216" cy="334.376074799067" r="5.3134555383596265" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="490.9173162372198" cy="494.8172535980688" r="5.211062889632868" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="347.26621681217847" cy="130.5008311652421" r="6.207570890559293" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="212.85884937304746" cy="101.43704135651245" r="6.929393564514502" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="188.83128951285622" cy="515.3744844462374" r="7.695429729440056" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="253.66962852510886" cy="34.82710621008658" r="6.758991777140732" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="414.22490796187225" cy="521.1769772274612" r="7.010987199223776" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="29.066846642081316" cy="291.26066292707037" r="5.626613291068204" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="329.5903215070034" cy="498.03271086476207" r="8.94482705352178" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="434.91938131863856" cy="620.6866741200549" r="11.397655721908546" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="471.73313270905976" cy="543.0805476696245" r="5.783756890114264" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="87.9893871690586" cy="223.32715782092905" r="6.1669934496003656" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="432.87583502055907" cy="584.4223052726973" r="6.226677483336602" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="50.6320334180304" cy="312.6020761993071" r="7.650675534882394" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="221.60459936349991" cy="138.78057519940694" r="6.998625706006191" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="224.4438313493663" cy="554.8551318430227" r="10.203863711677618" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="391.5102975226756" cy="278.42091444670433" r="8.54597506477857" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="136.94415208772887" cy="492.3175435417263" r="5.448041168476998" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="233.00676679764467" cy="250.96891946385495" r="6.248808114423974" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="335.78356652158874" cy="25.420044112016114" r="7.857446385646728" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="192.12577555150617" cy="442.9544717436204" r="5.479531884500311" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="399.995124159185" cy="208.12561651764793" r="7.442700401517492" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="23.633213247709705" cy="354.49842048320625" r="9.434795079085333" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="437.91373772958684" cy="62.58295482698702" r="10.130093925607163" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="338.375453147419" cy="641.2462497907137" r="5.6890723133522965" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="179.5760536742496" cy="133.3044220299101" r="6.932708360876353" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="345.96530984547684" cy="108.10401468107054" r="5.386032464772451" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="361.54121213307945" cy="526.441961564265" r="5.015280968756053" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="453.1889839775145" cy="205.00561369597943" r="5.835623106609105" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="107.99107813867141" cy="118.94840492784698" r="6.550617773546511" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="483.4637779955259" cy="463.96022452032116" r="5.163405492677904" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="319.16648794391455" cy="513.9075700671382" r="5.309363553561571" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="590.2209882421657" cy="351.54947089311077" r="6.48604940177596" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="184.0720424485409" cy="330.2364057613859" r="8.012874536905818" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="547.6425525300034" cy="333.4186532205122" r="6.115550200288933" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="425.448613436089" cy="79.36445179428532" r="5.754751858960704" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="121.81288462015985" cy="202.613108322568" r="7.788792705205956" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="299.6985757103382" cy="418.1264169566034" r="5.309325139938696" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="125.36591931618523" cy="557.700261542975" r="5.246757610052812" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="504.9301801280769" cy="494.0549573341553" r="8.267592743343608" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="360.61162836900536" cy="216.25522758539222" r="5.791880378109583" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="383.515270936829" cy="108.57738096600346" r="6.336903507314777" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="388.99495710116133" cy="308.86863017428925" r="5.446743087442546" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="537.6953484241615" cy="238.4552731817688" r="5.8330960953762245" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="376.54518594788146" cy="377.1436147686012" r="6.496608047489055" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="643.3384620660499" cy="314.9337320237434" r="6.16802197917202" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="235.3908143058065" cy="35.795201018255966" r="6.170066650555396" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="278.161029061939" cy="144.30818038197364" r="5.897695479920535" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="484.3115378396436" cy="88.60022087959345" r="8.203937642932523" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="375.14188184975563" cy="558.9757998160904" r="5.507349871212126" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="222.4413934192342" cy="73.1810806665165" r="6.5426709259465765" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="144.37669806374052" cy="419.3627900997531" r="6.83477536829071" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="200.3941407030563" cy="594.9880043257381" r="6.407117787216805" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="510.8617000347733" cy="254.43995079509335" r="5.316824715219615" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="362.9466458796384" cy="25.647897510265636" r="6.523275268876195" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="632.5517275846896" cy="280.3642076729612" r="7.31615345346105" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="145.60961438135027" cy="235.89850682853393" r="6.74276628552278" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="285.09564542183034" cy="401.8538012859299" r="5.107471074079459" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="352.03364001266834" cy="350.21007592416595" r="8.894915618870154" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="515.3838412413252" cy="110.458054159818" r="5.654049816321589" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="122.96975879661633" cy="280.55217765760904" r="6.174190090620315" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="486.4176603776083" cy="170.0527788294226" r="5.60646696085508" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="301.5503732294319" cy="120.77018951145075" r="5.231689975208046" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="124.72131065925223" cy="493.98139884234456" r="5.638956646997898" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="311.86666950418874" cy="288.8821983798001" r="5.27063686345017" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="393.02065783097896" cy="594.5297088189507" r="8.936339633240074" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="424.55996428506614" cy="599.7398793962794" r="8.491788784366925" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="273.3582545504309" cy="68.79544199722585" r="6.131651833546421" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="172.62614377874658" cy="320.10702341926134" r="5.274939019476818" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="279.8768573939833" cy="411.9587780044466" r="5.171221276640635" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="432.7548841892449" cy="165.30239896591198" r="5.133893948980606" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="244.29133464943257" cy="286.82137485754805" r="5.626690090096698" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="466.9437160040022" cy="565.3167418164226" r="5.377423216540608" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="511.82836989824455" cy="86.33255906119112" r="7.876066622807923" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="68.48539144791602" cy="351.95917784423665" r="7.950620539384202" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="203.79118809681032" cy="276.48933162509087" r="8.104705003328263" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="549.4794542124664" cy="122.14034583999921" r="6.178832217490157" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="523.1051704529568" cy="127.58797434758219" r="5.131368953466914" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="580.110487025988" cy="437.62410745489194" r="7.051829079330592" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="310.74141349864937" cy="484.5548190083331" r="5.189442146815276" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="413.8408244483999" cy="636.3155831901031" r="5.412705440042992" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="246.52774185442655" cy="399.82435954135065" r="5.478609218930963" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="346.93486339178565" cy="54.080461057049945" r="5.733651861311495" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="600.1681961855575" cy="435.6741650701157" r="5.5470874567875885" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="113.5075991236553" cy="226.68482931214066" r="5.38352173080019" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="231.452852444811" cy="265.31565253667287" r="5.87205288429571" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="369.39064526924557" cy="480.6276591512016" r="5.3806895054328105" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="331.12028850784765" cy="197.95858138558557" r="6.97680958046336" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="287.13082043698324" cy="92.90679256038334" r="7.560354317061578" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="606.9903716964434" cy="197.97076624598643" r="8.717837934564928" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="443.26191119686655" cy="196.21970405391005" r="6.006557448420913" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="521.8498334911351" cy="444.89972613813995" r="7.126129052472081" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="119.16705349640722" cy="183.78363694931474" r="8.166032593848435" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="287.3555013360954" cy="477.8432695569786" r="5.60050079273333" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="171.2202318313635" cy="436.26814563995515" r="6.058581773495075" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="137.34199571233628" cy="470.38426498206786" r="5.4464393278043834" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="566.6173364278025" cy="245.57289319705498" r="6.222332592368618" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="569.166921407997" cy="272.2088949201072" r="5.078545273458447" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="223.74771914949247" cy="497.1821301411785" r="5.819577957532003" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="553.9037839892587" cy="238.33022424599923" r="7.611625647263779" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="210.08322316636068" cy="529.5846882271948" r="6.601501353578646" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="459.8662050684957" cy="528.5773584043629" r="5.278889181245237" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="356.4461631877688" cy="189.8741485264562" r="6.451385479442006" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="390.94577387794135" cy="569.1909237414744" r="5.516778446935142" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="329.20662120684733" cy="268.5754762704939" r="5.708828595570472" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="547.0764926245557" cy="304.6589701727354" r="6.312213041910178" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="266.20153040764285" cy="138.26425260776304" r="7.016257926263382" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="90.71180927791144" cy="296.8500897791283" r="10.119575564020312" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="226.3862467673314" cy="106.27829883050543" r="5.449962083249011" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="626.0616808511911" cy="233.09116618840335" r="7.507459660781855" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="205.58010880729836" cy="387.40441461121065" r="5.390740049538827" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="80.49241417385949" cy="434.10053108025215" r="6.486753553025628" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="193.295182364113" cy="555.2590719853813" r="6.317824363113833" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="278.70650393037766" cy="621.8658136525272" r="5.659072107405737" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="224.3162605148135" cy="458.59011218918494" r="5.8802525140257424" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="163.95553300786753" cy="275.84551916853115" r="7.1773961148966805" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="346.27453002024845" cy="441.03021525979193" r="5.024430077552831" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="194.2482770680244" cy="340.3745793893354" r="6.022268575527992" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="502.069232612845" cy="333.99414791302837" r="9.480316386494465" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="415.1817897135542" cy="151.99437392384826" r="6.08711643698652" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="110.07505938757717" cy="215.16325010290288" r="5.2187849223590455" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="300.6267454719266" cy="626.3209440236394" r="5.003009902133163" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="587.8888322330279" cy="374.414622801061" r="5.1730834368186915" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="477.6274620156105" cy="192.66771533688046" r="6.714551332471871" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="500.62676899393597" cy="202.45345963096784" r="5.516486342303076" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="99.87307512748049" cy="325.9253514143586" r="6.14190854579716" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="120.41543350611545" cy="452.52845567177314" r="6.168646540607527" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="486.7675195548011" cy="137.12317099067417" r="5.0471842172062145" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="34.916971891494484" cy="308.20014608378585" r="6.7609204312393185" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="98.9294271897426" cy="175.9227085377674" r="7.956912530284787" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="112.68005478954004" cy="521.9469718231836" r="5.776213536713759" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="335.42237163566324" cy="568.5332320111127" r="6.9419646964032635" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="377.9817003613739" cy="96.74493812490678" r="5.60643346579128" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="297.4813465605707" cy="312.33131233338986" r="5.423690483936507" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="180.05169083181585" cy="181.562009351515" r="6.33170491607599" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="325.18844729803595" cy="167.6858597856526" r="5.775318656141342" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="552.5427145414558" cy="319.5157039861468" r="5.641343611017362" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="459.75610739467936" cy="109.57330984585263" r="6.483147343026683" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="214.57202953690552" cy="86.31753133485918" r="6.382851363825016" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="633.3160831184275" cy="252.60968564762769" r="8.741539234251423" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="75.71670902562096" cy="340.91645530033526" r="5.153795689876967" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="552.757307958608" cy="413.42008775116943" r="6.24780549339583" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="443.4649752490761" cy="404.43886560114015" r="5.534856154244747" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="370.0492159429164" cy="341.2391341579269" r="5.187933909349747" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="28.619748028212484" cy="399.5136896401271" r="7.288401028075708" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="634.7755868820265" cy="406.2903266014341" r="7.191884173995923" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="341.71216632810297" cy="380.13059281975706" r="5.324102605075294" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="420.81238419259626" cy="97.09054672368936" r="5.85687866780532" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="537.6267611016681" cy="526.4027942588359" r="5.268892499792594" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="375.19686570773" cy="432.19077116005684" r="5.057489345899409" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="513.6044592383633" cy="222.33290707281068" r="6.66698914707205" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="225.67400490141029" cy="234.79149926341086" r="5.561844538083628" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="345.43305194716305" cy="404.3865536085594" r="5.838450097788814" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="143.23723358117562" cy="208.93646076451228" r="5.319318202350337" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="354.14110550376705" cy="483.2199962204533" r="5.123359818864383" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="214.29191702211793" cy="180.24903973452413" r="5.02863263273327" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="480.1959922436338" cy="553.073310543939" r="5.985046481884303" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="343.32430535694965" cy="198.5727251318267" r="5.013508596796653" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="508.27661825023233" cy="430.8255246001068" r="5.784357402397737" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="271.2628577795729" cy="439.3446431240929" r="5.344227390198103" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="411.6387763272296" cy="434.3644014443218" r="5.650811903952114" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="594.6685399774246" cy="164.9715834402681" r="8.28501695616892" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="527.5325627320314" cy="578.9131892720831" r="5.145699025153908" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="310.58483640248033" cy="580.8412773562766" r="5.694598229936226" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="613.2217878055428" cy="386.80402453245534" r="5.356645886962098" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="438.8657966219605" cy="174.66968774998082" r="5.45247948665617" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="164.4786789451908" cy="464.3724229761724" r="5.239665223148963" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="366.22735400110594" cy="272.06095411388435" r="5.666554210875016" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="109.10977193058005" cy="443.9928299317445" r="5.105768258035271" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="411.2993100807454" cy="331.40544145502645" r="5.243344158709231" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="250.20970251220604" cy="247.7870504427155" r="5.712973415100646" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="457.8641434501726" cy="508.651882607059" r="6.127603213694087" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="82.86371140303652" cy="245.1328861408444" r="5.298488941300877" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="542.0595401105553" cy="289.26730939946583" r="8.547082912207898" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="173.48578496316694" cy="66.94315786403354" r="6.824925723392758" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="178.47543827188758" cy="528.822263429462" r="6.060536770819605" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="502.43088629969395" cy="442.9504089066904" r="5.478945707024532" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="25.142688639568064" cy="277.73964704879336" r="6.160826982992328" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="213.00464718275174" cy="618.5570435094812" r="6.363335315318358" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="487.8917963293401" cy="413.9547120698461" r="5.289465508881946" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="293.03558728739006" cy="565.282416734079" r="6.743554722075375" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="295.8617884184319" cy="227.22818198246455" r="5.5768089787358495" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="589.5778186913794" cy="453.0009805763604" r="6.494977534368397" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="273.76481202991283" cy="24.437480577739734" r="5.393692861960522" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="519.5076735778839" cy="482.77783172920726" r="9.065841339414575" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="223.96038344052945" cy="223.32217514811913" r="5.044846532831898" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="146.16819959035465" cy="362.8303234090945" r="6.564878902602997" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="466.4046683711603" cy="97.79703617886167" r="5.419605032817135" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="566.2308531075421" cy="505.6876755811901" r="5.487487701195748" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="554.0819133065603" cy="172.4064701719932" r="5.136738905937621" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="276.6086768822346" cy="80.84757256858617" r="5.328376834134057" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="380.8040611299078" cy="80.7995022270915" r="6.711893311236178" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="147.25002691229588" cy="314.8383495990971" r="5.139466262880557" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="639.6326675891692" cy="393.20163751610806" r="6.033907560878332" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="620.2975714048245" cy="297.1585825233641" r="5.901728930057638" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="619.2184001974952" cy="209.38671101880203" r="5.178888936667" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="537.2578538931429" cy="515.7089307523953" r="5.233109026978543" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="505.5133626974256" cy="178.80258166071943" r="5.534994241918153" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="538.3041227011987" cy="101.03267289755792" r="6.018821157065442" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="610.7979537298033" cy="353.62737308612947" r="5.088673886304262" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="443.3967189655088" cy="448.8128305775352" r="6.285887191026625" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="193.18849387505304" cy="360.18672647625107" r="5.085756890439008" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="179.289480556521" cy="272.8516824957199" r="8.12542820687112" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="514.3957969810915" cy="519.9740302042878" r="5.1964966629161395" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="497.2162850499912" cy="252.12115308249662" r="5.6006322560448" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="357.2098698684009" cy="452.96574607746464" r="6.573159372808547" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="220.07278430899487" cy="44.529908571841304" r="8.157185311618376" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="287.83941214315314" cy="60.16577453550593" r="5.973703200358516" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="313.05098837795146" cy="165.0545402669361" r="5.880192177834625" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="267.5103659502312" cy="591.3116580388928" r="5.925753436408241" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="425.408665193471" cy="434.1637250931943" r="5.845180951751127" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="323.61794771867403" cy="95.93769142446723" r="7.599130471835962" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="202.31905595977676" cy="563.3421118973258" r="5.594096682769788" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="173.8580570179185" cy="483.1367881726415" r="5.353338466246495" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="19.496178791181592" cy="327.7103806684524" r="5.332385111011617" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="497.9499082498817" cy="508.80927851446774" r="5.844992712925933" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="452.97356738020517" cy="225.39161635295153" r="8.323418999039944" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="420.49214435695126" cy="206.00828115469403" r="7.152076926077254" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="156.96384878018975" cy="221.06978665240283" r="5.2250555134153" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="394.7753496943879" cy="121.49168618039496" r="5.0619277919252" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="233.91436193046457" cy="590.0694487891428" r="9.433979787973229" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="640.2599294161889" cy="346.58050324149133" r="5.583022397648245" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="492.2487131126246" cy="297.2162786356356" r="5.150386983344893" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="493.63754175629373" cy="552.6163751635346" r="6.198192561029376" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="505.6506864296096" cy="545.1440366293335" r="5.07914031881713" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="158.714418771146" cy="418.85455126250605" r="7.230560449030039" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="59.49183000378474" cy="476.1035950680623" r="9.316344248193879" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="641.0038418816642" cy="379.80205815169825" r="5.290912712597079" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="414.949005721032" cy="368.0344775401532" r="5.4664581488103146" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="179.60133029261823" cy="603.3892091292084" r="6.933793793547707" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="450.77945490606305" cy="140.31446581296845" r="5.1585910074740156" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="393.96667789677304" cy="408.07197858570737" r="6.023915048004962" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="359.4261284736665" cy="644.6040352482471" r="6.707587763031561" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="233.31548033831365" cy="540.8919278899697" r="5.256768240042277" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="544.6447214191782" cy="503.34384403466476" r="5.315422119605189" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="146.0101913159473" cy="547.2802624996934" r="5.083683201623199" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="534.2988509587233" cy="252.52402799375244" r="5.3310501573022915" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="294.4985676064495" cy="159.944774839029" r="6.086498724646324" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="429.1954836681616" cy="405.5958569468718" r="5.1793400539535694" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="374.3455877503126" cy="493.63520293457464" r="6.013688066509011" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="619.2206757598287" cy="454.4431128411943" r="7.567120670599536" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="583.3951535854794" cy="468.7594262550608" r="5.452631599426946" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="454.18417704309564" cy="330.27728575101963" r="6.67261904449097" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="451.1203040162341" cy="44.56213878389468" r="5.930865505298505" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="455.0077097997156" cy="450.77477790091007" r="5.384040054256376" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="300.6817154446218" cy="593.9697542078696" r="7.636164322957217" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="260.2157384645701" cy="415.2641448784021" r="5.086544117464399" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="464.93241311311544" cy="577.5482907134042" r="5.176337650321403" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="499.9679381349723" cy="77.74279421215172" r="6.3107128050711765" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="161.11714595545" cy="314.617313014928" r="5.023468432789259" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="111.64083526926979" cy="496.7847592415394" r="6.86081209840692" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="395.15681693600925" cy="325.49477477151027" r="5.920994561061033" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="495.51595546104306" cy="600.2116502033768" r="5.522527341007014" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="588.2818683490832" cy="510.86601851865476" r="5.203909161121905" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="131.1438563294717" cy="422.9749960689635" r="5.019542444368637" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="194.83454301754614" cy="385.41231177214" r="5.49804169700998" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="19.0583014606666" cy="315.497701659732" r="5.133418060473045" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="208.4148156872963" cy="544.9720457096114" r="6.453270751561701" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="471.10045373467426" cy="50.465080983830376" r="5.062777489479981" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="418.81527048004" cy="397.8911252746849" r="5.433523276230772" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="603.6560057238498" cy="184.26570853235071" r="5.030280750242271" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="503.1380140262145" cy="116.55699484239014" r="5.956014940585294" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="140.29907314581897" cy="526.2781989310071" r="7.083911662152427" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="208.91252591305113" cy="135.9505801767641" r="5.658453193789827" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="374.2994063402715" cy="543.049030280624" r="6.583860135994415" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="423.3130318604165" cy="492.76816006693764" r="5.287557205147647" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="278.1505270005274" cy="215.12842351355118" r="5.644641007729195" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="111.1061409747683" cy="270.2581617149102" r="5.121711928860354" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="385.2368412864319" cy="608.8608426454011" r="6.913955434871371" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="118.81480992169594" cy="294.25457496405994" r="5.067635923192287" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="380.3042970560878" cy="145.36629738609673" r="7.107300422709847" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="313.1378914952686" cy="245.4574120200588" r="5.884850888580071" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="580.9107983796837" cy="498.9223852643906" r="5.476477420104818" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="375.9857342317702" cy="26.154029625096427" r="6.095230866469395" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="407.867616889951" cy="27.741675934081456" r="5.003287580665394" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="255.10740070346878" cy="615.4317025525786" r="5.393616629770421" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="294.79927151418" cy="643.2982844819323" r="6.642537741604681" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="605.2037152996782" cy="212.71613039121155" r="5.405343405700488" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="552.9979459699688" cy="530.604362776247" r="7.610839097848952" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="354.6234197269116" cy="202.87330746459838" r="5.4442783405097215" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="378.2872230198567" cy="334.68041026737103" r="5.110526440469089" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="65.97242384708773" cy="302.6702879689638" r="5.654656194409241" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="276.6316074190019" cy="498.96977926959875" r="5.118422045757253" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="282.4169181738794" cy="542.6383053865347" r="5.120819074010097" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="245.1300815379238" cy="632.1473959004043" r="5.609074632476255" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="396.430902256194" cy="55.667993933510274" r="6.261160412163694" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="225.8857834562047" cy="172.79105437862302" r="5.654711055241668" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="87.42065793162328" cy="137.73387433015418" r="5.357473354281402" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="537.0480379157857" cy="490.0510074298997" r="7.022192344177266" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="553.3851980108205" cy="197.92021177559192" r="5.870062711814493" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="37.66193905574744" cy="342.1119065715009" r="6.053503387970421" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="198.46464063694705" cy="94.95028059651997" r="5.775453533190848" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="480.57756493948784" cy="179.97616060216063" r="5.291579990461212" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="421.7976167558966" cy="243.38209488501593" r="5.5221644958817615" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="393.9670419424989" cy="234.26771381233317" r="6.466871822644649" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="535.4286857049283" cy="440.0790852354702" r="5.476356721115571" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="273.8573939003163" cy="638.1567889272483" r="5.964986849482416" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="588.5634579929051" cy="480.1578659277685" r="5.109425965468622" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="323.9874397122989" cy="68.12083752819359" r="6.643457630207884" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="439.284097906442" cy="142.4116537253528" r="5.488363293351864" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="108.56326646038937" cy="406.50742505719063" r="5.232573262554064" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="537.8651060845598" cy="341.092335040552" r="5.037954869591619" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="496.38355998166276" cy="432.4619146996188" r="6.011160920878598" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="137.28515834357006" cy="139.40219987014007" r="5.288500198341895" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="202.82425812881905" cy="212.10890987110736" r="5.0362936409884345" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="147.04885944325375" cy="182.11831273323807" r="5.391773634622065" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="336.5047812401604" cy="599.0803336610279" r="5.630396634378878" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="266.5361647361024" cy="218.98410999834115" r="5.630696954759495" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="468.42900679772083" cy="467.72679176179594" r="5.670342362465194" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="293.0771088340549" cy="532.6953899064414" r="6.3944895387181155" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="343.8499750585283" cy="487.578538306819" r="5.7185389258796" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="499.44791118812617" cy="367.2595985299576" r="5.234027341692311" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="125.76350706894999" cy="305.96579555268676" r="5.135036782118233" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="121.62321710486535" cy="236.99874938988836" r="5.506530167498294" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="82.11327422188896" cy="211.63351987339863" r="6.239914342149011" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="549.0108370561804" cy="105.39284005898409" r="5.261351168999438" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="264.2390988602858" cy="602.5214226911997" r="5.096396471665134" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="517.0382560673678" cy="288.55776332505275" r="5.505313862474917" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="175.19945960035074" cy="120.46028663671805" r="5.189498782274908" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="300.5940832469714" cy="445.92134131961194" r="5.953128372615479" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="48.74666047394993" cy="217.07518960798055" r="5.040432103778714" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="95.51900522918154" cy="127.76165973305723" r="5.316656693972615" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="293.60257633623365" cy="249.62856034025117" r="5.037533297003617" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="392.45285620588317" cy="74.92848379286914" r="5.230337948442838" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="392.62803296997333" cy="172.61616397336272" r="5.948169257326873" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="55.47241596813228" cy="364.274014812596" r="5.1518762381300744" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="506.7454994150142" cy="273.0713139398565" r="5.6400254279001185" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="151.24305207259428" cy="78.83538477157697" r="5.723718756753275" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="185.2345640363578" cy="493.91281090379607" r="6.2549098634317755" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="314.6321199396536" cy="340.6451547037208" r="5.128649838420207" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="421.057227602655" cy="335.3432730856983" r="5.079647453904172" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="316.8571864593874" cy="279.0809287770601" r="5.276776515953734" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="527.973403701184" cy="88.30655487691936" r="5.74871226225021" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="435.1722017331093" cy="229.15548544422862" r="6.155099878512633" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="322.7687891138662" cy="19.596178108269385" r="5.067499321539778" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="535.9355395595828" cy="152.32791900647416" r="18.885029500990367" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="223.79123360096392" cy="353.26273761011674" r="11.878757423083176" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="294.0349875253871" cy="145.40988365661025" r="6.51516126918477" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="303.482965555152" cy="97.17830658797962" r="8.825569324833369" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="124.93261545132088" cy="106.45861101099104" r="5.36636986499988" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="62.41655753379706" cy="196.78388015375947" r="15.054091293931469" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="458.17824708767114" cy="277.77533222887484" r="7.30091577076395" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="554.788253182523" cy="514.1535391541349" r="8.245075046540437" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="126.33211796200385" cy="131.95462540318658" r="6.102078706704452" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="113.33396138453816" cy="377.0276101594724" r="7.295164418195839" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="154.7311931034803" cy="568.5036344931773" r="5.0574055069694035" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="282.69257805344904" cy="260.1962602422827" r="6.044446359991823" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="411.96398399917496" cy="490.1165369791023" r="5.343238670898217" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="241.0421764133158" cy="510.51587597457103" r="5.210949348847198" fill="#86b099" style="transform: scale(1);"></circle>
+  <circle cx="234.71211257562024" cy="366.53582701841253" r="5.225903918221688" fill="#ed8442" style="transform: scale(1);"></circle>
+  <circle cx="522.6415778608464" cy="402.3427152684435" r="5.80693532533568" fill="#86b099" style="transform: scale(1);"></circle>
+</svg>
+</div>
+
+        <div class="cbtButtons">
+          <button class="cbt-answer-button cbt-answer-button-number js-cbtAnswerButton" data-value="1">1</button>
+          <button class="cbt-answer-button cbt-answer-button-number js-cbtAnswerButton" data-value="2">2</button>
+          <button class="cbt-answer-button cbt-answer-button-number js-cbtAnswerButton" data-value="3">3</button>
+          <button class="cbt-answer-button cbt-answer-button-number js-cbtAnswerButton" data-value="4">4</button>
+          <button class="cbt-answer-button cbt-answer-button-number js-cbtAnswerButton" data-value="5">5</button>
+          <button class="cbt-answer-button cbt-answer-button-number js-cbtAnswerButton" data-value="6">6</button>
+          <button class="cbt-answer-button cbt-answer-button-number js-cbtAnswerButton" data-value="7">7</button>
+          <button class="cbt-answer-button cbt-answer-button-number js-cbtAnswerButton" data-value="8">8</button>
+          <button class="cbt-answer-button cbt-answer-button-number js-cbtAnswerButton" data-value="9">9</button>
+          <button class="cbt-answer-button cbt-answer-button-number js-cbtAnswerButton" data-value="0">0</button>
+          <button class="cbt-answer-button js-cbtAnswerButton" data-value="Enter" style="margin-left: auto">Tidak Ada</button>
+          <button class="cbt-answer-button js-cbtAnswerButton" data-value="Not sure" style="margin-right: auto">Tidak Yakin</button>
+          <div style="flex: 100%;height: 1px;">&nbsp;</div>
+          <a href="#" class="cbtTextLink js-cbtRestartTest" style="margin: 0 auto; margin-bottom: 20px">Ulangi tes</a>
+        </div>
+      </div>
+    </div>
+
+    <section class="stage-transition" id="lineTransition" aria-live="polite">
+      <div class="stage-transition-mark">✓</div>
+      <h1>Tes Angka Selesai</h1>
+      <p>Bagian berikutnya adalah tes line. Telusuri seluruh jalur warna yang terlihat. Anda boleh memulai dari bagian mana saja, tetapi coretan yang keluar dari batas jalur akan mengurangi ketepatan.</p>
+      <button class="cbt-answer-button" type="button" id="startLineTest">Lanjut Tes Line</button>
+    </section>
+
+    <section class="line-test" id="lineTest" aria-live="polite">
+      <header class="line-head">
+        <div><h1>Tes Line Ishihara</h1><p>Telusuri seluruh jalur warna yang dapat Anda lihat.</p></div>
+        <span class="line-progress-copy" id="lineProgressCopy">Pelat 1 dari 12</span>
+      </header>
+      <div class="line-progress"><span id="lineProgressFill"></span></div>
+      <div class="line-layout">
+        <div class="line-plate-wrap" id="linePlateWrap">
+          <svg class="line-plate-svg" viewBox="0 0 600 600" aria-label="Pelat titik tes line"><g class="line-dots" id="lineDots"></g></svg>
+          <svg class="line-draw-svg" id="lineDrawSvg" viewBox="0 0 600 600" aria-label="Area menggambar jalur"><path id="lineUserHalo" d=""/><path id="lineUserTrace" d=""/></svg>
+        </div>
+        <aside class="line-panel">
+          <h2>Telusuri garisnya</h2>
+          <p>Mulai dari bagian mana saja, lalu tahan jari atau mouse sambil mengikuti seluruh jalur. Penyimpangan dari jalur akan mengurangi nilai.</p>
+          <div class="line-status" id="lineStatus">Sentuh bagian mana saja pada pelat untuk mulai menggambar.</div>
+          <div class="line-actions">
+            <button class="cbt-answer-button" type="button" id="checkLine">Periksa Jawaban</button>
+            <div class="line-action-row">
+              <button class="cbt-answer-button" type="button" id="clearLine">Hapus Garis</button>
+              <button class="cbt-answer-button" type="button" id="noLine">Tidak Melihat</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="combined-result" id="combinedResult" aria-live="polite">
+      <header class="result-head">
+        <span class="result-check">✓</span>
+        <small>HASIL SKRINING GABUNGAN</small>
+        <h1>Seluruh tes selesai</h1>
+        <p>Ringkasan berikut menggabungkan hasil tes angka dan tes line.</p>
+      </header>
+      <section class="result-summary">
+        <div class="score-ring" id="combinedScoreRing"><strong id="combinedScoreValue">0%</strong></div>
+        <div>
+          <small id="combinedLabel">Hasil sementara</small>
+          <h2 id="combinedTitle">Menghitung hasil…</h2>
+          <p id="combinedDescription">Sistem sedang menggabungkan kedua bagian tes.</p>
+        </div>
+      </section>
+      <div class="combined-grid">
+        <article class="result-card"><h3>Tes Angka</h3><strong id="numberFinalScore">0/22</strong><p id="numberFinalText">Belum dihitung.</p></article>
+        <article class="result-card"><h3>Tes Line</h3><strong id="lineFinalScore">0/12</strong><p id="lineFinalText">Belum dihitung.</p></article>
+        <article class="result-card"><h3>Catatan penting</h3><p>Tes layar ini merupakan skrining awal, bukan diagnosis. Kecerahan, filter malam, kalibrasi warna, dan pencahayaan ruangan dapat memengaruhi hasil. Pemeriksaan profesional tetap diperlukan.</p></article>
+      </div>
+      <div class="result-actions">
+        <button class="cbt-answer-button" type="button" id="repeatAllTests">Ulangi Semua Tes</button>
+        <button class="cbt-answer-button" type="button" id="repeatLineOnly">Ulangi Tes Line</button>
+      </div>
+    </section>
+
+    <section class="result-screen" id="resultScreen" aria-live="polite">
+      <header class="result-head">
+        <span class="result-check">✓</span>
+        <small>HASIL SKRINING</small>
+        <h1>Tes telah selesai</h1>
+        <p>Berikut ringkasan jawaban Anda pada 22 pelat penglihatan warna.</p>
+      </header>
+      <section class="result-summary">
+        <div class="score-ring" id="scoreRing"><strong id="scoreValue">0/22</strong></div>
+        <div>
+          <small id="resultLabel">Hasil sementara</small>
+          <h2 id="resultTitle">Menghitung hasil…</h2>
+          <p id="resultDescription">Sistem sedang membandingkan jawaban yang diberikan.</p>
+        </div>
+      </section>
+      <div class="result-grid">
+        <article class="result-card">
+          <h3>Ringkasan jawaban</h3>
+          <p id="answerRecap">0 jawaban sesuai, 0 tidak sesuai, dan 0 tidak yakin.</p>
+        </article>
+        <article class="result-card">
+          <h3>Apa artinya?</h3>
+          <p id="resultMeaning">Penjelasan hasil akan muncul setelah tes selesai.</p>
+        </article>
+        <article class="result-card">
+          <h3>Catatan penting</h3>
+          <p>Tes layar ini merupakan skrining awal, bukan diagnosis. Kecerahan, filter malam, kalibrasi warna, dan pencahayaan ruangan dapat memengaruhi hasil. Pemeriksaan profesional tetap diperlukan untuk menentukan tipe Deutan, Protan, atau Tritan.</p>
+        </article>
+      </div>
+      <div class="result-actions">
+        <button class="cbt-answer-button" type="button" id="repeatTest">Ulangi tes</button>
+        <button class="cbt-answer-button" type="button" id="finishTest">Selesai</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const plates = [
+        {answer:'9', bg:['#86b099','#95bba6','#78a68d'], fg:['#ed8442','#f59654','#db7136']},
+        {answer:'6', bg:['#d4bd82','#c4aa6e','#e0ca91'], fg:['#749079','#66846d','#879e85']},
+        {answer:'8', bg:['#a8b88a','#bbc39a','#96a979'], fg:['#d27752','#bb6245','#e18a63']},
+        {answer:'3', bg:['#d1ac78','#c19865','#dbb987'], fg:['#71866d','#61775e','#82967b']},
+        {answer:'5', bg:['#8eaf9d','#9dbbaa','#7ba18d'], fg:['#eb7e47','#f39358','#d96b37']},
+        {answer:'2', bg:['#cbb37d','#dac38e','#bda66f'], fg:['#73917b','#66846f','#86a08b']},
+        {answer:'7', bg:['#a3b88d','#b5c39f','#90aa7e'], fg:['#c96f4d','#da825d','#b95e40']},
+        {answer:'4', bg:['#d1ad78','#c19865','#dbba87'], fg:['#718a74','#617a64','#849b85']},
+        {answer:'1', bg:['#8fb2a0','#a2c0b0','#7fa590'], fg:['#ed7e46','#f59658','#da6c39']},
+        {answer:'0', bg:['#cdb47e','#bea36d','#dbc48e'], fg:['#708c75','#617e68','#839b82']},
+        {answer:'6', bg:['#a4b990','#b5c39f','#90a97f'], fg:['#c96f4e','#da825d','#b95e41']},
+        {answer:'3', bg:['#d0ad79','#c19967','#dab986'], fg:['#728b75','#627b65','#849a83']},
+        {answer:'8', bg:['#8fb2a0','#a2c0b0','#7fa590'], fg:['#ec7d46','#f49456','#da6b38']},
+        {answer:'2', bg:['#ccb57f','#bea570','#dac38e'], fg:['#708d76','#617f69','#849b84']},
+        {answer:'5', bg:['#a4b98f','#b6c49f','#91aa7f'], fg:['#c86e4d','#d9815b','#b85d40']},
+        {answer:'7', bg:['#d0ac77','#c09764','#dbb986'], fg:['#728b75','#627b65','#849a83']},
+        {answer:'4', bg:['#8eaf9d','#9fbcab','#7ca18e'], fg:['#eb7d46','#f49357','#d96a38']},
+        {answer:'9', bg:['#cdb57f','#bea46e','#dac48e'], fg:['#718e77','#628069','#849c84']},
+        {answer:'3', bg:['#a4b98f','#b5c39e','#90a97e'], fg:['#ca704f','#da825e','#ba5f42']},
+        {answer:'6', bg:['#d0ad78','#c09865','#dbba87'], fg:['#708a73','#607a63','#839a82']},
+        {answer:'2', bg:['#8fb2a0','#a2c0b0','#7fa590'], fg:['#ed7d46','#f49557','#da6b38']},
+        {answer:'5', bg:['#cdb47f','#bea46f','#dbc48f'], fg:['#718d76','#627f69','#849c84']}
+      ];
+
+      let checkpointRows=Array(34).fill(null), saveId=0;
+      const pending=new Map();
+      function checkpoint(finish=false){
+        return new Promise((resolve,reject)=>{
+          const id=++saveId;pending.set(id,{resolve,reject});
+          parent.postMessage({type:'ishihara-save',id,answers:checkpointRows,finish},location.origin);
+        });
+      }
+      window.addEventListener('message',event=>{
+        if(event.source!==parent||event.origin!==location.origin)return;
+        const m=event.data;
+        if(m?.type==='ishihara-ack'){const p=pending.get(m.id);if(!p)return;pending.delete(m.id);m.error?p.reject(new Error(m.error)):p.resolve();}
+        if(m?.type==='ishihara-init'){
+          checkpointRows=m.answers;
+          for(let i=0;i<22;i++)if(m.answers[i])answers[i]=m.answers[i].choice;
+          for(let i=22;i<34;i++)if(m.answers[i])lineResults[i-22]=m.answers[i];
+          current=answers.findIndex(x=>x===undefined);if(current<0)current=answers.length;
+          if(current>=22){calculateResult();lineCurrent=lineResults.findIndex(x=>x===undefined);if(lineCurrent<0)lineCurrent=lineResults.length;if(lineCurrent<12)startLine(false);else showCombinedResult();}
+          else showNextPlate();
+        }
+      });
+      const test = document.querySelector('.js-cbtTest');
+      const brand = document.getElementById('testBrand');
+      const image = document.querySelector('.js-cbtNumberImage');
+      const svg = image.querySelector('svg');
+      const dots = [...svg.querySelectorAll('circle')];
+      const steps = [...document.querySelectorAll('.js-cbtStep')];
+      const progress = document.querySelector('.cbt-progressbar');
+      const progressFill = document.createElement('span');
+      const buttons = [...document.querySelectorAll('.js-cbtAnswerButton')];
+      const answers = [];
+      let numberSummary = {correct:0, incorrect:0, uncertain:0, ratio:0, label:'', title:'', description:'', meaning:''};
+      let current = 0;
+      let locked = false;
+
+      progress.dataset.step = '1';
+      progressFill.className = 'cbt-progressbar-fill';
+      progress.appendChild(progressFill);
+      const status = document.createElement('p');
+      status.className = 'answer-status';
+      status.textContent = 'Pilih angka yang terlihat pada pelat.';
+      document.querySelector('.cbtButtons').after(status);
+
+      dots.forEach((dot, index) => {
+        dot.dataset.x = dot.getAttribute('cx');
+        dot.dataset.y = dot.getAttribute('cy');
+        dot.dataset.radius = dot.getAttribute('r');
+        dot.dataset.originalFill = dot.getAttribute('fill');
+        dot.style.setProperty('--dot-delay', `${(index * 37) % 185}ms`);
+      });
+
+      function seeded(seed) {
+        let value = seed >>> 0;
+        return () => {
+          value += 0x6D2B79F5;
+          let t = value;
+          t = Math.imul(t ^ t >>> 15, t | 1);
+          t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+          return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        };
+      }
+
+      function recolorPlate(index) {
+        if (index === 0) {
+          dots.forEach(dot => dot.setAttribute('fill', dot.dataset.originalFill));
+          return;
+        }
+        const plate = plates[index];
+        const rand = seeded(index * 104729 + 31);
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = 666;
+        const context = canvas.getContext('2d', {willReadFrequently:true});
+        context.fillStyle = '#000';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.font = '900 430px Arial Black, Arial, sans-serif';
+        context.fillText(plate.answer, 333, 355);
+        const mask = context.getImageData(0,0,666,666).data;
+        dots.forEach(dot => {
+          const x = Math.max(0, Math.min(665, Math.round(Number(dot.dataset.x))));
+          const y = Math.max(0, Math.min(665, Math.round(Number(dot.dataset.y))));
+          const foreground = mask[(y * 666 + x) * 4 + 3] > 70;
+          const palette = foreground ? plate.fg : plate.bg;
+          dot.setAttribute('fill', palette[Math.floor(rand() * palette.length)]);
+        });
+      }
+
+      function updateProgress() {
+        progress.dataset.step = String(current + 1);
+        progressFill.style.width = `${(current / (plates.length - 1)) * 100}%`;
+        steps.forEach((step, index) => {
+          step.classList.toggle('cbt-done', index < current);
+          step.classList.toggle('cbt-active', index === current);
+        });
+      }
+
+      function showNextPlate() {
+        recolorPlate(current);
+        updateProgress();
+        image.classList.remove('is-hiding');
+        image.classList.add('is-showing');
+        setTimeout(() => image.classList.remove('is-showing'), 650);
+      }
+
+      function calculateResult() {
+        const correct = answers.reduce((count, answer, index) => count + (answer === plates[index].answer ? 1 : 0), 0);
+        const uncertain = answers.filter(answer => answer === 'Enter' || answer === 'Not sure').length;
+        const incorrect = plates.length - correct - uncertain;
+        const ratio = correct / plates.length;
+
+        let label, title, description, meaning;
+        if (ratio >= .82) {
+          label = 'Tidak ditemukan indikasi kuat';
+          title = 'Penglihatan warna dalam rentang umum';
+          description = 'Sebagian besar pelat warna dapat Anda kenali dengan baik.';
+          meaning = 'Pada rangkaian ini tidak tampak pola kesulitan warna yang konsisten. Hasil tetap dapat dipengaruhi layar dan pencahayaan.';
+        } else if (ratio >= .59) {
+          label = 'Perlu konfirmasi';
+          title = 'Kemungkinan kesulitan warna ringan';
+          description = 'Beberapa pelat belum dikenali secara konsisten.';
+          meaning = 'Ulangi tes dengan filter malam dimatikan dan kecerahan yang nyaman. Bila pola yang sama berulang, lakukan pemeriksaan profesional.';
+        } else {
+          label = 'Ditemukan indikasi skrining';
+          title = 'Kemungkinan kesulitan membedakan warna';
+          description = 'Sejumlah pola pada pelat warna sulit dikenali.';
+          meaning = 'Hasil ini belum dapat menentukan tipe Deutan, Protan, atau Tritan. Penentuan tipe memerlukan matriks skor dan pemeriksaan tervalidasi.';
+        }
+        numberSummary = {correct,incorrect,uncertain,ratio,label,title,description,meaning};
+        test.classList.add('is-hidden');
+        brand.classList.add('is-hidden');
+        document.getElementById('lineTransition').classList.add('is-visible');
+        window.scrollTo({top:0, behavior:'smooth'});
+      }
+
+      async function submitAnswer(value, button) {
+        if (locked) return;
+        locked = true;
+        checkpointRows[current]={choice:value};
+        try{await checkpoint();}catch(error){status.textContent='Belum tersimpan: '+error.message;locked=false;return;}
+        answers[current] = value;
+        button.classList.add('is-selected');
+        status.textContent = value === 'Enter' ? 'Jawaban: tidak melihat angka' : value === 'Not sure' ? 'Jawaban: tidak yakin' : `Jawaban: ${value}`;
+        setTimeout(() => image.classList.add('is-hiding'), 70);
+        setTimeout(() => {
+          button.classList.remove('is-selected');
+          if (current === plates.length - 1) {
+            calculateResult();
+            locked = false;
+            return;
+          }
+          current += 1;
+          showNextPlate();
+          status.textContent = 'Pilih angka yang terlihat pada pelat.';
+          locked = false;
+        }, 590);
+      }
+
+      function restart() {
+        answers.length = 0;
+        current = 0;
+        locked = false;
+        image.classList.remove('is-hiding','is-showing');
+        buttons.forEach(button => button.classList.remove('is-selected'));
+        test.classList.remove('is-hidden');
+        brand.classList.remove('is-hidden');
+        document.getElementById('resultScreen').classList.remove('is-visible');
+        document.getElementById('lineTransition').classList.remove('is-visible');
+        document.getElementById('lineTest').classList.remove('is-visible');
+        document.getElementById('combinedResult').classList.remove('is-visible');
+        status.textContent = 'Pilih angka yang terlihat pada pelat.';
+        recolorPlate(0);
+        updateProgress();
+        window.scrollTo({top:0, behavior:'smooth'});
+      }
+
+      const linePlates = [
+        {seed:11, path:'M48 302 C125 148 236 422 326 280 S470 168 552 315', bg:['#d7bd79','#c7a968','#e1cb8c'], line:['#6d9875','#598766','#82a184']},
+        {seed:29, path:'M48 300 C130 428 206 150 300 302 S455 425 552 270', bg:['#94b398','#a7c0a4','#82a486'], line:['#cf714c','#e18459','#b95f42']},
+        {seed:43, path:'M48 310 C148 215 185 405 282 330 C367 264 420 126 552 292', bg:['#d0ad77','#c09865','#ddba86'], line:['#6f8d73','#5e7d64','#829a82']},
+        {seed:67, path:'M48 295 C142 112 220 184 255 315 S390 476 552 292', bg:['#9bb59a','#adc3aa','#89a789'], line:['#c9684b','#dc7d5a','#b55440']},
+        {seed:89, path:'M48 308 C122 410 210 414 266 296 C325 171 430 188 552 302', bg:['#d2b37c','#c3a36c','#ddc08c'], line:['#708d75','#5e8068','#849c84']},
+        {seed:103,path:'M48 325 C112 188 180 190 226 320 C273 452 359 442 392 306 C421 190 480 176 552 286',bg:['#a7bc98','#91aa85','#b8c8aa'],line:['#c96c54','#df8267','#b95b48']},
+        {seed:127,path:'M52 250 C135 110 238 160 248 276 C258 390 178 438 117 363 C64 298 138 236 220 262 C319 293 310 464 427 430 C493 411 512 348 548 277',bg:['#d5b978','#c8aa68','#e0c789'],line:['#668f79','#54816b','#7ca08a']},
+        {seed:149,path:'M50 333 C118 390 170 197 244 250 C318 302 303 442 388 404 C473 366 414 196 550 258',bg:['#94af94','#a9bda3','#82a184'],line:['#ce7252','#e18863','#b95a43']},
+        {seed:173,path:'M50 282 C117 199 182 201 218 285 C250 359 184 414 137 369 C94 328 132 270 201 276 C284 284 295 384 369 386 C450 387 468 269 550 298',bg:['#d2b176','#c2a166','#dfc18a'],line:['#718d74','#5d7d66','#859e86']},
+        {seed:191,path:'M50 347 C108 214 177 419 239 286 C299 158 363 406 421 277 C458 194 505 226 550 311',bg:['#9bb69a','#adc2a9','#88a588'],line:['#c5684d','#db7d5b','#b45541']},
+        {seed:223,path:'M49 288 C114 168 195 156 250 236 C302 313 246 414 172 396 C111 381 110 304 168 276 C248 236 297 348 368 352 C446 357 470 249 551 294',bg:['#d6b97d','#c5a76c','#e2c88f'],line:['#688f77','#557f69','#80a089']},
+        {seed:251,path:'M50 318 C105 408 176 410 216 327 C258 239 183 179 124 225 C75 263 109 328 169 326 C247 323 275 204 357 218 C438 231 445 377 550 294',bg:['#98b398','#abc1a7','#84a286'],line:['#ca6e51','#df8361','#b75a43']}
+      ];
+      const lineDots = document.getElementById('lineDots');
+      const lineDrawSvg = document.getElementById('lineDrawSvg');
+      const lineUserTrace = document.getElementById('lineUserTrace');
+      const lineUserHalo = document.getElementById('lineUserHalo');
+      const lineStatus = document.getElementById('lineStatus');
+      const lineResults = [];
+      let lineCurrent = 0;
+      let lineTargetSamples = [];
+      let lineDrawing = false;
+      let lineUserPoints = [];
+      let lineLocked = false;
+
+      function lineDistance(a,b){ return Math.hypot(a.x-b.x,a.y-b.y); }
+      function linePointerPoint(event){
+        const rect=lineDrawSvg.getBoundingClientRect();
+        return {x:(event.clientX-rect.left)*600/rect.width,y:(event.clientY-rect.top)*600/rect.height};
+      }
+      function lineTargetPoints(pathData,count=160){
+        const temp=document.createElementNS('http://www.w3.org/2000/svg','path');
+        temp.setAttribute('d',pathData);lineDrawSvg.appendChild(temp);
+        const length=temp.getTotalLength(),points=[];
+        for(let i=0;i<count;i++){const p=temp.getPointAtLength(length*i/(count-1));points.push({x:p.x,y:p.y});}
+        temp.remove();return points;
+      }
+      function renderLinePath(points){
+        const d=points.length?'M '+points.map(p=>`${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' L '):'';
+        lineUserTrace.setAttribute('d',d);lineUserHalo.setAttribute('d',d);
+      }
+      function buildLinePlate(index,animate=true){
+        const plate=linePlates[index],rand=seeded(plate.seed),samples=lineTargetPoints(plate.path,190);
+        lineTargetSamples=samples;
+        const create=()=>{
+          lineDots.replaceChildren();
+          const spacing=18.5,rowHeight=spacing*.866;let row=0,dotIndex=0;
+          for(let by=36;by<=564;by+=rowHeight,row++){
+            const offset=row%2?spacing/2:0;
+            for(let bx=36+offset;bx<=564;bx+=spacing){
+              const x=bx+(rand()-.5)*7,y=by+(rand()-.5)*7;
+              if((x-300)**2+(y-300)**2>273**2)continue;
+              const near=samples.some((p,i)=>i%2===0&&lineDistance({x,y},p)<19);
+              const palette=near?plate.line:plate.bg;
+              const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+              dot.setAttribute('cx',x.toFixed(2));dot.setAttribute('cy',y.toFixed(2));dot.setAttribute('r',(3.6+rand()*5.3).toFixed(2));dot.setAttribute('fill',palette[Math.floor(rand()*palette.length)]);dot.style.setProperty('--dot-delay',`${(dotIndex*31)%155}ms`);lineDots.appendChild(dot);dotIndex++;
+            }
+          }
+          if(animate){lineDots.classList.add('is-showing');setTimeout(()=>lineDots.classList.remove('is-showing'),570);}
+        };
+        if(animate&&lineDots.childElementCount){lineDots.classList.add('is-hiding');setTimeout(()=>{lineDots.classList.remove('is-hiding');create();},430);}else create();
+        lineUserPoints=[];renderLinePath(lineUserPoints);
+        lineStatus.textContent='Sentuh bagian mana saja pada pelat untuk mulai menggambar.';
+        document.getElementById('lineProgressCopy').textContent=`Pelat ${index+1} dari ${linePlates.length}`;
+        document.getElementById('lineProgressFill').style.width=`${((index+1)/linePlates.length)*100}%`;
+      }
+      function evaluateLine(){
+        if(lineUserPoints.length<12)return {ok:false,coverage:0,accuracy:0,score:0};
+        const corridor=30;
+        const coverage=lineTargetSamples.filter(t=>lineUserPoints.some((u,i)=>i%2===0&&lineDistance(t,u)<corridor)).length/lineTargetSamples.length;
+        const accuracy=lineUserPoints.filter(u=>lineTargetSamples.some((t,i)=>i%2===0&&lineDistance(u,t)<corridor)).length/lineUserPoints.length;
+        const score=Math.round((coverage*.58+accuracy*.42)*100);
+        return {ok:coverage>=.58&&accuracy>=.68&&score>=66,coverage,accuracy,score};
+      }
+      async function advanceLine(result){
+        if(lineLocked)return;lineLocked=true;
+        checkpointRows[22+lineCurrent]={...result,choice:'line',points:lineUserPoints.slice(0,2000)};
+        try{await checkpoint(lineCurrent===11);}catch(error){lineStatus.textContent='Belum tersimpan: '+error.message;lineLocked=false;return;}
+        lineResults[lineCurrent]=result;
+        if(lineCurrent===linePlates.length-1){setTimeout(showCombinedResult,280);return;}
+        lineCurrent++;buildLinePlate(lineCurrent,true);setTimeout(()=>lineLocked=false,570);
+      }
+      function startLine(reset=true){
+        if(reset){lineCurrent=0;lineResults.length=0;}
+        lineLocked=false;lineDrawing=false;
+        document.getElementById('lineTransition').classList.remove('is-visible');
+        document.getElementById('combinedResult').classList.remove('is-visible');
+        document.getElementById('lineTest').classList.add('is-visible');
+        buildLinePlate(lineCurrent,false);
+        window.scrollTo({top:0,behavior:'smooth'});
+      }
+      function showCombinedResult(){
+        const passed=lineResults.filter(r=>r&&r.ok).length;
+        const attempted=lineResults.filter(r=>r&&typeof r.score==='number');
+        const lineAverage=attempted.length?Math.round(attempted.reduce((sum,r)=>sum+r.score,0)/attempted.length):0;
+        const numberPercent=Math.round(numberSummary.ratio*100);
+        const combined=Math.round((numberPercent+lineAverage)/2);
+        document.getElementById('lineTest').classList.remove('is-visible');
+        document.getElementById('combinedResult').classList.add('is-visible');
+        document.getElementById('combinedScoreValue').textContent=`${combined}%`;
+        document.getElementById('combinedScoreRing').style.setProperty('--score',`${Math.round(combined*3.6)}deg`);
+        document.getElementById('numberFinalScore').textContent=`${numberSummary.correct}/${plates.length}`;
+        document.getElementById('numberFinalText').textContent=`${numberSummary.incorrect} tidak sesuai dan ${numberSummary.uncertain} tidak melihat atau tidak yakin.`;
+        document.getElementById('lineFinalScore').textContent=`${passed}/${linePlates.length}`;
+        document.getElementById('lineFinalText').textContent=`Rata-rata ketepatan lintasan ${lineAverage}%.`;
+        let label,title,description;
+        if(numberSummary.ratio>=.82&&passed>=10){label='Tidak ditemukan indikasi kuat';title='Penglihatan warna dalam rentang umum';description='Pelat angka dan sebagian besar jalur warna berhasil dikenali dengan baik.';}
+        else if(numberSummary.ratio>=.59&&passed>=5){label='Perlu konfirmasi';title='Hasil skrining belum konsisten';description='Beberapa pelat angka atau jalur warna belum dikenali secara konsisten.';}
+        else{label='Ditemukan indikasi skrining';title='Kemungkinan kesulitan membedakan warna';description='Sejumlah pelat angka dan/atau jalur warna sulit dikenali.';}
+        document.getElementById('combinedLabel').textContent='Sesi selesai';
+        document.getElementById('combinedTitle').textContent='Terima kasih telah menyelesaikan tes';
+        document.getElementById('combinedDescription').textContent='Jawaban angka dan jalur telah tersimpan untuk ditinjau HR. Pelat ini merupakan demonstrasi digital, bukan alat diagnosis atau penentuan kelulusan.';
+        document.getElementById('combinedScoreRing').style.display='none';
+        lineLocked=false;window.scrollTo({top:0,behavior:'smooth'});
+      }
+
+      lineDrawSvg.addEventListener('pointerdown',event=>{if(lineLocked)return;lineDrawing=true;lineUserPoints=[linePointerPoint(event)];lineDrawSvg.setPointerCapture(event.pointerId);renderLinePath(lineUserPoints);lineStatus.textContent='Lanjutkan mengikuti seluruh jalur yang terlihat.';});
+      lineDrawSvg.addEventListener('pointermove',event=>{if(!lineDrawing)return;const p=linePointerPoint(event),last=lineUserPoints[lineUserPoints.length-1];if(lineDistance(p,last)>3){lineUserPoints.push(p);renderLinePath(lineUserPoints);}});
+      const stopLineDraw=event=>{if(!lineDrawing)return;lineDrawing=false;try{lineDrawSvg.releasePointerCapture(event.pointerId);}catch{}lineStatus.textContent='Pilih Periksa Jawaban untuk melanjutkan.';};
+      lineDrawSvg.addEventListener('pointerup',stopLineDraw);lineDrawSvg.addEventListener('pointercancel',stopLineDraw);
+      document.getElementById('checkLine').addEventListener('click',()=>{const result=evaluateLine();if(!lineUserPoints.length){lineStatus.textContent='Telusuri garis terlebih dahulu.';return;}lineStatus.textContent=result.ok?`Lintasan sesuai — ketepatan ${result.score}%.`:`Lintasan terlalu banyak keluar jalur — ketepatan ${result.score}%.`;advanceLine(result);});
+      document.getElementById('clearLine').addEventListener('click',()=>{lineUserPoints=[];renderLinePath(lineUserPoints);lineStatus.textContent='Garis dihapus. Mulai kembali dari bagian mana saja.';});
+      document.getElementById('noLine').addEventListener('click',()=>advanceLine({ok:false,coverage:0,accuracy:0,score:0}));
+      document.getElementById('startLineTest').addEventListener('click',()=>startLine(true));
+      document.getElementById('repeatLineOnly').addEventListener('click',()=>startLine(true));
+      document.getElementById('repeatAllTests').addEventListener('click',restart);
+
+      buttons.forEach(button => button.addEventListener('click', () => submitAnswer(button.dataset.value, button)));
+      document.querySelector('.js-cbtRestartTest').addEventListener('click', event => { event.preventDefault(); restart(); });
+      document.getElementById('repeatTest').addEventListener('click', restart);
+      document.getElementById('finishTest').addEventListener('click', restart);
+      document.getElementById('closeTest').addEventListener('click', restart);
+      updateProgress();
+      const done=document.createElement('button');done.className='cbt-answer-button';done.textContent='Lanjutkan ke sesi berikutnya';
+      done.onclick=()=>parent.postMessage({type:'ishihara-complete'},location.origin);
+      document.getElementById('combinedResult').append(done);
+      new ResizeObserver(()=>parent.postMessage({type:'ishihara-height',height:document.body.scrollHeight},location.origin)).observe(document.body);
+      parent.postMessage({type:'ishihara-ready'},location.origin);
+    })();
+  </script>
+</body>
+</html>

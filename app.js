@@ -1,3 +1,4 @@
+import {mountIshihara} from './ishihara.js';
 import { mountResults, renderResult, printResultReport } from './results.js?v=20260925-application-print';
 import { renderTiuSvgQuestion } from './tiu5-svg-temp.js';
 import { mountTiu6, questionMarkup, answersCsv } from './tiu6.js';
@@ -136,6 +137,7 @@ function imageChoiceHtml(q) {
 }
 
 const testMeta={
+  ishihara:{name:'Skrining Penglihatan Warna',total:34,unit:'pelat',description:'Kenali angka pada 22 pelat, kemudian telusuri jalur pada 12 pelat. Mulai jalur dari mana saja. Tes digital ini bukan diagnosis medis.'},
   test1:{name:'PAPI Kostic',total:90,seconds:15,unit:'soal',description:'Setiap soal berisi dua pernyataan. Pilih satu yang paling sesuai dengan diri Anda.'},
   test2:{name:'DISC',total:24,seconds:30,unit:'kelompok',description:'Setiap kelompok berisi empat pernyataan. Pilih satu yang PALING dan satu yang KURANG menggambarkan diri Anda.'},
   tiu5:{name:'TIU 5',total:30,seconds:300,unit:'soal',description:'Perhatikan perubahan gambar A menjadi B. Terapkan perubahan yang sama pada gambar C, lalu pilih jawaban 1–5.'},
@@ -620,7 +622,7 @@ async function candidateProfile(id){
   const {data:answers,error:ansErr}=ids.length?await db.from('test_answers').select('*').in('attempt_id',ids):{data:[],error:null};
   if(ansErr)return adminShell('candidates',`<h2>Jawaban belum tersedia</h2><p>${escapeHtml(ansErr.message)}</p>`);
   const byCode=Object.fromEntries((attempts||[]).map(a=>[a.test_code,a]));
-  const names=['test1','test2','tiu5','tiu6','mbti','wpt'];
+  const names=['test1','test2','tiu5','tiu6','mbti','wpt','ishihara'];
   const summary=names.map(code=>{const a=byCode[code];const rows=(answers||[]).filter(r=>r.attempt_id===a?.id);return {code,a,rows};});
   const profile={...(candidate.application||{}),...candidate};
   const fieldLabels={full_name:'Nama Lengkap',nik:'NIK',position:'Posisi yang dilamar',birth_place_date:'Tempat & tanggal lahir',gender:'Jenis kelamin',marital_status:'Status perkawinan',religion:'Agama',ktp_address:'Alamat sesuai KTP',current_address:'Alamat tinggal',email:'Email',social_media:'Media sosial',height:'Tinggi badan',weight:'Berat badan',glasses:'Berkacamata',medical_history:'Riwayat penyakit yang pernah diderita',education:'Pendidikan',training:'Pelatihan',experience:'Pengalaman kerja',special_skills:'Keahlian khusus',strengths:'Kelebihan',weaknesses:'Kekurangan',motivation:'Motivasi'};
@@ -739,10 +741,10 @@ async function adminSettings(){
   if(error)return adminShell('settings',`<h2>Pengaturan belum aktif</h2><p class="muted">Jalankan update-02-admin-question-bank.sql.</p>`);
   adminShell('settings',`<div class="section-title"><div><h2>Urutan Sesi Tes</h2><p class="muted">Pindahkan posisi sesi dan atur waktu. Pengacakan hanya tersedia untuk WPT; nomor asli tetap dipakai untuk penilaian.</p></div></div><div class="settings-grid">${data.map((s,i)=>`<form class="setting-card" data-code="${s.test_code}"><div class="setting-order"><strong>${i+1}</strong><div><h3>${escapeHtml(testMeta[s.test_code]?.name||s.display_name)}</h3><small>${escapeHtml(s.test_code)}</small></div></div><label><input name="active" type="checkbox" ${s.active?'checked':''}> Sesi aktif</label><div class="question-actions"><button type="button" class="btn btn-secondary move-session" data-direction="-1" ${i===0?'disabled':''}>↑ Naik</button><button type="button" class="btn btn-secondary move-session" data-direction="1" ${i===data.length-1?'disabled':''}>↓ Turun</button><button class="btn btn-primary">Simpan</button></div></form>`).join('')}</div>`);
   document.querySelectorAll('.setting-card').forEach(form=>{
-    if(['tiu5','tiu6','mbti','wpt'].includes(form.dataset.code)){const s=data.find(x=>x.test_code===form.dataset.code);form.querySelector('.question-actions').insertAdjacentHTML('beforebegin',`<div class="field"><label>Waktu total ${testMeta[form.dataset.code].name} (menit)</label><input name="session_minutes" type="number" min="1" max="1440" step="1" value="${s.session_duration_seconds?s.session_duration_seconds/60:''}" placeholder="Kosong = tanpa batas waktu"><small>Berlaku untuk sesi yang baru dimulai.</small></div>`);}
+    if(['tiu5','tiu6','mbti','wpt','ishihara'].includes(form.dataset.code)){const s=data.find(x=>x.test_code===form.dataset.code);form.querySelector('.question-actions').insertAdjacentHTML('beforebegin',`<div class="field"><label>Waktu total ${testMeta[form.dataset.code].name} (menit)</label><input name="session_minutes" type="number" min="1" max="1440" step="1" value="${s.session_duration_seconds?s.session_duration_seconds/60:''}" placeholder="Kosong = tanpa batas waktu"><small>Berlaku untuk sesi yang baru dimulai.</small></div>`);}
     if(['test1','test2'].includes(form.dataset.code)){const s=data.find(x=>x.test_code===form.dataset.code);form.querySelector('.question-actions').insertAdjacentHTML('beforebegin',`<div class="field"><label>Waktu per soal (detik)</label><input name="question_seconds" type="number" min="5" max="600" step="1" value="${s.question_duration_seconds||testMeta[form.dataset.code].seconds}" required><small>Berlaku untuk attempt baru; attempt yang sudah dimulai mempertahankan waktunya.</small></div>`);}
     if(form.dataset.code==='wpt'){const s=data.find(x=>x.test_code==='wpt');form.querySelector('.question-actions').insertAdjacentHTML('beforebegin',`<label><input name="randomize_questions" type="checkbox" ${s.randomize_questions?'checked':''}> Acak urutan soal WPT untuk setiap peserta</label><small>Kunci jawaban tetap mengikuti nomor asli soal yang tersimpan.</small>`);}
-    form.onsubmit=async e=>{e.preventDefault();const f=new FormData(form),payload={active:f.get('active')==='on',updated_at:new Date().toISOString()};if(['tiu5','tiu6','mbti','wpt'].includes(form.dataset.code))payload.session_duration_seconds=f.get('session_minutes')?Number(f.get('session_minutes'))*60:null;if(['test1','test2'].includes(form.dataset.code))payload.question_duration_seconds=Number(f.get('question_seconds'));if(form.dataset.code==='wpt')payload.randomize_questions=f.get('randomize_questions')==='on';const {error}=await db.from('test_settings').update(payload).eq('test_code',form.dataset.code);toast(error?error.message:'Pengaturan berhasil disimpan.');};
+    form.onsubmit=async e=>{e.preventDefault();const f=new FormData(form),payload={active:f.get('active')==='on',updated_at:new Date().toISOString()};if(['tiu5','tiu6','mbti','wpt','ishihara'].includes(form.dataset.code))payload.session_duration_seconds=f.get('session_minutes')?Number(f.get('session_minutes'))*60:null;if(['test1','test2'].includes(form.dataset.code))payload.question_duration_seconds=Number(f.get('question_seconds'));if(form.dataset.code==='wpt')payload.randomize_questions=f.get('randomize_questions')==='on';const {error}=await db.from('test_settings').update(payload).eq('test_code',form.dataset.code);toast(error?error.message:'Pengaturan berhasil disimpan.');};
     form.querySelectorAll('.move-session').forEach(button=>button.onclick=async()=>{const index=data.findIndex(x=>x.test_code===form.dataset.code),target=index+Number(button.dataset.direction);if(target<0||target>=data.length)return;const first=data[index],second=data[target];const updates=await Promise.all([db.from('test_settings').update({sort_order:second.sort_order}).eq('test_code',first.test_code),db.from('test_settings').update({sort_order:first.sort_order}).eq('test_code',second.test_code)]);const failed=updates.find(x=>x.error);if(failed)toast(failed.error.message);else adminSettings();});});
 }
 
@@ -751,6 +753,18 @@ async function router(){
   clearTimer(); const path=(location.hash.slice(1)||'/').split('/').filter(Boolean);
   if(path[0]==='application') return applicationPage();
   if(path[0]==='notice') return preTestNoticePage();
+  if(path[0]==='instructions'&&path[1]==='ishihara'){
+    if(!session.token)return route('/');
+    setHeader(await participantTitle('ishihara'));
+    layout('<h2>Petunjuk Pengisian</h2><p class="typed-copy" data-typewriter>Kenali angka yang terlihat, kemudian telusuri seluruh jalur warna dari mana saja. Gunakan pencahayaan nyaman dan matikan filter warna layar. Hasil bukan diagnosis medis.</p><button id="startIshihara" class="btn btn-primary">Mulai Tes</button>');
+    document.querySelector('#startIshihara').onclick=()=>route('/quiz/ishihara/all');return;
+  }
+  if(path[0]==='quiz'&&path[1]==='ishihara'){
+    if(!session.token)return route('/');
+    const expectedHash=location.hash;
+    const cleanup=await mountIshihara({rpc,token:session.token,layout,isCurrent:()=>location.hash===expectedHash,onComplete:async()=>{const sequence=await getTestSequence();const next=sequence[sequence.indexOf('ishihara')+1];route(next?'/instructions/'+next:'/complete');}});
+    if(location.hash!==expectedHash)cleanup();else disposeTiu6=cleanup;return;
+  }
   if(path[0]==='instructions') return instructionsPage(path[1]||'test1');
   if(path[0]==='quiz'&&path[1]==='tiu5') return tiu5AllPage();
   if(path[0]==='quiz'&&path[1]==='wpt') return wptQuizPage(Number(path[2]||0));
