@@ -1,4 +1,4 @@
-import {mountIshihara} from './ishihara.js?v=20261001';
+import {mountIshihara} from './ishihara.js?v=20261008';
 import { mountResults, renderResult, printResultReport } from './results.js?v=20261001-ishihara';
 import { renderTiuSvgQuestion } from './tiu5-svg-temp.js';
 import { mountTiu6, questionMarkup, answersCsv } from './tiu6.js';
@@ -762,8 +762,11 @@ async function router(){
   if(path[0]==='quiz'&&path[1]==='ishihara'){
     if(!session.token)return route('/');
     const expectedHash=location.hash;
-    const cleanup=await mountIshihara({rpc,token:session.token,layout,isCurrent:()=>location.hash===expectedHash,onComplete:async()=>{const sequence=await getTestSequence();const next=sequence[sequence.indexOf('ishihara')+1];route(next?'/instructions/'+next:'/complete');}});
-    if(location.hash!==expectedHash)cleanup();else disposeTiu6=cleanup;return;
+    setHeader(`${session.name} · Skrining Penglihatan Warna`);
+    try{
+      const cleanup=await mountIshihara({rpc,token:session.token,layout,isCurrent:()=>location.hash===expectedHash,onComplete:async()=>{const sequence=await getTestSequence();const index=sequence.indexOf('ishihara');const next=index>=0?sequence[index+1]:null;route(next?'/instructions/'+next:'/complete');}});
+      if(location.hash!==expectedHash)cleanup();else disposeTiu6=cleanup;
+    }catch(error){if(location.hash===expectedHash)layout(`<h2>Tes penglihatan warna belum dapat dibuka</h2><p>${escapeHtml(error.message)}</p><p>Hubungi HR untuk memastikan sesi tes sudah tersedia dan aktif.</p><a class="btn btn-secondary" href="#/instructions/ishihara">Kembali ke petunjuk</a>`);}return;
   }
   if(path[0]==='instructions') return instructionsPage(path[1]||'test1');
   if(path[0]==='quiz'&&path[1]==='tiu5') return tiu5AllPage();

@@ -1,10 +1,11 @@
+import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 import {mountIshihara,renderIshiharaResult} from './ishihara.js';
 const sent=[];
 const frame={contentWindow:{postMessage:m=>sent.push(m)},style:{}};
 let listener,completed=0,calls=0;
 globalThis.location={origin:'https://example.test'};
-globalThis.document={querySelector:s=>s==='#ishiharaFrame'?frame:{textContent:''}};
+globalThis.document={querySelector:s=>s==='#ishiharaFrame'?frame:{textContent:'',remove(){}}};
 globalThis.window={addEventListener:(_,fn)=>{listener=fn;},removeEventListener:(_,fn)=>{if(listener===fn)listener=null;}};
 const state={status:'in_progress',revision:0,server_now:new Date().toISOString(),answers:Array(34).fill(null)};
 const dispose=await mountIshihara({token:'test',layout:()=>{},onComplete:()=>completed++,rpc:async(name,p)=>{
@@ -26,3 +27,14 @@ dispose();assert.equal(listener,null);
 const html=renderIshiharaResult({status:'completed'},[{question_number:1,answer:{choice:'<script>'}}]);
 assert(!html.includes('<script>'));assert(html.includes('&lt;script&gt;'));assert(html.includes('0/22'));
 console.log('PASS: trusted frame messages, revision, finish-once, cleanup, escaped report');
+
+const headers=readFileSync(new URL('./_headers',import.meta.url),'utf8');
+assert(headers.includes('X-Frame-Options: SAMEORIGIN'));
+assert(headers.includes("frame-src 'self'; frame-ancestors 'self'"));
+assert(!headers.includes("'unsafe-inline' https://cdn.jsdelivr.net"));
+const frameHtml=readFileSync(new URL('./ishihara-frame.html',import.meta.url),'utf8');
+assert(!/<script\s*>/.test(frameHtml));
+assert(frameHtml.includes('src="ishihara-frame.js?v=20261008"'));
+assert(readFileSync(new URL('./ishihara-frame.js',import.meta.url),'utf8').includes("type:'ishihara-ready'"));
+assert.equal(frame.src,'ishihara-frame.html?v=20261008');
+console.log('PASS: same-origin framing, external script, versioned frame navigation');

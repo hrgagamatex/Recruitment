@@ -13,3 +13,14 @@ Sesi angka (22 pelat) dilanjutkan jalur (12 pelat). Tampilan pelat mempertahanka
 Pelat dan penilaian jalur adalah demonstrasi digital yang belum divalidasi klinis. Laporan menampilkan jumlah angka sesuai dan cakupan/ketepatan jalur, bukan tipe defisiensi warna atau keputusan layak/tidak layak kerja. Hasil dipengaruhi layar, filter warna, pencahayaan, dan kemampuan motorik. Gunakan pemeriksaan profesional untuk keputusan kesehatan.
 
 SQL tidak dapat dijalankan melalui koneksi GitHub; pemasangan Supabase dilakukan terpisah. Sintaks JavaScript telah diperiksa, tetapi pengujian end-to-end database memerlukan migrasi tersebut.
+
+## Koreksi tampilan 8 Oktober 2026
+
+- Header situs mengizinkan iframe hanya dari origin yang sama (`SAMEORIGIN`, `frame-src self`, `frame-ancestors self`). Situs lain tetap tidak dapat menyematkan portal.
+- Skrip pelat dipindah ke `ishihara-frame.js`; CSP tetap melarang skrip inline.
+- Listener pesan dipasang sebelum iframe dinavigasikan, termasuk saat cache browser digunakan.
+- Panel luar mengikuti recruitment, disertai status pemuatan, batas tunggu pemuatan pelat, dan pesan kegagalan sesi.
+- Deploy seluruh file pada root repository ke Cloudflare Pages; versi baru ada di index, modul, dan iframe.
+- Jika muncul pesan fungsi `ishihara_session` belum tersedia, pasang migrasi di bagian Aktivasi. Jika sesi nonaktif, aktifkan lewat Pengaturan Tes. Perubahan frontend tidak memasang SQL atau mengaktifkan sesi secara otomatis.
+
+Pemeriksaan regresi lokal: `node ishihara.test.mjs`.

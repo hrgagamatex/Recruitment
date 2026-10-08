@@ -1,8 +1,9 @@
 export async function mountIshihara({rpc,token,layout,onComplete,isCurrent=()=>true}){
+  layout('<p role="status">Memuat sesi tes penglihatan warna…</p>');
   let state=await rpc('ishihara_session',{p_session_token:token,p_start:true});
   if(!isCurrent())return ()=>{};
   if(state.status==='completed'){await onComplete();return ()=>{};}
-  layout('<p id="ishiharaTimer" role="timer"></p><iframe id="ishiharaFrame" title="Tes penglihatan warna" src="ishihara-frame.html?v=20261001" style="width:100%;height:1000px;border:0;background:#fff"></iframe>');
+  layout('<p id="ishiharaLoading" role="status">Memuat pelat tes…</p><p id="ishiharaTimer" role="timer"></p><iframe id="ishiharaFrame" title="Tes penglihatan warna" style="width:100%;height:1000px;border:0;background:transparent"></iframe>');
   const frame=document.querySelector('#ishiharaFrame');
   let busy=false,disposed=false,advancing=false;
   const complete=async()=>{if(advancing||disposed||!isCurrent())return;advancing=true;try{await onComplete();}catch(error){advancing=false;throw error;}};
@@ -21,10 +22,18 @@ export async function mountIshihara({rpc,token,layout,onComplete,isCurrent=()=>t
       finally{busy=false;}
     }
   },1000);
+  const loadingTimeout=setTimeout(()=>{
+    const label=document.querySelector('#ishiharaLoading');
+    if(label)label.textContent='Pelat tes belum dapat dimuat. Muat ulang halaman atau hubungi HR.';
+  },15000);
   const listener=async event=>{
     if(event.origin!==location.origin||event.source!==frame.contentWindow||!isCurrent())return;
     const m=event.data;
-    if(m?.type==='ishihara-ready')frame.contentWindow.postMessage({type:'ishihara-init',answers:state.answers||Array(34).fill(null)},location.origin);
+    if(m?.type==='ishihara-ready'){
+      clearTimeout(loadingTimeout);
+      const label=document.querySelector('#ishiharaLoading');if(label)label.remove();
+      frame.contentWindow.postMessage({type:'ishihara-init',answers:state.answers||Array(34).fill(null)},location.origin);
+    }
     if(m?.type==='ishihara-height')frame.style.height=Math.min(5000,Math.max(600,Number(m.height)||1000))+'px';
     if(m?.type==='ishihara-complete'&&state.status==='completed')await complete();
     if(m?.type==='ishihara-save'){
@@ -36,7 +45,9 @@ export async function mountIshihara({rpc,token,layout,onComplete,isCurrent=()=>t
     }
   };
   window.addEventListener('message',listener);
-  return ()=>{disposed=true;clearInterval(timer);window.removeEventListener('message',listener);};
+  // Attach the listener before navigation so a cached frame cannot race readiness.
+  frame.src='ishihara-frame.html?v=20261008';
+  return ()=>{disposed=true;clearTimeout(loadingTimeout);clearInterval(timer);window.removeEventListener('message',listener);};
 }
 
 export function renderIshiharaResult(attempt,rows){
