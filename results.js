@@ -1,11 +1,15 @@
 import {renderIshiharaResult} from './ishihara.js?v=20261001';
-import {names,escapeHtml as e,scorePapi,scoreDisc,scoreTiu,scoreWpt,mapPersonality} from './scoring.js?v=20260923-compact-print';
+import {names,escapeHtml as e,scorePapi,scoreDisc,scoreTiu,scoreWpt,mapPersonality} from './scoring.js?v=20261008-personality';
 import {papiChart,discChart,papiOrder,papiLabels} from './results-charts.js';
 import {discProfileDetail} from './disc-job-match.js?v=20260923-job-match';
 import {scoreMbti} from './mbti.js';
 const table=(heads,rows,className='')=>`<div class="table-wrap ${className}"><table><thead><tr>${heads.map(v=>`<th>${e(v)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(v=>`<td>${e(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 names.ishihara='Skrining Penglihatan Warna';
 export function renderResult(code,attempt,rows,config){
+ try{return renderResultContent(code,attempt,rows,config);}
+ catch(error){return `<h3>${e(names[code]||code)}</h3><p class="notice">Hasil sesi ini belum dapat dihitung: ${e(error.message)}. Hasil sesi lain tetap tersedia.</p>${table(['Nomor','Jawaban tersimpan'],(rows||[]).map(r=>[r.question_number,JSON.stringify(r.answer??null)]))}`;}
+}
+function renderResultContent(code,attempt,rows,config){
  if(code==='ishihara')return renderIshiharaResult(attempt,rows);
  if(!attempt)return '<p class="notice">Peserta belum memulai tes ini.</p>';
  const total={test1:90,test2:24,tiu5:30,tiu6:40,mbti:70,wpt:50,ishihara:34}[code];
