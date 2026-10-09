@@ -1,0 +1,41 @@
+/* Keep the plates inside the embedded window at every screen size. */
+html{min-width:0}
+body{margin:0}
+.app-shell{padding:8px 0 16px}
+.cbtImageAndButtons{grid-template-columns:minmax(0,1.25fr) minmax(240px,.8fr)!important;gap:24px}
+.cbtNumberImage{width:100%;max-width:480px;margin:0 auto;min-width:0}
+.cbtImageAndButtons>*{min-width:0}
+.cbtButtons{margin-top:0;gap:10px}
+.cbt-answer-button{min-height:52px;font-size:26px;border-radius:10px;box-shadow:0 4px 0 var(--button-edge)}
+.cbt-answer-button:not(.cbt-answer-button-number){font-size:14px;min-height:48px;line-height:1.35;margin-top:8px!important}
+.answer-status{grid-column:1/-1;text-align:center;margin:10px 0 0}
+.line-layout{grid-template-columns:minmax(0,1.15fr) minmax(240px,.85fr);gap:24px}
+.line-plate-wrap{width:100%;max-width:480px;margin:0 auto}
+.line-panel{min-width:0;padding:20px;box-shadow:none}
+.line-head h1{font-size:26px}
+.line-panel h2{font-size:21px}
+.line-head{gap:12px}
+@media(max-width:760px){
+ .cbtImageAndButtons,.line-layout{grid-template-columns:minmax(0,1fr)!important;gap:16px}
+ .app-shell{padding:4px 0 12px}
+ .cbtNumberImage,.line-plate-wrap{width:100%;max-width:390px;margin:0 auto}
+ .cbtButtons{max-width:430px;margin:0 auto;gap:8px}
+ .cbt-answer-button{min-height:46px;font-size:24px;padding:7px 4px}
+ .cbt-answer-button:not(.cbt-answer-button-number){font-size:12px;min-height:46px}
+ .line-head{align-items:flex-start;flex-wrap:wrap;margin-top:4px}
+ .line-head h1{font-size:22px}
+ .line-head p{font-size:12px}
+ .line-panel{width:100%;max-width:430px;margin:0 auto;padding:16px;border-radius:14px}
+ .line-status{margin:12px 0;padding:10px}
+ .line-actions .cbt-answer-button{min-height:48px;font-size:13px}
+ .line-action-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .combined-result{padding:18px 0}
+ .result-actions{flex-wrap:wrap}
+ .result-actions button{min-width:0;width:100%;font-size:15px}
+}
+@media(max-width:380px){
+ .cbtButtons{gap:6px}
+ .cbt-answer-button{font-size:21px}
+ .cbt-answer-button:not(.cbt-answer-button-number){font-size:11px}
+ .cbt-step{width:5px;height:5px}
+}

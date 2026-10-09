@@ -1,1 +1,33 @@
-body{background:#eef3f8}.shell{max-width:1050px}.topbar{padding:16px 0}.window-bar{background:#153d72;color:#fff}.window-bar small{color:#fff}.window-body{padding:20px}.ishihara-entry{max-width:440px;margin:24px auto;padding:12px}.ishihara-entry h1{font-size:30px;line-height:1.2;margin:10px 0 28px}.ishihara-entry .field{margin-bottom:18px}.ishihara-entry input{width:100%}.ishihara-entry .btn{width:100%}#entryError{color:#b42318}#entryError:empty{display:none}#ishiharaTimer[hidden]{display:none}footer{text-align:center}@media(max-width:600px){.header-status{display:none}.window-body{padding:12px}.ishihara-entry{margin:12px auto}.ishihara-entry h1{font-size:25px}}
+body{background:#eef3f8;margin:0;font-family:Arial,sans-serif}
+.shell{width:100%;max-width:1080px;margin:0 auto;min-height:100svh}
+.shell .topbar{height:auto;min-height:72px;padding:12px 20px;gap:12px;border-radius:0 0 16px 16px}
+.brand{min-width:0;gap:10px}.brand strong{font-size:17px}.brand small{font-size:11px}.brand-logo{flex-shrink:0}
+#app{width:calc(100% - 32px);max-width:980px;margin:20px auto;flex:1}
+#app .participant-window{padding:0;border:1px solid #d5e0ec;border-radius:18px;overflow:hidden;box-shadow:0 12px 35px rgba(21,61,114,.08)}
+.window-bar{background:#153d72;color:#fff;min-height:42px;padding:10px 18px;gap:12px}
+.window-bar small{color:#fff}
+.window-body{padding:20px 24px}
+.ishihara-entry{width:100%;max-width:420px;margin:22px auto;padding:0}
+.ishihara-entry h1{font-size:30px;line-height:1.2;margin:10px 0 26px}
+.ishihara-entry .field{margin-bottom:18px}
+.ishihara-entry input{width:100%;min-height:48px;font-size:16px}
+.ishihara-entry .btn{width:100%;min-height:48px}
+#entryError{color:#b42318}#entryError:empty{display:none}
+#ishiharaTimer[hidden]{display:none}
+#ishiharaTimer{margin:0 0 10px;text-align:right;font-size:13px}
+#ishiharaLoading{font-size:13px}
+#ishiharaFrame{display:block;width:100%;max-width:100%;border:0}
+footer{text-align:center;padding:14px;font-size:11px}
+@media(max-width:760px){
+ .shell .topbar{min-height:64px;padding:10px 14px;border-radius:0}
+ .header-status{display:none}
+ #app{width:calc(100% - 20px);margin:12px auto}
+ #app .participant-window{border-radius:14px}
+ .window-bar{padding:10px 12px;font-size:10px;grid-template-columns:1fr;min-height:36px}
+ .window-bar small{display:none}
+ .window-body{padding:12px}
+ .ishihara-entry{margin:16px auto;padding:4px}
+ .ishihara-entry h1{font-size:25px;margin-bottom:22px}
+ .brand strong{font-size:16px}
+ .brand-logo{width:36px;height:36px}
+}
