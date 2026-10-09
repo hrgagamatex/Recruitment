@@ -23,3 +23,7 @@ Uji peserta percobaan: mulai dari recruitment, jawab angka dan jalur, refresh ta
 Pencocokan opsi sebelumnya membandingkan tag HTML dan ejaan secara literal. Penekanan em/strong/b/i diabaikan; varian ejaan/kalimat yang ditemukan dalam snapshot tersimpan dipetakan melalui daftar eksplisit. Urutan opsi tetap dipetakan berdasarkan teks, bukan menebak dari nomor soal. Opsi baru dengan makna berbeda tetap diblokir untuk menghindari skor yang keliru. Rumus skor dan jawaban database tidak diubah.
 
 Pemeriksaan: `node personality.test.mjs`, `node ishihara.test.mjs`, `node build-ishihara-site.mjs`.
+
+## Akses langsung khusus Ishihara
+
+Situs Ishihara dapat dibuka langsung. Peserta mengisi nama lengkap dan NIK 16 digit, lalu langsung memulai pelat tanpa formulir recruitment atau halaman petunjuk awal. Sesi identitas menggunakan RPC yang sudah ada, kemudian ditukar menjadi akses terbatas Ishihara. Setelah selesai peserta melihat ucapan terima kasih pada situs tes. Peserta yang masuk melalui recruitment tetap kembali ke urutan tes recruitment setelah selesai. Jawaban dari kedua alur tetap muncul di admin yang sama. Saat tidak ada deadline, label timer disembunyikan.
