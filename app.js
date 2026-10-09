@@ -1,5 +1,5 @@
-import {mountIshihara} from './ishihara.js?v=20261008';
-import { mountResults, renderResult, printResultReport } from './results.js?v=20261001-ishihara';
+import {mountIshihara} from './ishihara.js?v=20261009-direct';
+import { mountResults, renderResult, printResultReport } from './results.js?v=20261009-compact-disc';
 import { renderTiuSvgQuestion } from './tiu5-svg-temp.js';
 import { mountTiu6, questionMarkup, answersCsv } from './tiu6.js';
 import { MBTI_QUESTIONS, scoreMbti } from './mbti.js';
@@ -764,6 +764,21 @@ async function router(){
     const expectedHash=location.hash;
     setHeader(`${session.name} · Skrining Penglihatan Warna`);
     try{
+      if(window.APP_CONFIG.ishiharaUrl){
+        layout('<p role="status">Menghubungkan ke halaman tes penglihatan warna…</p>');
+        const state=await rpc('ishihara_session',{p_session_token:session.token,p_start:false});
+        if(location.hash!==expectedHash)return;
+        if(state.status==='completed'){
+          const sequence=await getTestSequence(),index=sequence.indexOf('ishihara'),next=index>=0?sequence[index+1]:null;
+          return route(next?'/instructions/'+next:'/complete');
+        }
+        const target=new URL(window.APP_CONFIG.ishiharaUrl);
+        if(target.protocol!=='https:')throw new Error('Alamat tes Ishihara harus menggunakan HTTPS.');
+        const code=await rpc('create_ishihara_handoff',{p_session_token:session.token});
+        if(location.hash!==expectedHash)return;
+        target.hash=new URLSearchParams({code}).toString();
+        location.replace(target.href);return;
+      }
       const cleanup=await mountIshihara({rpc,token:session.token,layout,isCurrent:()=>location.hash===expectedHash,onComplete:async()=>{const sequence=await getTestSequence();const index=sequence.indexOf('ishihara');const next=index>=0?sequence[index+1]:null;route(next?'/instructions/'+next:'/complete');}});
       if(location.hash!==expectedHash)cleanup();else disposeTiu6=cleanup;
     }catch(error){if(location.hash===expectedHash)layout(`<h2>Tes penglihatan warna belum dapat dibuka</h2><p>${escapeHtml(error.message)}</p><p>Hubungi HR untuk memastikan sesi tes sudah tersedia dan aktif.</p><a class="btn btn-secondary" href="#/instructions/ishihara">Kembali ke petunjuk</a>`);}return;

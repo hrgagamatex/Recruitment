@@ -1,4 +1,4 @@
-export async function mountIshihara({rpc,token,layout,onComplete,isCurrent=()=>true}){
+export async function mountIshihara({rpc,token,layout,onComplete,isCurrent=()=>true,finishLabel}){
   layout('<p role="status">Memuat sesi tes penglihatan warna…</p>');
   let state=await rpc('ishihara_session',{p_session_token:token,p_start:true});
   if(!isCurrent())return ()=>{};
@@ -12,7 +12,7 @@ export async function mountIshihara({rpc,token,layout,onComplete,isCurrent=()=>t
   const timer=setInterval(async()=>{
     if(disposed||!isCurrent())return;
     const label=document.querySelector('#ishiharaTimer');
-    if(deadline===null){if(label)label.textContent='Tanpa batas waktu';return;}
+    if(deadline===null){if(label)label.hidden=true;return;}
     const remaining=Math.max(0,Math.ceil((deadline-Date.now()-offset)/1000));
     if(label)label.textContent='Sisa waktu '+Math.floor(remaining/60)+':'+String(remaining%60).padStart(2,'0');
     if(remaining===0&&!busy&&!advancing){
@@ -32,7 +32,7 @@ export async function mountIshihara({rpc,token,layout,onComplete,isCurrent=()=>t
     if(m?.type==='ishihara-ready'){
       clearTimeout(loadingTimeout);
       const label=document.querySelector('#ishiharaLoading');if(label)label.remove();
-      frame.contentWindow.postMessage({type:'ishihara-init',answers:state.answers||Array(34).fill(null)},location.origin);
+      frame.contentWindow.postMessage({type:'ishihara-init',finishLabel,answers:state.answers||Array(34).fill(null)},location.origin);
     }
     if(m?.type==='ishihara-height')frame.style.height=Math.min(5000,Math.max(600,Number(m.height)||1000))+'px';
     if(m?.type==='ishihara-complete'&&state.status==='completed')await complete();
@@ -46,7 +46,7 @@ export async function mountIshihara({rpc,token,layout,onComplete,isCurrent=()=>t
   };
   window.addEventListener('message',listener);
   // Attach the listener before navigation so a cached frame cannot race readiness.
-  frame.src='ishihara-frame.html?v=20261008';
+  frame.src='ishihara-frame.html?v=20261009-direct';
   return ()=>{disposed=true;clearTimeout(loadingTimeout);clearInterval(timer);window.removeEventListener('message',listener);};
 }
 

@@ -37,6 +37,7 @@
         const m=event.data;
         if(m?.type==='ishihara-ack'){const p=pending.get(m.id);if(!p)return;pending.delete(m.id);m.error?p.reject(new Error(m.error)):p.resolve();}
         if(m?.type==='ishihara-init'){
+          if(m.finishLabel)done.textContent=m.finishLabel;
           checkpointRows=m.answers;
           for(let i=0;i<22;i++)if(m.answers[i])answers[i]=m.answers[i].choice;
           for(let i=22;i<34;i++)if(m.answers[i])lineResults[i-22]=m.answers[i];

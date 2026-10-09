@@ -69,7 +69,28 @@ export function scoreTiu(values,cfg){
 // Reconcile selected statements against the fixed scoring version, including reordered options.
 export function mapPersonality(code,attempt,rows,config){
  const ref=config.reference[code],values=Array(ref.length).fill(null),issues=[];
- const norm=s=>String(s).trim().replace(/\s+/g,' ').toLowerCase();
+ // Presentation markup and these reviewed spelling corrections do not change option meaning.
+ const aliases={'aktif merubah sesuatu hal-hal':'aktif merubah sesuatu hal','bekerja dengan cepat, tekup':'bekerja dengan cepat, tekun','berpikir logis, sistimatis':'berpikir logis, sistematis'};
+ const papiAliases={
+  'saya selalu mencoba sekuat tenaga':'saya suka mencoba sekuat tenaga',
+  'saya senang mengerjakan beberapa pekerjaan pada waktu yang bersamaan':'saya senang mengerjakan beberapa pekerjaan pada wkatu bersamaan',
+  'saya duka mengerjakan pekerjaan-pekerjaan yang sulit dengan baik':'saya suka mengerjakan pekerjaan-pekerjaan yang sulit dengan baik',
+  'saya suka bekeja sampai sedtil-detilnya':'saya suka bekeja sampai sedetil-detilnya',
+  'saya senang mengatakan kepada orang lain, apa yang harus dilakukannya':'saya senang mengatakan kepada orang lain, apa yang harus dilakukan',
+  'saya sengan kalau orang-orang memperhatikan saya':'saya senang kalau orang-orang memperhatikan saya',
+  'saya suka menyenangkan hati orang yang memimpin syaa':'saya suka menyenangkan hati orang yang memimpin saya',
+  'saya adalah seorang pemimpin yang baik':'saya seorang pemimpin yang baik',
+  'saya suka ekerja keras':'saya bekerja keras',
+  'saya suka orang -orang mengenal saya dengan benar':'saya suka orang-orang mengenal saya benar-benar',
+  'saya seorang yang tertib. saya meletakan segala sesuatu pada tempatnya':'saya seorang yang tertib, saya meletakan segala sesuatu pada tempatnya',
+  'saya menyukai petunjuk yang terinci untuk melakukan sesuatu pekerjaan':'saya suka petunjuk yang terinci untuk melakukan sesuatu pekerjaan',
+  'saya memimpin kelompok':'saya suka memimpin kelompok',
+  'hal-hal yang kecil (detail) menarik hati saya':'hal-hal yang kecil atau detail sangat menarik hati saya',
+  'saya suka menyelaraskan diri dengan kelompok':'saya suka menyesuaikan diri dengan kelompok',
+  'saya mudah merasa jemu (bosan)':'saya mudah merasa jemu atau bosan',
+  'saya menempatkan segala sesuatunya secara rapi dan teratur':'saya menempatkan segala sesuatunya secara rapih dan teratur'
+ };
+ const norm=s=>{const text=String(s).replace(/<\/?(?:em|strong|b|i)(?:\s[^>]*)?>/gi,'').trim().replace(/\s+/g,' ').toLowerCase();return (code==='test2'?aliases:papiAliases)[text]||text;};
  for(const row of rows){
    if(!row.answer)continue;
    const q=attempt.question_snapshot?.find(q=>q.number===row.question_number);
