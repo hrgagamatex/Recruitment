@@ -1,4 +1,3 @@
-import {mountIshihara} from './ishihara.js?v=20261009-direct';
 import { mountResults, renderResult, printResultReport } from './results.js?v=20261009-compact-disc';
 import { renderTiuSvgQuestion } from './tiu5-svg-temp.js';
 import { mountTiu6, questionMarkup, answersCsv } from './tiu6.js';
@@ -223,7 +222,7 @@ function tiu6InstructionExampleHtml(){
 }
 
 async function getTestSequence(){
-  try{return await rpc('get_active_test_sequence')||['test1','test2','tiu5','tiu6','mbti','wpt'];}
+  try{return (await rpc('get_active_test_sequence')||['test1','test2','tiu5','tiu6','mbti','wpt']).filter(code=>code!=='ishihara');}
   catch{return ['test1','test2','tiu5','tiu6','mbti','wpt'];}
 }
 
@@ -737,7 +736,7 @@ async function adminTiu6Results(){
 }
 
 async function adminSettings(){
-  const {data,error}=await db.from('test_settings').select('*').order('sort_order');
+  const {data,error}=await db.from('test_settings').select('*').neq('test_code','ishihara').order('sort_order');
   if(error)return adminShell('settings',`<h2>Pengaturan belum aktif</h2><p class="muted">Jalankan update-02-admin-question-bank.sql.</p>`);
   adminShell('settings',`<div class="section-title"><div><h2>Urutan Sesi Tes</h2><p class="muted">Pindahkan posisi sesi dan atur waktu. Pengacakan hanya tersedia untuk WPT; nomor asli tetap dipakai untuk penilaian.</p></div></div><div class="settings-grid">${data.map((s,i)=>`<form class="setting-card" data-code="${s.test_code}"><div class="setting-order"><strong>${i+1}</strong><div><h3>${escapeHtml(testMeta[s.test_code]?.name||s.display_name)}</h3><small>${escapeHtml(s.test_code)}</small></div></div><label><input name="active" type="checkbox" ${s.active?'checked':''}> Sesi aktif</label><div class="question-actions"><button type="button" class="btn btn-secondary move-session" data-direction="-1" ${i===0?'disabled':''}>↑ Naik</button><button type="button" class="btn btn-secondary move-session" data-direction="1" ${i===data.length-1?'disabled':''}>↓ Turun</button><button class="btn btn-primary">Simpan</button></div></form>`).join('')}</div>`);
   document.querySelectorAll('.setting-card').forEach(form=>{
@@ -753,36 +752,8 @@ async function router(){
   clearTimer(); const path=(location.hash.slice(1)||'/').split('/').filter(Boolean);
   if(path[0]==='application') return applicationPage();
   if(path[0]==='notice') return preTestNoticePage();
-  if(path[0]==='instructions'&&path[1]==='ishihara'){
-    if(!session.token)return route('/');
-    setHeader(await participantTitle('ishihara'));
-    layout('<h2>Petunjuk Pengisian</h2><p class="typed-copy" data-typewriter>Kenali angka yang terlihat, kemudian telusuri seluruh jalur warna dari mana saja. Gunakan pencahayaan nyaman dan matikan filter warna layar. Hasil bukan diagnosis medis.</p><button id="startIshihara" class="btn btn-primary">Mulai Tes</button>');
-    document.querySelector('#startIshihara').onclick=()=>route('/quiz/ishihara/all');return;
-  }
-  if(path[0]==='quiz'&&path[1]==='ishihara'){
-    if(!session.token)return route('/');
-    const expectedHash=location.hash;
-    setHeader(`${session.name} · Skrining Penglihatan Warna`);
-    try{
-      if(window.APP_CONFIG.ishiharaUrl){
-        layout('<p role="status">Menghubungkan ke halaman tes penglihatan warna…</p>');
-        const state=await rpc('ishihara_session',{p_session_token:session.token,p_start:false});
-        if(location.hash!==expectedHash)return;
-        if(state.status==='completed'){
-          const sequence=await getTestSequence(),index=sequence.indexOf('ishihara'),next=index>=0?sequence[index+1]:null;
-          return route(next?'/instructions/'+next:'/complete');
-        }
-        const target=new URL(window.APP_CONFIG.ishiharaUrl);
-        if(target.protocol!=='https:')throw new Error('Alamat tes Ishihara harus menggunakan HTTPS.');
-        const code=await rpc('create_ishihara_handoff',{p_session_token:session.token});
-        if(location.hash!==expectedHash)return;
-        target.hash=new URLSearchParams({code}).toString();
-        location.replace(target.href);return;
-      }
-      const cleanup=await mountIshihara({rpc,token:session.token,layout,isCurrent:()=>location.hash===expectedHash,onComplete:async()=>{const sequence=await getTestSequence();const index=sequence.indexOf('ishihara');const next=index>=0?sequence[index+1]:null;route(next?'/instructions/'+next:'/complete');}});
-      if(location.hash!==expectedHash)cleanup();else disposeTiu6=cleanup;
-    }catch(error){if(location.hash===expectedHash)layout(`<h2>Tes penglihatan warna belum dapat dibuka</h2><p>${escapeHtml(error.message)}</p><p>Hubungi HR untuk memastikan sesi tes sudah tersedia dan aktif.</p><a class="btn btn-secondary" href="#/instructions/ishihara">Kembali ke petunjuk</a>`);}return;
-  }
+  // Ishihara is a standalone site; old recruitment links resume the recruitment flow.
+  if(['instructions','quiz'].includes(path[0])&&path[1]==='ishihara')return continueCandidateSession();
   if(path[0]==='instructions') return instructionsPage(path[1]||'test1');
   if(path[0]==='quiz'&&path[1]==='tiu5') return tiu5AllPage();
   if(path[0]==='quiz'&&path[1]==='wpt') return wptQuizPage(Number(path[2]||0));
